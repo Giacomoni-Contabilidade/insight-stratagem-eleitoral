@@ -1,0 +1,376 @@
+import React, { useState, useCallback } from 'react';
+import { parseSpreadsheetData, validateParsedData } from '@/lib/dataParser';
+import { useCampaignStore } from '@/store/campaignStore';
+import { Candidacy, ParsedRow, COLUMN_ORDER } from '@/types/campaign';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { 
+  ClipboardPaste, 
+  AlertTriangle, 
+  CheckCircle2, 
+  Upload,
+  X,
+  FileSpreadsheet
+} from 'lucide-react';
+import { toast } from 'sonner';
+
+const BRAZILIAN_STATES = [
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 
+  'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 
+  'SP', 'SE', 'TO'
+];
+
+const POSITIONS = [
+  'Prefeito', 'Vice-Prefeito', 'Vereador',
+  'Governador', 'Vice-Governador', 'Deputado Estadual',
+  'Senador', 'Deputado Federal',
+  'Presidente', 'Vice-Presidente'
+];
+
+interface DatasetFormData {
+  name: string;
+  year: string;
+  state: string;
+  position: string;
+}
+
+export const DataImport: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
+  const [pastedData, setPastedData] = useState('');
+  const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
+  const [formData, setFormData] = useState<DatasetFormData>({
+    name: '',
+    year: new Date().getFullYear().toString(),
+    state: '',
+    position: '',
+  });
+  const [step, setStep] = useState<'paste' | 'validate' | 'configure'>('paste');
+  
+  const addDataset = useCampaignStore((s) => s.addDataset);
+  
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const text = e.clipboardData.getData('text');
+    setPastedData(text);
+    
+    const rows = parseSpreadsheetData(text);
+    setParsedRows(rows);
+    
+    if (rows.length > 0) {
+      setStep('validate');
+    }
+  }, []);
+  
+  const handleTextChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const text = e.target.value;
+    setPastedData(text);
+    
+    if (text.includes('\t')) {
+      const rows = parseSpreadsheetData(text);
+      setParsedRows(rows);
+      if (rows.length > 0) {
+        setStep('validate');
+      }
+    }
+  }, []);
+  
+  const { valid, invalid } = validateParsedData(parsedRows);
+  
+  const handleProceed = () => {
+    if (valid.length === 0) {
+      toast.error('Nenhuma linha válida para importar');
+      return;
+    }
+    setStep('configure');
+  };
+  
+  const handleImport = () => {
+    if (!formData.name || !formData.state || !formData.position) {
+      toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
+    
+    const candidacies: Candidacy[] = valid.map((row) => ({
+      ...row.data,
+      datasetId: '', // Will be set by store
+    })) as Candidacy[];
+    
+    addDataset({
+      name: formData.name,
+      year: parseInt(formData.year),
+      state: formData.state,
+      position: formData.position,
+      candidacies,
+    });
+    
+    toast.success(`${candidacies.length} candidaturas importadas com sucesso!`);
+    
+    // Reset
+    setPastedData('');
+    setParsedRows([]);
+    setStep('paste');
+    setFormData({
+      name: '',
+      year: new Date().getFullYear().toString(),
+      state: '',
+      position: '',
+    });
+    
+    onSuccess?.();
+  };
+  
+  const handleReset = () => {
+    setPastedData('');
+    setParsedRows([]);
+    setStep('paste');
+  };
+  
+  return (
+    <div className="space-y-6 animate-fade-in">
+      {step === 'paste' && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+              <ClipboardPaste className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold">Importar dados da planilha</h2>
+              <p className="text-sm text-muted-foreground">
+                Copie e cole os dados diretamente do Excel ou Google Sheets
+              </p>
+            </div>
+          </div>
+          
+          <div className="paste-area">
+            <textarea
+              placeholder={`Cole aqui os dados da planilha...\n\nOrdem das colunas esperada:\n${COLUMN_ORDER.slice(0, 10).join(', ')}...\n\n(${COLUMN_ORDER.length} colunas no total, incluindo as categorias de despesa)`}
+              value={pastedData}
+              onChange={handleTextChange}
+              onPaste={handlePaste}
+              className="font-mono text-xs leading-relaxed"
+            />
+          </div>
+          
+          <div className="glass-panel rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <FileSpreadsheet className="w-5 h-5 text-primary mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium mb-2">Formato esperado</p>
+                <p className="text-muted-foreground text-xs mb-2">
+                  A planilha deve conter {COLUMN_ORDER.length} colunas na ordem exata especificada, 
+                  incluindo as {COLUMN_ORDER.length - 10} categorias legais de despesa.
+                </p>
+                <details className="cursor-pointer">
+                  <summary className="text-primary hover:underline text-xs">
+                    Ver lista completa de colunas
+                  </summary>
+                  <ul className="mt-2 text-xs text-muted-foreground space-y-1 max-h-48 overflow-y-auto scrollbar-thin">
+                    {COLUMN_ORDER.map((col, i) => (
+                      <li key={col} className="font-mono">
+                        {i + 1}. {col}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {step === 'validate' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Validação dos dados</h2>
+            <Button variant="ghost" size="sm" onClick={handleReset}>
+              <X className="w-4 h-4 mr-2" />
+              Recomeçar
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="stat-card">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 text-success" />
+                </div>
+                <div>
+                  <p className="metric-label">Linhas válidas</p>
+                  <p className="text-2xl font-bold text-success">{valid.length}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="stat-card">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-destructive" />
+                </div>
+                <div>
+                  <p className="metric-label">Linhas com erro</p>
+                  <p className="text-2xl font-bold text-destructive">{invalid.length}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {invalid.length > 0 && (
+            <div className="glass-panel rounded-lg p-4 max-h-48 overflow-y-auto scrollbar-thin">
+              <p className="text-sm font-medium text-destructive mb-3">Erros encontrados:</p>
+              <ul className="space-y-2 text-xs">
+                {invalid.slice(0, 10).map((row) => (
+                  <li key={row.rowNumber} className="flex items-start gap-2">
+                    <span className="chip chip-destructive">Linha {row.rowNumber}</span>
+                    <span className="text-muted-foreground">{row.errors.join('; ')}</span>
+                  </li>
+                ))}
+                {invalid.length > 10 && (
+                  <li className="text-muted-foreground">
+                    ...e mais {invalid.length - 10} erros
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
+          
+          {valid.length > 0 && (
+            <div className="glass-panel rounded-lg p-4">
+              <p className="text-sm font-medium mb-3">Prévia das candidaturas válidas:</p>
+              <div className="overflow-x-auto">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Candidatura</th>
+                      <th>Partido</th>
+                      <th>Votos</th>
+                      <th>Total Gastos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {valid.slice(0, 5).map((row) => (
+                      <tr key={row.rowNumber}>
+                        <td className="font-medium">{row.data.name}</td>
+                        <td>
+                          <span className="chip chip-primary">{row.data.party}</span>
+                        </td>
+                        <td className="font-mono">{row.data.votes?.toLocaleString('pt-BR')}</td>
+                        <td className="font-mono">
+                          {row.data.totalExpenses?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {valid.length > 5 && (
+                  <p className="text-xs text-muted-foreground mt-2 text-center">
+                    ...e mais {valid.length - 5} candidaturas
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={handleReset}>
+              Cancelar
+            </Button>
+            <Button onClick={handleProceed} disabled={valid.length === 0}>
+              <Upload className="w-4 h-4 mr-2" />
+              Continuar ({valid.length} candidaturas)
+            </Button>
+          </div>
+        </div>
+      )}
+      
+      {step === 'configure' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Configurar dataset</h2>
+            <Button variant="ghost" size="sm" onClick={() => setStep('validate')}>
+              Voltar
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <Label htmlFor="name">Nome do dataset</Label>
+              <Input
+                id="name"
+                placeholder="Ex: Eleições Municipais 2024 - São Paulo"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="year">Ano</Label>
+              <Input
+                id="year"
+                type="number"
+                min="2000"
+                max="2030"
+                value={formData.year}
+                onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
+            
+            <div>
+              <Label>Estado (UF)</Label>
+              <Select 
+                value={formData.state} 
+                onValueChange={(v) => setFormData({ ...formData, state: v })}
+              >
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BRAZILIAN_STATES.map((uf) => (
+                    <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="col-span-2">
+              <Label>Cargo</Label>
+              <Select 
+                value={formData.position} 
+                onValueChange={(v) => setFormData({ ...formData, position: v })}
+              >
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Selecione o cargo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {POSITIONS.map((pos) => (
+                    <SelectItem key={pos} value={pos}>{pos}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setStep('validate')}>
+              Voltar
+            </Button>
+            <Button 
+              onClick={handleImport}
+              disabled={!formData.name || !formData.state || !formData.position}
+            >
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              Importar dataset
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
