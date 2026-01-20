@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,14 +7,20 @@ import AppLayout from "@/components/AppLayout";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AppLayout />
-    </TooltipProvider>
-  </QueryClientProvider>
+const App = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  (props, ref) => (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <div ref={ref} {...props}>
+          <Toaster />
+          <Sonner />
+          <AppLayout />
+        </div>
+      </TooltipProvider>
+    </QueryClientProvider>
+  )
 );
+
+App.displayName = "App";
 
 export default App;
