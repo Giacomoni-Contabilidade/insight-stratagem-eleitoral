@@ -9,7 +9,9 @@ import {
   Vote, 
   Target,
   DollarSign,
-  BarChart3
+  BarChart3,
+  HandCoins,
+  Banknote
 } from 'lucide-react';
 import {
   BarChart,
@@ -92,9 +94,11 @@ export const Dashboard: React.FC = () => {
   const totalCandidacies = candidacies.length;
   const totalVotes = candidacies.reduce((sum, c) => sum + c.votes, 0);
   const totalExpenses = candidacies.reduce((sum, c) => sum + c.totalExpenses, 0);
-  const totalRevenue = candidacies.reduce((sum, c) => sum + c.totalRevenue, 0);
+  const totalFinancialExpenses = candidacies.reduce((sum, c) => sum + c.financialExpenses, 0);
+  const totalEstimatedDonations = candidacies.reduce((sum, c) => sum + c.estimatedDonations, 0);
   const avgCostPerVote = totalVotes > 0 ? totalExpenses / totalVotes : 0;
   const medianCostPerVote = calculateMedian(candidacies.filter(c => c.votes > 0).map((c) => c.costPerVote));
+  const financialPct = totalExpenses > 0 ? totalFinancialExpenses / totalExpenses : 0;
   
   // Group by party
   const partyData = candidacies.reduce((acc, c) => {
@@ -123,6 +127,12 @@ export const Dashboard: React.FC = () => {
   }, {} as Record<string, { name: string; value: number; votes: number; expenses: number }>);
   
   const genderChartData = Object.values(genderData);
+  
+  // Expense type breakdown (Financial vs Estimated Donations)
+  const expenseTypeData = [
+    { name: 'Despesas Financeiras', value: totalFinancialExpenses, description: 'Gastos pagos em dinheiro' },
+    { name: 'Doações Estimadas', value: totalEstimatedDonations, description: 'Contribuições não-monetárias' },
+  ];
   
   // Expense breakdown (legal categories or analytical groups)
   const expenseBreakdown = viewMode === 'legal'
@@ -170,9 +180,9 @@ export const Dashboard: React.FC = () => {
       </div>
       
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
-          title="Total de candidaturas"
+          title="Candidaturas"
           value={formatNumber(totalCandidacies)}
           icon={<Users className="w-5 h-5 text-primary" />}
         />
@@ -184,10 +194,17 @@ export const Dashboard: React.FC = () => {
         <StatCard
           title="Total de gastos"
           value={formatCurrency(totalExpenses)}
+          subtitle={`${formatPercentage(financialPct)} em dinheiro`}
           icon={<Wallet className="w-5 h-5 text-primary" />}
         />
         <StatCard
-          title="Custo médio por voto"
+          title="Despesas financeiras"
+          value={formatCurrency(totalFinancialExpenses)}
+          subtitle="Gastos pagos em dinheiro"
+          icon={<Banknote className="w-5 h-5 text-primary" />}
+        />
+        <StatCard
+          title="Custo médio/voto"
           value={formatCurrency(avgCostPerVote)}
           subtitle={`Mediana: ${formatCurrency(medianCostPerVote)}`}
           icon={<Target className="w-5 h-5 text-primary" />}
@@ -195,9 +212,9 @@ export const Dashboard: React.FC = () => {
       </div>
       
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Expenses by Party */}
-        <div className="glass-panel rounded-xl p-6">
+        <div className="glass-panel rounded-xl p-6 lg:col-span-2">
           <h3 className="text-sm font-semibold mb-4">Gastos por partido (Top 10)</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={partyChartData} layout="vertical">
@@ -228,24 +245,22 @@ export const Dashboard: React.FC = () => {
           </ResponsiveContainer>
         </div>
         
-        {/* Gender Distribution */}
+        {/* Expense Type Breakdown */}
         <div className="glass-panel rounded-xl p-6">
-          <h3 className="text-sm font-semibold mb-4">Distribuição por gênero</h3>
+          <h3 className="text-sm font-semibold mb-4">Tipo de gasto</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={genderChartData}
+                data={expenseTypeData}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={100}
-                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                labelLine={false}
+                outerRadius={90}
+                label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
               >
-                {genderChartData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                ))}
+                <Cell fill="hsl(173, 80%, 40%)" />
+                <Cell fill="hsl(38, 92%, 50%)" />
               </Pie>
               <Tooltip
                 contentStyle={{
@@ -253,10 +268,15 @@ export const Dashboard: React.FC = () => {
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
                 }}
-                formatter={(value: number, name: string) => [formatNumber(value), name]}
+                formatter={(value: number, name: string) => [formatCurrency(value), name]}
               />
+              <Legend />
             </PieChart>
           </ResponsiveContainer>
+          <div className="mt-4 space-y-2 text-xs text-muted-foreground">
+            <p><span className="font-medium text-foreground">Financeiras:</span> Gastos pagos em dinheiro</p>
+            <p><span className="font-medium text-foreground">Doações estimadas:</span> Serviços/trabalho voluntário</p>
+          </div>
         </div>
       </div>
       
@@ -265,7 +285,7 @@ export const Dashboard: React.FC = () => {
         {/* Expense Breakdown */}
         <div className="glass-panel rounded-xl p-6">
           <h3 className="text-sm font-semibold mb-4">
-            Distribuição de gastos ({viewMode === 'legal' ? 'Categorias Legais' : 'Grupos Analíticos'})
+            Distribuição por categoria ({viewMode === 'legal' ? 'Legais' : 'Grupos Analíticos'})
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={expenseBreakdown} layout="vertical">
@@ -328,6 +348,29 @@ export const Dashboard: React.FC = () => {
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+      
+      {/* Gender Distribution */}
+      <div className="glass-panel rounded-xl p-6">
+        <h3 className="text-sm font-semibold mb-4">Distribuição por gênero</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {genderChartData.map((g, i) => (
+            <div key={g.name} className="flex items-center gap-4 p-4 rounded-lg bg-muted/30">
+              <div 
+                className="w-3 h-12 rounded-full" 
+                style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
+              />
+              <div className="flex-1">
+                <p className="font-medium">{g.name}</p>
+                <p className="text-sm text-muted-foreground">{g.value} candidaturas</p>
+              </div>
+              <div className="text-right">
+                <p className="font-mono text-sm">{formatNumber(g.votes)} votos</p>
+                <p className="font-mono text-xs text-muted-foreground">{formatCurrency(g.expenses)}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

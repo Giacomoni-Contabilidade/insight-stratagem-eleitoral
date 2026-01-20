@@ -66,14 +66,17 @@ export interface Candidacy {
   education: Education;
   occupation: string;
   votes: number;
+  // Financial expenses = paid in money
   financialExpenses: number;
+  // Estimated donations = non-monetary contributions (volunteer work, donated services)
   estimatedDonations: number;
   expenses: Record<LegalExpenseCategory, number>;
   // Computed fields
-  totalExpenses: number;
-  totalRevenue: number;
-  balance: number;
+  totalExpenses: number; // financialExpenses + estimatedDonations
   costPerVote: number;
+  // Percentage breakdown
+  financialExpensesPct: number; // % of total that was paid in money
+  estimatedDonationsPct: number; // % of total from non-monetary donations
 }
 
 // Dataset metadata
@@ -111,10 +114,10 @@ export interface GroupStats {
   count: number;
   totalVotes: number;
   totalExpenses: number;
-  totalRevenue: number;
+  totalFinancialExpenses: number;
+  totalEstimatedDonations: number;
   averageCostPerVote: number;
   medianCostPerVote: number;
-  averageBalance: number;
 }
 
 // Filter state for dashboards

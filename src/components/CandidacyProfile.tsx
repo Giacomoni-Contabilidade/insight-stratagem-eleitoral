@@ -94,8 +94,8 @@ export const CandidacyProfile: React.FC = () => {
     const fields = [
       { field: 'Votos', getValue: (c: Candidacy) => c.votes },
       { field: 'Total de Gastos', getValue: (c: Candidacy) => c.totalExpenses },
-      { field: 'Receita Total', getValue: (c: Candidacy) => c.totalRevenue },
-      { field: 'Saldo', getValue: (c: Candidacy) => c.balance },
+      { field: 'Despesas Financeiras', getValue: (c: Candidacy) => c.financialExpenses },
+      { field: 'Doações Estimadas', getValue: (c: Candidacy) => c.estimatedDonations },
       { field: 'Custo por Voto', getValue: (c: Candidacy) => c.costPerVote },
     ];
     
@@ -279,10 +279,8 @@ export const CandidacyProfile: React.FC = () => {
                     <p className="text-xl font-bold">{formatCurrency(selectedCandidacy.costPerVote)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Saldo</p>
-                    <p className={`text-xl font-bold ${selectedCandidacy.balance >= 0 ? 'text-success' : 'text-destructive'}`}>
-                      {formatCurrency(selectedCandidacy.balance)}
-                    </p>
+                    <p className="text-xs text-muted-foreground">% em dinheiro</p>
+                    <p className="text-xl font-bold">{formatPercentage(selectedCandidacy.financialExpensesPct)}</p>
                   </div>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useCampaignStore } from '@/store/campaignStore';
-import { formatCurrency, formatNumber, calculateMedian } from '@/lib/dataParser';
+import { formatCurrency, formatNumber, formatPercentage, calculateMedian } from '@/lib/dataParser';
 import { 
   Select,
   SelectContent,
@@ -48,10 +48,11 @@ interface GroupStats {
   count: number;
   totalVotes: number;
   totalExpenses: number;
-  totalRevenue: number;
+  totalFinancialExpenses: number;
+  totalEstimatedDonations: number;
   avgCostPerVote: number;
   medianCostPerVote: number;
-  avgBalance: number;
+  financialPct: number;
 }
 
 export const GroupComparison: React.FC = () => {
@@ -88,18 +89,21 @@ export const GroupComparison: React.FC = () => {
   const groupStats: GroupStats[] = Object.entries(groups).map(([name, members]) => {
     const totalVotes = members.reduce((sum, m) => sum + m.votes, 0);
     const totalExpenses = members.reduce((sum, m) => sum + m.totalExpenses, 0);
-    const totalRevenue = members.reduce((sum, m) => sum + m.totalRevenue, 0);
+    const totalFinancialExpenses = members.reduce((sum, m) => sum + m.financialExpenses, 0);
+    const totalEstimatedDonations = members.reduce((sum, m) => sum + m.estimatedDonations, 0);
     const costPerVotes = members.filter(m => m.votes > 0).map((m) => m.costPerVote);
+    const financialPct = totalExpenses > 0 ? totalFinancialExpenses / totalExpenses : 0;
     
     return {
       name,
       count: members.length,
       totalVotes,
       totalExpenses,
-      totalRevenue,
+      totalFinancialExpenses,
+      totalEstimatedDonations,
       avgCostPerVote: totalVotes > 0 ? totalExpenses / totalVotes : 0,
       medianCostPerVote: calculateMedian(costPerVotes),
-      avgBalance: members.reduce((sum, m) => sum + m.balance, 0) / members.length,
+      financialPct,
     };
   }).sort((a, b) => b.count - a.count);
   
@@ -178,10 +182,8 @@ export const GroupComparison: React.FC = () => {
                 <p className="font-mono font-medium">{formatCurrency(group.avgCostPerVote)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Saldo médio</p>
-                <p className={`font-mono font-medium ${group.avgBalance >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  {formatCurrency(group.avgBalance)}
-                </p>
+                <p className="text-xs text-muted-foreground">% em dinheiro</p>
+                <p className="font-mono font-medium">{formatPercentage(group.financialPct)}</p>
               </div>
             </div>
           </div>
@@ -282,10 +284,10 @@ export const GroupComparison: React.FC = () => {
                 <th className="text-right">Candidaturas</th>
                 <th className="text-right">Total Votos</th>
                 <th className="text-right">Total Gastos</th>
-                <th className="text-right">Total Receita</th>
+                <th className="text-right">Desp. Financeiras</th>
+                <th className="text-right">Doações Estim.</th>
                 <th className="text-right">Custo/Voto (média)</th>
                 <th className="text-right">Custo/Voto (mediana)</th>
-                <th className="text-right">Saldo Médio</th>
               </tr>
             </thead>
             <tbody>
@@ -303,12 +305,10 @@ export const GroupComparison: React.FC = () => {
                   <td className="text-right font-mono">{formatNumber(group.count)}</td>
                   <td className="text-right font-mono">{formatNumber(group.totalVotes)}</td>
                   <td className="text-right font-mono">{formatCurrency(group.totalExpenses)}</td>
-                  <td className="text-right font-mono">{formatCurrency(group.totalRevenue)}</td>
+                  <td className="text-right font-mono">{formatCurrency(group.totalFinancialExpenses)}</td>
+                  <td className="text-right font-mono">{formatCurrency(group.totalEstimatedDonations)}</td>
                   <td className="text-right font-mono">{formatCurrency(group.avgCostPerVote)}</td>
                   <td className="text-right font-mono">{formatCurrency(group.medianCostPerVote)}</td>
-                  <td className={`text-right font-mono ${group.avgBalance >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    {formatCurrency(group.avgBalance)}
-                  </td>
                 </tr>
               ))}
             </tbody>
