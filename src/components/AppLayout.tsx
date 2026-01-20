@@ -44,7 +44,8 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'import', label: 'Importar', icon: <Upload className="w-4 h-4" /> },
 ];
 
-const AppLayout: React.FC = () => {
+const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  (props, ref) => {
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
@@ -76,7 +77,7 @@ const AppLayout: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen flex bg-background">
+    <div ref={ref} className="min-h-screen flex bg-background" {...props}>
       {/* Sidebar */}
       <aside 
         className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300 ${
@@ -193,6 +194,8 @@ const AppLayout: React.FC = () => {
       </main>
     </div>
   );
-};
+});
+
+AppLayout.displayName = "AppLayout";
 
 export default AppLayout;

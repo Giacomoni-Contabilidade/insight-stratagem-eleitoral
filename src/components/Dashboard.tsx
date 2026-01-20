@@ -69,7 +69,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, trend
   </div>
 );
 
-export const Dashboard: React.FC = () => {
+export const Dashboard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  (props, ref) => {
   const getFilteredCandidacies = useCampaignStore((s) => s.getFilteredCandidacies);
   const getActiveDataset = useCampaignStore((s) => s.getActiveDataset);
   const viewMode = useCampaignStore((s) => s.viewMode);
@@ -168,7 +169,7 @@ export const Dashboard: React.FC = () => {
     .slice(0, 10);
   
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div ref={ref} className="space-y-6 animate-fade-in" {...props}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -375,4 +376,6 @@ export const Dashboard: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+Dashboard.displayName = "Dashboard";
