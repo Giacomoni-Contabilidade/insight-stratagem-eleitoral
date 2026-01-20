@@ -91,20 +91,23 @@ export const parseSpreadsheetData = (rawText: string): ParsedRow[] => {
     
     // Parse expense categories
     const expenses: Partial<Record<LegalExpenseCategory, number>> = {};
-    let calculatedTotal = 0;
+    let calculatedCategoryTotal = 0;
     
     LEGAL_EXPENSE_CATEGORIES.forEach((category, catIndex) => {
       const columnIndex = 10 + catIndex; // Starts after first 10 columns
       const value = parseNumber(columns[columnIndex] || '0');
       expenses[category] = value;
-      calculatedTotal += value;
+      calculatedCategoryTotal += value;
     });
     
     // Calculate computed fields
-    const totalExpenses = calculatedTotal;
-    const totalRevenue = financialExpenses + estimatedDonations;
-    const balance = totalRevenue - totalExpenses;
+    // Total expenses = financial (cash) + estimated donations (non-monetary)
+    const totalExpenses = financialExpenses + estimatedDonations;
     const costPerVote = votes > 0 ? totalExpenses / votes : 0;
+    
+    // Calculate percentage breakdown
+    const financialExpensesPct = totalExpenses > 0 ? financialExpenses / totalExpenses : 0;
+    const estimatedDonationsPct = totalExpenses > 0 ? estimatedDonations / totalExpenses : 0;
     
     const candidacy: Partial<Candidacy> = {
       id: generateId(),
@@ -119,9 +122,9 @@ export const parseSpreadsheetData = (rawText: string): ParsedRow[] => {
       estimatedDonations,
       expenses: expenses as Record<LegalExpenseCategory, number>,
       totalExpenses,
-      totalRevenue,
-      balance,
       costPerVote,
+      financialExpensesPct,
+      estimatedDonationsPct,
     };
     
     return {
