@@ -42,13 +42,40 @@ const normalizeEducation = (value: string): Education => {
 
 const parseNumber = (value: string): number => {
   if (!value || value.trim() === '') return 0;
-  // Handle Brazilian number format (1.234,56 -> 1234.56)
-  const normalized = value
-    .replace(/\s/g, '')
-    .replace(/\./g, '')
-    .replace(',', '.');
-  const num = parseFloat(normalized);
-  return isNaN(num) ? 0 : num;
+
+  // Accept values like:
+  // - "1.234,56" (pt-BR)
+  // - "1,234.56" (en-US)
+  // - "R$ 1.234,56" (currency formatted)
+  // - "(1.234,56)" (accounting negative)
+  const trimmed = value.trim();
+  const isAccountingNegative = /^\(.*\)$/.test(trimmed);
+
+  // Keep only digits and separators/sign
+  let cleaned = trimmed.replace(/[^0-9,.-]/g, '');
+  if (!cleaned) return 0;
+
+  const lastDot = cleaned.lastIndexOf('.');
+  const lastComma = cleaned.lastIndexOf(',');
+
+  if (lastDot !== -1 && lastComma !== -1) {
+    // Decide decimal separator by last occurrence
+    if (lastComma > lastDot) {
+      // "1.234,56" -> remove thousands dots, comma to dot
+      cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+    } else {
+      // "1,234.56" -> remove thousands commas
+      cleaned = cleaned.replace(/,/g, '');
+    }
+  } else if (lastComma !== -1) {
+    // Only comma present: assume comma is decimal
+    cleaned = cleaned.replace(',', '.');
+  }
+
+  let num = parseFloat(cleaned);
+  if (isNaN(num)) return 0;
+  if (isAccountingNegative) num = -Math.abs(num);
+  return num;
 };
 
 const generateId = () => Math.random().toString(36).substring(2, 15);
