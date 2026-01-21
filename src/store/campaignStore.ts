@@ -50,7 +50,7 @@ const DEFAULT_ANALYTICAL_GROUPS: AnalyticalGroup[] = [
       'Criação e inclusão de páginas na internet',
       'Despesa com Impulsionamento de Conteúdos',
     ],
-    color: '#14b8a6',
+    color: '#215437', // Dark green
   },
   {
     id: 'media',
@@ -61,7 +61,7 @@ const DEFAULT_ANALYTICAL_GROUPS: AnalyticalGroup[] = [
       'Publicidade por carros de som',
       'Produção de jingles, vinhetas e slogans',
     ],
-    color: '#3b82f6',
+    color: '#1b3a4b', // Dark teal
   },
   {
     id: 'street',
@@ -72,7 +72,7 @@ const DEFAULT_ANALYTICAL_GROUPS: AnalyticalGroup[] = [
       'Publicidade por adesivos',
       'Publicidade por materiais impressos',
     ],
-    color: '#f59e0b',
+    color: '#e4a432', // Gold
   },
   {
     id: 'structure',
@@ -86,7 +86,7 @@ const DEFAULT_ANALYTICAL_GROUPS: AnalyticalGroup[] = [
       'Água',
       'Telefone',
     ],
-    color: '#8b5cf6',
+    color: '#7eb26d', // Light green
   },
   {
     id: 'transport',
@@ -96,7 +96,7 @@ const DEFAULT_ANALYTICAL_GROUPS: AnalyticalGroup[] = [
       'Combustíveis e lubrificantes',
       'Despesas com transporte ou deslocamento',
     ],
-    color: '#ec4899',
+    color: '#d57a55', // Coral
   },
 ];
 

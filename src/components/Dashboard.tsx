@@ -28,13 +28,13 @@ import {
 } from 'recharts';
 
 const CHART_COLORS = [
-  'hsl(173, 80%, 40%)',
-  'hsl(199, 89%, 48%)',
-  'hsl(142, 76%, 36%)',
-  'hsl(38, 92%, 50%)',
-  'hsl(0, 72%, 51%)',
-  'hsl(280, 65%, 60%)',
-  'hsl(330, 80%, 60%)',
+  'hsl(149, 43%, 23%)',  // Dark green - #215437
+  'hsl(43, 78%, 55%)',   // Gold - #e4a432
+  'hsl(107, 34%, 56%)',  // Light green - #7eb26d
+  'hsl(17, 60%, 58%)',   // Coral - #d57a55
+  'hsl(6, 62%, 45%)',    // Red - #ba3e2e
+  'hsl(200, 46%, 40%)',  // Teal blue
+  'hsl(149, 43%, 35%)',  // Medium green
 ];
 
 interface StatCardProps {
@@ -260,8 +260,8 @@ export const Dashboard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<H
                 outerRadius={90}
                 label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
               >
-                <Cell fill="hsl(173, 80%, 40%)" />
-                <Cell fill="hsl(38, 92%, 50%)" />
+                <Cell fill="hsl(149, 43%, 23%)" />
+                <Cell fill="hsl(43, 78%, 55%)" />
               </Pie>
               <Tooltip
                 contentStyle={{
