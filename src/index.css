@@ -6,145 +6,155 @@
 
 @layer base {
   :root {
-    /* Dark theme with brand colors */
-    /* Background: #1b3a4b - Dark teal blue */
-    --background: 200 46% 20%;
-    --foreground: 0 0% 100%;
+    /* Light theme with brand colors - cleaner, softer palette */
+    --background: 200 20% 98%;
+    --foreground: 200 35% 20%;
 
-    --card: 200 46% 24%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 200 35% 20%;
 
-    --popover: 200 46% 26%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 35% 20%;
 
-    /* Primary: #215437 - Dark green */
-    --primary: 149 43% 23%;
+    /* Primary: Dark teal (#1b3a4b) */
+    --primary: 200 46% 20%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 200 40% 28%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 200 15% 94%;
+    --secondary-foreground: 200 35% 20%;
 
-    --muted: 200 30% 30%;
-    --muted-foreground: 200 15% 65%;
+    --muted: 200 12% 92%;
+    --muted-foreground: 200 20% 45%;
 
-    /* Accent: #e4a432 - Gold */
+    /* Accent: Gold (#e4a432) */
     --accent: 43 78% 55%;
-    --accent-foreground: 200 46% 15%;
+    --accent-foreground: 200 35% 15%;
 
-    /* Destructive: #ba3e2e - Red */
+    /* Destructive: Red (#ba3e2e) */
     --destructive: 6 62% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success: #7eb26d - Light green */
-    --success: 107 34% 56%;
-    --success-foreground: 200 46% 15%;
+    /* Success: Dark green (#215437) */
+    --success: 149 43% 23%;
+    --success-foreground: 0 0% 100%;
 
-    /* Warning: #e4a432 - Gold */
+    /* Warning: Gold */
     --warning: 43 78% 55%;
-    --warning-foreground: 200 46% 15%;
+    --warning-foreground: 200 35% 15%;
 
-    /* Info: #d57a55 - Coral/Orange */
+    /* Info: Coral (#d57a55) */
     --info: 17 60% 58%;
-    --info-foreground: 200 46% 15%;
+    --info-foreground: 200 35% 15%;
 
-    --border: 200 30% 30%;
-    --input: 200 40% 28%;
-    --ring: 149 43% 23%;
+    --border: 200 18% 88%;
+    --input: 200 18% 88%;
+    --ring: 200 46% 20%;
 
     --radius: 0.625rem;
 
     /* Chart colors - brand palette */
-    --chart-1: 149 43% 23%;
-    --chart-2: 43 78% 55%;
-    --chart-3: 107 34% 56%;
-    --chart-4: 17 60% 58%;
-    --chart-5: 6 62% 45%;
-    --chart-6: 200 46% 40%;
-    --chart-7: 149 43% 35%;
+    --chart-1: 200 46% 20%;
+    --chart-2: 149 43% 23%;
+    --chart-3: 43 78% 55%;
+    --chart-4: 107 34% 56%;
+    --chart-5: 17 60% 58%;
+    --chart-6: 6 62% 45%;
+    --chart-7: 200 35% 40%;
 
     /* Custom tokens */
-    --surface-elevated: 200 46% 28%;
-    --surface-sunken: 200 46% 16%;
+    --surface-elevated: 0 0% 100%;
+    --surface-sunken: 200 15% 96%;
+    --text-primary: 200 35% 20%;
+    --text-secondary: 200 20% 45%;
+    --text-tertiary: 200 15% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(200 46% 20%), hsl(149 43% 23%));
+    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(200 15% 98%));
+    --shadow-glow: 0 0 20px hsl(200 46% 20% / 0.12);
+    --shadow-card: 0 4px 24px hsl(200 35% 20% / 0.06);
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 200 35% 20%;
+    --sidebar-primary: 200 46% 20%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 200 15% 94%;
+    --sidebar-accent-foreground: 200 35% 20%;
+    --sidebar-border: 200 18% 88%;
+    --sidebar-ring: 200 46% 20%;
+  }
+
+  .dark {
+    /* Dark theme with brand colors */
+    --background: 200 46% 12%;
+    --foreground: 0 0% 100%;
+
+    --card: 200 46% 16%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 200 46% 18%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Primary: Gold accent for dark mode */
+    --primary: 43 78% 55%;
+    --primary-foreground: 200 46% 12%;
+
+    --secondary: 200 40% 22%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 200 30% 25%;
+    --muted-foreground: 200 15% 65%;
+
+    /* Accent: Light green */
+    --accent: 107 34% 56%;
+    --accent-foreground: 200 46% 12%;
+
+    /* Destructive: Red */
+    --destructive: 6 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success: Light green */
+    --success: 107 34% 56%;
+    --success-foreground: 200 46% 12%;
+
+    /* Warning: Gold */
+    --warning: 43 78% 55%;
+    --warning-foreground: 200 46% 12%;
+
+    /* Info: Coral */
+    --info: 17 60% 58%;
+    --info-foreground: 200 46% 12%;
+
+    --border: 200 30% 25%;
+    --input: 200 40% 22%;
+    --ring: 43 78% 55%;
+
+    /* Chart colors - bright for dark mode */
+    --chart-1: 43 78% 55%;
+    --chart-2: 107 34% 56%;
+    --chart-3: 17 60% 58%;
+    --chart-4: 149 43% 35%;
+    --chart-5: 6 62% 50%;
+    --chart-6: 200 46% 50%;
+    --chart-7: 0 0% 85%;
+
+    /* Custom tokens */
+    --surface-elevated: 200 46% 20%;
+    --surface-sunken: 200 46% 10%;
     --text-primary: 0 0% 100%;
     --text-secondary: 200 15% 65%;
     --text-tertiary: 200 12% 50%;
-    --gradient-primary: linear-gradient(135deg, hsl(149 43% 23%), hsl(107 34% 56%));
-    --gradient-surface: linear-gradient(180deg, hsl(200 46% 26%), hsl(200 46% 20%));
-    --shadow-glow: 0 0 20px hsl(149 43% 23% / 0.25);
-    --shadow-card: 0 4px 24px hsl(200 46% 10% / 0.5);
+    --gradient-primary: linear-gradient(135deg, hsl(43 78% 55%), hsl(107 34% 56%));
+    --gradient-surface: linear-gradient(180deg, hsl(200 46% 18%), hsl(200 46% 12%));
+    --shadow-glow: 0 0 20px hsl(43 78% 55% / 0.25);
+    --shadow-card: 0 4px 24px hsl(200 46% 5% / 0.5);
 
-    --sidebar-background: 200 46% 16%;
+    --sidebar-background: 200 46% 10%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 149 43% 23%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 200 40% 28%;
+    --sidebar-primary: 43 78% 55%;
+    --sidebar-primary-foreground: 200 46% 12%;
+    --sidebar-accent: 200 40% 22%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 200 30% 30%;
-    --sidebar-ring: 149 43% 23%;
-  }
-
-  .light {
-    --background: 0 0% 98%;
-    --foreground: 200 46% 15%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 200 46% 15%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 200 46% 15%;
-
-    /* Primary: #215437 - Dark green */
-    --primary: 149 43% 23%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 200 20% 94%;
-    --secondary-foreground: 200 46% 15%;
-
-    --muted: 200 15% 92%;
-    --muted-foreground: 200 20% 40%;
-
-    /* Accent: #e4a432 - Gold */
-    --accent: 43 78% 55%;
-    --accent-foreground: 200 46% 15%;
-
-    /* Destructive: #ba3e2e - Red */
-    --destructive: 6 62% 45%;
-    --destructive-foreground: 0 0% 100%;
-
-    /* Success: #7eb26d - Light green */
-    --success: 107 34% 56%;
-    --success-foreground: 200 46% 15%;
-
-    /* Warning: #e4a432 - Gold */
-    --warning: 43 78% 55%;
-    --warning-foreground: 200 46% 15%;
-
-    /* Info: #d57a55 - Coral/Orange */
-    --info: 17 60% 58%;
-    --info-foreground: 200 46% 15%;
-
-    --border: 200 20% 88%;
-    --input: 200 20% 88%;
-    --ring: 149 43% 23%;
-
-    --surface-elevated: 0 0% 100%;
-    --surface-sunken: 200 15% 96%;
-    --text-primary: 200 46% 15%;
-    --text-secondary: 200 20% 40%;
-    --text-tertiary: 200 15% 55%;
-    --gradient-primary: linear-gradient(135deg, hsl(149 43% 23%), hsl(107 34% 56%));
-    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(200 15% 98%));
-    --shadow-glow: 0 0 20px hsl(149 43% 23% / 0.15);
-    --shadow-card: 0 4px 24px hsl(200 46% 15% / 0.08);
-
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 200 46% 15%;
-    --sidebar-primary: 149 43% 23%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 200 15% 94%;
-    --sidebar-accent-foreground: 200 46% 15%;
-    --sidebar-border: 200 20% 88%;
-    --sidebar-ring: 149 43% 23%;
+    --sidebar-border: 200 30% 25%;
+    --sidebar-ring: 43 78% 55%;
   }
 }
 
