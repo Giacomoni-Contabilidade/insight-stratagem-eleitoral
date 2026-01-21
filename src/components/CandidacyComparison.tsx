@@ -236,12 +236,12 @@ export const CandidacyComparison: React.FC = () => {
                   className="pl-9"
                 />
               </div>
-              <Select value={filterParty} onValueChange={setFilterParty}>
+              <Select value={filterParty || 'all'} onValueChange={(v) => setFilterParty(v === 'all' ? '' : v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filtrar por partido" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os partidos</SelectItem>
+                  <SelectItem value="all">Todos os partidos</SelectItem>
                   {parties.map((party) => (
                     <SelectItem key={party} value={party}>
                       {party}
