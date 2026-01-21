@@ -4,6 +4,7 @@ import { DataImport } from '@/components/DataImport';
 import { Dashboard } from '@/components/Dashboard';
 import { GroupComparison } from '@/components/GroupComparison';
 import { CandidacyProfile } from '@/components/CandidacyProfile';
+import { CandidacyComparison } from '@/components/CandidacyComparison';
 import { AnalyticalGroups } from '@/components/AnalyticalGroups';
 import { DatasetManager } from '@/components/DatasetManager';
 import { Button } from '@/components/ui/button';
@@ -24,10 +25,11 @@ import {
   Menu,
   X,
   BarChart3,
-  ChevronDown
+  ChevronDown,
+  GitCompareArrows
 } from 'lucide-react';
 
-type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets';
+type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison';
 
 interface NavItem {
   id: View;
@@ -37,9 +39,10 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-  { id: 'comparison', label: 'Comparação', icon: <Users className="w-4 h-4" /> },
+  { id: 'comparison', label: 'Grupos', icon: <Users className="w-4 h-4" /> },
+  { id: 'candidacy-comparison', label: 'Comparar', icon: <GitCompareArrows className="w-4 h-4" /> },
   { id: 'profile', label: 'Perfil', icon: <User className="w-4 h-4" /> },
-  { id: 'groups', label: 'Grupos', icon: <Layers className="w-4 h-4" /> },
+  { id: 'groups', label: 'Config. Grupos', icon: <Layers className="w-4 h-4" /> },
   { id: 'datasets', label: 'Datasets', icon: <Database className="w-4 h-4" /> },
   { id: 'import', label: 'Importar', icon: <Upload className="w-4 h-4" /> },
 ];
@@ -65,6 +68,8 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
         return <DataImport onSuccess={() => setCurrentView('dashboard')} />;
       case 'comparison':
         return <GroupComparison />;
+      case 'candidacy-comparison':
+        return <CandidacyComparison />;
       case 'profile':
         return <CandidacyProfile />;
       case 'groups':
