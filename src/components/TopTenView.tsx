@@ -208,13 +208,13 @@ const RankingCard: React.FC<{
         {/* Top candidate highlight */}
         {topCandidate && (
           <div className="mt-4 p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Crown className="w-5 h-5 text-yellow-300 shrink-0" />
-              <div className="flex-1 min-w-0 overflow-hidden">
+              <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{topCandidate.name}</p>
                 <p className="text-xs text-white/70 truncate">{topCandidate.party}</p>
               </div>
-              <span className="font-mono font-bold text-xs whitespace-nowrap shrink-0">{formatValue(topCandidate)}</span>
+              <span className="font-mono font-bold text-sm whitespace-nowrap ml-2">{formatValue(topCandidate)}</span>
             </div>
           </div>
         )}
@@ -227,16 +227,16 @@ const RankingCard: React.FC<{
             {sortedCandidates.slice(1).map((candidate, index) => (
               <div 
                 key={candidate.id} 
-                className="flex items-center gap-2 p-2.5 rounded-lg hover:bg-muted/50 transition-colors group"
+                className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors group"
               >
                 <PositionBadge position={index + 2} />
-                <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate group-hover:text-primary transition-colors" title={candidate.name}>
                     {candidate.name}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">{candidate.party}</p>
                 </div>
-                <span className="font-mono text-xs font-semibold text-foreground/80 whitespace-nowrap shrink-0">
+                <span className="font-mono text-sm font-semibold text-foreground/80 whitespace-nowrap ml-2">
                   {formatValue(candidate)}
                 </span>
               </div>
@@ -328,7 +328,7 @@ export const TopTenView: React.FC = () => {
         </TabsList>
 
         <TabsContent value="votes" className="space-y-6 animate-fade-in">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {RANKING_CONFIGS.filter(c => 
               ['most-voted', 'least-voted', 'cheapest-votes', 'expensive-votes'].includes(c.id)
             ).map((config) => (
