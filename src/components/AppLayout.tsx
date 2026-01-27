@@ -7,6 +7,7 @@ import { CandidacyProfile } from '@/components/CandidacyProfile';
 import { CandidacyComparison } from '@/components/CandidacyComparison';
 import { AnalyticalGroups } from '@/components/AnalyticalGroups';
 import { DatasetManager } from '@/components/DatasetManager';
+import { TopTenView } from '@/components/TopTenView';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -26,10 +27,11 @@ import {
   X,
   BarChart3,
   ChevronDown,
-  GitCompareArrows
+  GitCompareArrows,
+  Trophy
 } from 'lucide-react';
 
-type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison';
+type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten';
 
 interface NavItem {
   id: View;
@@ -39,6 +41,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+  { id: 'top-ten', label: '10+', icon: <Trophy className="w-4 h-4" /> },
   { id: 'comparison', label: 'Grupos', icon: <Users className="w-4 h-4" /> },
   { id: 'candidacy-comparison', label: 'Comparar', icon: <GitCompareArrows className="w-4 h-4" /> },
   { id: 'profile', label: 'Perfil', icon: <User className="w-4 h-4" /> },
@@ -70,6 +73,8 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
         return <GroupComparison />;
       case 'candidacy-comparison':
         return <CandidacyComparison />;
+      case 'top-ten':
+        return <TopTenView />;
       case 'profile':
         return <CandidacyProfile />;
       case 'groups':
