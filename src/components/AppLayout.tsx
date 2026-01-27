@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { 
   LayoutDashboard, 
   Upload, 
@@ -26,10 +27,12 @@ import {
   Menu,
   X,
   BarChart3,
-  ChevronDown,
   GitCompareArrows,
-  Trophy
+  Trophy,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten';
 
@@ -37,17 +40,33 @@ interface NavItem {
   id: View;
   label: string;
   icon: React.ReactNode;
+  description?: string;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-  { id: 'top-ten', label: '10+', icon: <Trophy className="w-4 h-4" /> },
-  { id: 'comparison', label: 'Grupos', icon: <Users className="w-4 h-4" /> },
-  { id: 'candidacy-comparison', label: 'Comparar', icon: <GitCompareArrows className="w-4 h-4" /> },
-  { id: 'profile', label: 'Perfil', icon: <User className="w-4 h-4" /> },
-  { id: 'groups', label: 'Config. Grupos', icon: <Layers className="w-4 h-4" /> },
-  { id: 'datasets', label: 'Datasets', icon: <Database className="w-4 h-4" /> },
-  { id: 'import', label: 'Importar', icon: <Upload className="w-4 h-4" /> },
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const NAV_SECTIONS: NavSection[] = [
+  {
+    title: 'Análise',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, description: 'Visão geral' },
+      { id: 'top-ten', label: '10+', icon: <Trophy className="w-5 h-5" />, description: 'Rankings' },
+      { id: 'comparison', label: 'Grupos', icon: <Users className="w-5 h-5" />, description: 'Comparações' },
+      { id: 'candidacy-comparison', label: 'Comparar', icon: <GitCompareArrows className="w-5 h-5" />, description: 'Candidaturas' },
+      { id: 'profile', label: 'Perfil', icon: <User className="w-5 h-5" />, description: 'Individual' },
+    ],
+  },
+  {
+    title: 'Configuração',
+    items: [
+      { id: 'groups', label: 'Config. Grupos', icon: <Layers className="w-5 h-5" />, description: 'Categorias' },
+      { id: 'datasets', label: 'Datasets', icon: <Database className="w-5 h-5" />, description: 'Gerenciar' },
+      { id: 'import', label: 'Importar', icon: <Upload className="w-5 h-5" />, description: 'Novos dados' },
+    ],
+  },
 ];
 
 const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -90,105 +109,183 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
     <div ref={ref} className="min-h-screen flex bg-background" {...props}>
       {/* Sidebar */}
       <aside 
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300 ${
-          sidebarOpen ? 'w-64' : 'w-16'
-        }`}
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex flex-col bg-card border-r border-border shadow-card transition-all duration-300 ease-in-out",
+          sidebarOpen ? 'w-72' : 'w-20'
+        )}
       >
-        {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border">
-          {sidebarOpen && (
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-6 h-6 text-primary" />
-              <span className="font-bold text-lg">CampanhaAnalytics</span>
+        {/* Logo Header */}
+        <div className="h-20 flex items-center justify-between px-5 border-b border-border">
+          <div className={cn(
+            "flex items-center gap-3 transition-all duration-300",
+            !sidebarOpen && "justify-center"
+          )}>
+            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg">
+              <BarChart3 className="w-5 h-5 text-white" />
             </div>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="shrink-0"
-          >
-            {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-          </Button>
+            {sidebarOpen && (
+              <div className="animate-fade-in">
+                <h1 className="font-bold text-lg tracking-tight text-foreground">Campanha</h1>
+                <p className="text-xs text-muted-foreground -mt-0.5">Analytics</p>
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-1">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setCurrentView(item.id)}
-              className={`sidebar-nav-item w-full ${
-                currentView === item.id ? 'active' : ''
-              } ${sidebarOpen ? '' : 'justify-center px-0'}`}
-              title={!sidebarOpen ? item.label : undefined}
-            >
-              {item.icon}
-              {sidebarOpen && <span>{item.label}</span>}
-            </button>
+        <nav className="flex-1 py-6 px-3 space-y-6 overflow-y-auto scrollbar-thin">
+          {NAV_SECTIONS.map((section, idx) => (
+            <div key={section.title}>
+              {sidebarOpen && (
+                <h3 className="px-3 mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+                  {section.title}
+                </h3>
+              )}
+              {!sidebarOpen && idx > 0 && (
+                <Separator className="mb-4" />
+              )}
+              <div className="space-y-1">
+                {section.items.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentView(item.id)}
+                    className={cn(
+                      "w-full flex items-center gap-3 rounded-xl transition-all duration-200 group relative",
+                      sidebarOpen ? "px-4 py-3" : "px-0 py-3 justify-center",
+                      currentView === item.id 
+                        ? "bg-primary text-primary-foreground shadow-md" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                    title={!sidebarOpen ? item.label : undefined}
+                  >
+                    <span className={cn(
+                      "transition-transform duration-200",
+                      currentView !== item.id && "group-hover:scale-110"
+                    )}>
+                      {item.icon}
+                    </span>
+                    {sidebarOpen && (
+                      <div className="flex flex-col items-start animate-fade-in">
+                        <span className="font-medium text-sm">{item.label}</span>
+                        {item.description && (
+                          <span className={cn(
+                            "text-xs",
+                            currentView === item.id 
+                              ? "text-primary-foreground/70" 
+                              : "text-muted-foreground"
+                          )}>
+                            {item.description}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {currentView === item.id && sidebarOpen && (
+                      <div className="absolute right-3 w-1.5 h-6 bg-primary-foreground/30 rounded-full" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
         
+        {/* Collapse Button */}
+        <div className="p-3 border-t border-border">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className={cn(
+              "w-full justify-center gap-2 text-muted-foreground hover:text-foreground",
+              sidebarOpen && "justify-start px-4"
+            )}
+          >
+            {sidebarOpen ? (
+              <>
+                <ChevronLeft className="w-4 h-4" />
+                <span className="text-sm">Recolher</span>
+              </>
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+        
         {/* Footer */}
         {sidebarOpen && (
-          <div className="p-4 border-t border-sidebar-border">
-            <p className="text-xs text-muted-foreground text-center">
-              Análise Estratégica de Campanhas
-            </p>
+          <div className="px-5 pb-5">
+            <div className="rounded-xl bg-muted/50 p-4">
+              <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                Análise Estratégica<br />de Campanhas Eleitorais
+              </p>
+            </div>
           </div>
         )}
       </aside>
       
       {/* Main Content */}
       <main 
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          sidebarOpen ? 'ml-64' : 'ml-16'
-        }`}
+        className={cn(
+          "flex-1 flex flex-col transition-all duration-300 ease-in-out min-h-screen",
+          sidebarOpen ? 'ml-72' : 'ml-20'
+        )}
       >
         {/* Top Bar */}
-        <header className="h-16 flex items-center justify-between px-6 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
-          <div className="flex items-center gap-4">
+        <header className="h-20 flex items-center justify-between px-8 border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
+          <div className="flex items-center gap-6">
             {datasets.length > 0 && (
-              <Select 
-                value={activeDatasetId || ''} 
-                onValueChange={(v) => setActiveDataset(v)}
-              >
-                <SelectTrigger className="w-64">
-                  <Database className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Selecione um dataset" />
-                </SelectTrigger>
-                <SelectContent>
-                  {datasets.map((ds) => (
-                    <SelectItem key={ds.id} value={ds.id}>
-                      {ds.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Database className="w-4 h-4" />
+                  <span className="font-medium">Dataset:</span>
+                </div>
+                <Select 
+                  value={activeDatasetId || ''} 
+                  onValueChange={(v) => setActiveDataset(v)}
+                >
+                  <SelectTrigger className="w-72 h-11 bg-background border-border/50 shadow-sm">
+                    <SelectValue placeholder="Selecione um dataset" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {datasets.map((ds) => (
+                      <SelectItem key={ds.id} value={ds.id}>
+                        <div className="flex flex-col items-start">
+                          <span className="font-medium">{ds.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {ds.candidacies?.length || 0} candidaturas
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             )}
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {/* View Mode Toggle */}
             {activeDataset && (
-              <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+              <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1.5 shadow-inner">
                 <button
                   onClick={() => setViewMode('legal')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                     viewMode === 'legal' 
-                      ? 'bg-background text-foreground shadow-sm' 
+                      ? 'bg-card text-foreground shadow-sm' 
                       : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  )}
                 >
                   Categorias Legais
                 </button>
                 <button
                   onClick={() => setViewMode('analytical')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                     viewMode === 'analytical' 
-                      ? 'bg-background text-foreground shadow-sm' 
+                      ? 'bg-card text-foreground shadow-sm' 
                       : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  )}
                 >
                   Grupos Analíticos
                 </button>
@@ -198,8 +295,10 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
         </header>
         
         {/* Content */}
-        <div className="flex-1 p-6 overflow-auto">
-          {renderContent()}
+        <div className="flex-1 p-8 overflow-auto bg-background">
+          <div className="animate-fade-in">
+            {renderContent()}
+          </div>
         </div>
       </main>
     </div>
