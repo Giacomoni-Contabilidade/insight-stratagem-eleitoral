@@ -1,0 +1,323 @@
+import { StyleSheet, Font } from '@react-pdf/renderer';
+
+// Register fonts
+Font.register({
+  family: 'Inter',
+  fonts: [
+    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff', fontWeight: 400 },
+    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hjp-Ek-_EeA.woff', fontWeight: 500 },
+    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hjp-Ek-_EeA.woff', fontWeight: 600 },
+    { src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hjp-Ek-_EeA.woff', fontWeight: 700 },
+  ],
+});
+
+export const colors = {
+  primary: '#1b3a4b',
+  secondary: '#215437',
+  accent: '#e4a432',
+  success: '#215437',
+  destructive: '#ba3e2e',
+  muted: '#6b7280',
+  background: '#f8fafc',
+  white: '#ffffff',
+  border: '#e2e8f0',
+};
+
+export const styles = StyleSheet.create({
+  page: {
+    fontFamily: 'Inter',
+    fontSize: 10,
+    padding: 40,
+    backgroundColor: colors.white,
+  },
+  coverPage: {
+    fontFamily: 'Inter',
+    padding: 0,
+    backgroundColor: colors.primary,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  coverContent: {
+    textAlign: 'center',
+    color: colors.white,
+  },
+  coverTitle: {
+    fontSize: 32,
+    fontWeight: 700,
+    color: colors.white,
+    marginBottom: 12,
+  },
+  coverSubtitle: {
+    fontSize: 16,
+    color: colors.accent,
+    marginBottom: 40,
+  },
+  coverMeta: {
+    fontSize: 12,
+    color: '#94a3b8',
+    marginTop: 60,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.primary,
+  },
+  headerTitle: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: colors.primary,
+  },
+  headerDate: {
+    fontSize: 9,
+    color: colors.muted,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: colors.primary,
+    marginBottom: 16,
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  subsectionTitle: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: colors.secondary,
+    marginBottom: 10,
+    marginTop: 16,
+  },
+  table: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: colors.primary,
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+  },
+  tableHeaderCell: {
+    color: colors.white,
+    fontSize: 9,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  tableRowAlt: {
+    backgroundColor: colors.background,
+  },
+  tableCell: {
+    fontSize: 9,
+    color: '#1f2937',
+  },
+  tableCellBold: {
+    fontSize: 9,
+    fontWeight: 600,
+    color: '#1f2937',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 20,
+    gap: 12,
+  },
+  statCard: {
+    width: '30%',
+    padding: 12,
+    backgroundColor: colors.background,
+    borderRadius: 6,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.primary,
+  },
+  statLabel: {
+    fontSize: 8,
+    color: colors.muted,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  statValue: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: colors.primary,
+  },
+  statSubvalue: {
+    fontSize: 8,
+    color: colors.muted,
+    marginTop: 2,
+  },
+  rankingContainer: {
+    marginBottom: 20,
+  },
+  rankingTitle: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: colors.primary,
+    marginBottom: 8,
+    backgroundColor: colors.background,
+    padding: 6,
+    borderRadius: 4,
+  },
+  rankingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  rankingPosition: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.muted,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  rankingPositionGold: {
+    backgroundColor: '#fbbf24',
+  },
+  rankingPositionSilver: {
+    backgroundColor: '#9ca3af',
+  },
+  rankingPositionBronze: {
+    backgroundColor: '#d97706',
+  },
+  rankingPositionText: {
+    color: colors.white,
+    fontSize: 9,
+    fontWeight: 600,
+  },
+  rankingName: {
+    flex: 1,
+    fontSize: 9,
+    color: '#1f2937',
+  },
+  rankingParty: {
+    fontSize: 8,
+    color: colors.muted,
+    marginRight: 10,
+  },
+  rankingValue: {
+    fontSize: 9,
+    fontWeight: 600,
+    color: colors.primary,
+  },
+  chartContainer: {
+    marginBottom: 20,
+    padding: 12,
+    backgroundColor: colors.background,
+    borderRadius: 6,
+  },
+  chartTitle: {
+    fontSize: 10,
+    fontWeight: 600,
+    color: colors.primary,
+    marginBottom: 12,
+  },
+  barChartRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  barLabel: {
+    width: 100,
+    fontSize: 8,
+    color: '#374151',
+  },
+  barContainer: {
+    flex: 1,
+    height: 14,
+    backgroundColor: colors.border,
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginRight: 8,
+  },
+  bar: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  barValue: {
+    width: 60,
+    fontSize: 8,
+    color: colors.muted,
+    textAlign: 'right',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 40,
+    right: 40,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 10,
+  },
+  footerText: {
+    fontSize: 8,
+    color: colors.muted,
+  },
+  pageNumber: {
+    fontSize: 8,
+    color: colors.muted,
+  },
+  comparisonTable: {
+    marginBottom: 16,
+  },
+  comparisonRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  comparisonLabel: {
+    width: 120,
+    padding: 8,
+    backgroundColor: colors.background,
+    fontSize: 9,
+    fontWeight: 500,
+    color: '#374151',
+  },
+  comparisonCell: {
+    flex: 1,
+    padding: 8,
+    fontSize: 9,
+    color: '#1f2937',
+    textAlign: 'center',
+  },
+  comparisonCellHighlight: {
+    backgroundColor: '#dcfce7',
+    fontWeight: 600,
+  },
+  twoColumnGrid: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  column: {
+    flex: 1,
+  },
+  noteBox: {
+    padding: 12,
+    backgroundColor: '#fef3c7',
+    borderRadius: 6,
+    marginTop: 16,
+  },
+  noteText: {
+    fontSize: 9,
+    color: '#92400e',
+  },
+});
