@@ -208,13 +208,13 @@ const RankingCard: React.FC<{
         {/* Top candidate highlight */}
         {topCandidate && (
           <div className="mt-4 p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <Crown className="w-5 h-5 text-yellow-300" />
-              <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <Crown className="w-5 h-5 text-yellow-300 shrink-0" />
+              <div className="flex-1 min-w-0 overflow-hidden">
                 <p className="font-medium text-sm truncate">{topCandidate.name}</p>
-                <p className="text-xs text-white/70">{topCandidate.party}</p>
+                <p className="text-xs text-white/70 truncate">{topCandidate.party}</p>
               </div>
-              <span className="font-mono font-bold text-sm">{formatValue(topCandidate)}</span>
+              <span className="font-mono font-bold text-xs whitespace-nowrap shrink-0">{formatValue(topCandidate)}</span>
             </div>
           </div>
         )}
@@ -227,16 +227,16 @@ const RankingCard: React.FC<{
             {sortedCandidates.slice(1).map((candidate, index) => (
               <div 
                 key={candidate.id} 
-                className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors group"
+                className="flex items-center gap-2 p-2.5 rounded-lg hover:bg-muted/50 transition-colors group"
               >
                 <PositionBadge position={index + 2} />
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 overflow-hidden">
                   <p className="font-medium text-sm truncate group-hover:text-primary transition-colors" title={candidate.name}>
                     {candidate.name}
                   </p>
-                  <p className="text-xs text-muted-foreground">{candidate.party}</p>
+                  <p className="text-xs text-muted-foreground truncate">{candidate.party}</p>
                 </div>
-                <span className="font-mono text-sm font-semibold text-foreground/80">
+                <span className="font-mono text-xs font-semibold text-foreground/80 whitespace-nowrap shrink-0">
                   {formatValue(candidate)}
                 </span>
               </div>
