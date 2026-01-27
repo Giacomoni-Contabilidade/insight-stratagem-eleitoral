@@ -21,7 +21,9 @@ import {
   PieChart,
   Search,
   X,
-  FileDown
+  FileDown,
+  Receipt,
+  Medal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Candidacy } from '@/types/campaign';
@@ -48,6 +50,18 @@ const SECTION_CONFIGS: SectionConfig[] = [
     icon: <Trophy className="w-5 h-5" />,
   },
   {
+    id: 'expenseTypes',
+    label: 'Tipos de Despesas',
+    description: 'Análise detalhada por categoria legal de despesa, com gráficos e percentuais',
+    icon: <Receipt className="w-5 h-5" />,
+  },
+  {
+    id: 'expenseChampions',
+    label: 'Campeões por Categoria',
+    description: 'Quem mais gastou em cada tipo de despesa, com comparativos',
+    icon: <Medal className="w-5 h-5" />,
+  },
+  {
     id: 'comparison',
     label: 'Comparativo de Candidaturas',
     description: 'Tabela comparando candidaturas selecionadas lado a lado',
@@ -71,6 +85,8 @@ export const ReportGenerator: React.FC = () => {
     rankings: true,
     comparison: false,
     distributions: true,
+    expenseTypes: true,
+    expenseChampions: true,
   });
   const [clientName, setClientName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');

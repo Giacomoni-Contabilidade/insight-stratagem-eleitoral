@@ -1,7 +1,7 @@
 import React from 'react';
 import { Document, Page, View, Text } from '@react-pdf/renderer';
 import { styles, colors } from './PDFStyles';
-import { Candidacy, Dataset, LEGAL_EXPENSE_CATEGORIES } from '@/types/campaign';
+import { Candidacy, Dataset, LEGAL_EXPENSE_CATEGORIES, LegalExpenseCategory } from '@/types/campaign';
 import { formatCurrency, formatNumber, calculateMedian } from '@/lib/dataParser';
 
 export interface ReportSections {
@@ -9,6 +9,8 @@ export interface ReportSections {
   rankings: boolean;
   comparison: boolean;
   distributions: boolean;
+  expenseTypes: boolean;
+  expenseChampions: boolean;
 }
 
 interface ReportProps {
@@ -413,6 +415,187 @@ const ComparisonSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies
   );
 };
 
+// Expense Types Analysis Section
+const ExpenseTypesSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies }) => {
+  // Calculate total per expense category
+  const categoryTotals = LEGAL_EXPENSE_CATEGORIES.map(category => {
+    const total = candidacies.reduce((sum, c) => sum + (c.expenses[category] || 0), 0);
+    return { category, total };
+  }).filter(c => c.total > 0).sort((a, b) => b.total - a.total);
+
+  const grandTotal = categoryTotals.reduce((sum, c) => sum + c.total, 0);
+  const top10Categories = categoryTotals.slice(0, 10);
+  const top20Categories = categoryTotals.slice(0, 20);
+
+  // Calculate average per category
+  const categoryAverages = top10Categories.map(({ category, total }) => ({
+    category,
+    average: total / candidacies.length,
+    percentage: (total / grandTotal) * 100
+  }));
+
+  return (
+    <View>
+      <Text style={styles.sectionTitle}>Análise de Tipos de Despesas</Text>
+      
+      <View style={styles.statsGrid}>
+        <StatCard 
+          label="Categorias com Gastos" 
+          value={String(categoryTotals.length)} 
+          subvalue={`de ${LEGAL_EXPENSE_CATEGORIES.length} possíveis`}
+        />
+        <StatCard 
+          label="Total Geral" 
+          value={formatCurrency(grandTotal)} 
+        />
+        <StatCard 
+          label="Top 3 Concentram" 
+          value={`${((top10Categories.slice(0, 3).reduce((s, c) => s + c.total, 0) / grandTotal) * 100).toFixed(1)}%`}
+          subvalue="do total de gastos"
+        />
+      </View>
+
+      <View style={styles.twoColumnGrid}>
+        <View style={styles.column}>
+          <BarChart 
+            title="Top 10 Categorias de Despesa" 
+            data={top10Categories.map(({ category, total }) => ({
+              label: category.length > 20 ? category.substring(0, 20) + '...' : category,
+              value: total
+            }))}
+            formatValue={formatCurrency}
+          />
+        </View>
+        <View style={styles.column}>
+          <View style={styles.chartContainer}>
+            <Text style={styles.chartTitle}>Distribuição Percentual (Top 10)</Text>
+            {categoryAverages.map((item, index) => (
+              <View key={item.category} style={styles.barChartRow}>
+                <Text style={[styles.barLabel, { width: 120 }]}>
+                  {item.category.length > 18 ? item.category.substring(0, 18) + '...' : item.category}
+                </Text>
+                <View style={styles.barContainer}>
+                  <View style={[
+                    styles.bar, 
+                    { 
+                      width: `${item.percentage}%`,
+                      backgroundColor: [colors.primary, colors.secondary, colors.accent, '#d57a55', '#8fbc8f', colors.destructive][index % 6]
+                    }
+                  ]} />
+                </View>
+                <Text style={styles.barValue}>{item.percentage.toFixed(1)}%</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>
+
+      {/* Full List Table */}
+      <Text style={styles.subsectionTitle}>Todas as Categorias com Gastos</Text>
+      <View style={styles.table}>
+        <View style={styles.tableHeader}>
+          <Text style={[styles.tableHeaderCell, { width: '50%' }]}>Categoria</Text>
+          <Text style={[styles.tableHeaderCell, { width: '25%', textAlign: 'right' }]}>Total</Text>
+          <Text style={[styles.tableHeaderCell, { width: '25%', textAlign: 'right' }]}>% do Total</Text>
+        </View>
+        {top20Categories.map((item, idx) => (
+          <View key={item.category} style={[styles.tableRow, idx % 2 === 1 && styles.tableRowAlt]}>
+            <Text style={[styles.tableCell, { width: '50%' }]}>{item.category}</Text>
+            <Text style={[styles.tableCell, { width: '25%', textAlign: 'right' }]}>{formatCurrency(item.total)}</Text>
+            <Text style={[styles.tableCell, { width: '25%', textAlign: 'right' }]}>{((item.total / grandTotal) * 100).toFixed(1)}%</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
+
+// Expense Champions Section - Who spent most in each category
+const ExpenseChampionsSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies }) => {
+  // Find champion for each expense category
+  const champions = LEGAL_EXPENSE_CATEGORIES.map(category => {
+    const sorted = [...candidacies].sort((a, b) => (b.expenses[category] || 0) - (a.expenses[category] || 0));
+    const champion = sorted[0];
+    const championValue = champion?.expenses[category] || 0;
+    const totalCategory = candidacies.reduce((sum, c) => sum + (c.expenses[category] || 0), 0);
+    
+    return {
+      category,
+      champion: champion?.name || '-',
+      party: champion?.party || '-',
+      value: championValue,
+      totalCategory,
+      percentOfCategory: totalCategory > 0 ? (championValue / totalCategory) * 100 : 0
+    };
+  }).filter(c => c.value > 0).sort((a, b) => b.value - a.value);
+
+  const top15Champions = champions.slice(0, 15);
+
+  // Find candidates that are champions in multiple categories
+  const championCounts = champions.reduce((acc, c) => {
+    acc[c.champion] = (acc[c.champion] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const multiChampions = Object.entries(championCounts)
+    .filter(([, count]) => count > 1)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  return (
+    <View>
+      <Text style={styles.sectionTitle}>Campeões de Gastos por Categoria</Text>
+      
+      {multiChampions.length > 0 && (
+        <View style={[styles.noteBox, { marginBottom: 16, backgroundColor: '#e0f2fe' }]}>
+          <Text style={[styles.noteText, { color: colors.primary, fontWeight: 600, marginBottom: 4 }]}>
+            Candidaturas com liderança em múltiplas categorias:
+          </Text>
+          {multiChampions.map(([name, count]) => (
+            <Text key={name} style={[styles.noteText, { color: '#0369a1' }]}>
+              • {name}: líder em {count} categorias
+            </Text>
+          ))}
+        </View>
+      )}
+
+      <View style={styles.table}>
+        <View style={styles.tableHeader}>
+          <Text style={[styles.tableHeaderCell, { width: '35%' }]}>Categoria</Text>
+          <Text style={[styles.tableHeaderCell, { width: '25%' }]}>Campeão</Text>
+          <Text style={[styles.tableHeaderCell, { width: '10%' }]}>Partido</Text>
+          <Text style={[styles.tableHeaderCell, { width: '15%', textAlign: 'right' }]}>Valor</Text>
+          <Text style={[styles.tableHeaderCell, { width: '15%', textAlign: 'right' }]}>% Cat.</Text>
+        </View>
+        {top15Champions.map((item, idx) => (
+          <View key={item.category} style={[styles.tableRow, idx % 2 === 1 && styles.tableRowAlt]}>
+            <Text style={[styles.tableCell, { width: '35%' }]}>
+              {item.category.length > 30 ? item.category.substring(0, 30) + '...' : item.category}
+            </Text>
+            <Text style={[styles.tableCellBold, { width: '25%' }]}>
+              {item.champion.length > 20 ? item.champion.substring(0, 20) + '...' : item.champion}
+            </Text>
+            <Text style={[styles.tableCell, { width: '10%' }]}>{item.party}</Text>
+            <Text style={[styles.tableCell, { width: '15%', textAlign: 'right' }]}>{formatCurrency(item.value)}</Text>
+            <Text style={[styles.tableCell, { width: '15%', textAlign: 'right' }]}>{item.percentOfCategory.toFixed(1)}%</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Top 5 Comparison Bar Chart */}
+      <Text style={[styles.subsectionTitle, { marginTop: 20 }]}>Top 5 Maiores Valores por Categoria</Text>
+      <BarChart 
+        title="" 
+        data={top15Champions.slice(0, 5).map(c => ({
+          label: `${c.champion.substring(0, 12)}... (${c.category.substring(0, 15)}...)`,
+          value: c.value
+        }))}
+        formatValue={formatCurrency}
+      />
+    </View>
+  );
+};
+
 // Main Report Document
 export const CampaignReport: React.FC<ReportProps> = ({
   dataset,
@@ -442,6 +625,24 @@ export const CampaignReport: React.FC<ReportProps> = ({
         <Page size="A4" style={styles.page}>
           <PageHeader title="Rankings 10+" datasetName={dataset.name} />
           <RankingsSection candidacies={candidacies} />
+          <PageFooter />
+        </Page>
+      )}
+
+      {/* Expense Types Page */}
+      {sections.expenseTypes && (
+        <Page size="A4" style={styles.page}>
+          <PageHeader title="Tipos de Despesas" datasetName={dataset.name} />
+          <ExpenseTypesSection candidacies={candidacies} />
+          <PageFooter />
+        </Page>
+      )}
+
+      {/* Expense Champions Page */}
+      {sections.expenseChampions && (
+        <Page size="A4" style={styles.page}>
+          <PageHeader title="Campeões por Categoria" datasetName={dataset.name} />
+          <ExpenseChampionsSection candidacies={candidacies} />
           <PageFooter />
         </Page>
       )}
