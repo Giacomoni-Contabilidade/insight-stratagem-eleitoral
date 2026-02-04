@@ -122,12 +122,12 @@ const SummarySection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies })
         <StatCard 
           label="Despesas Financeiras" 
           value={formatCurrency(totalFinancial)} 
-          subvalue={`${((totalFinancial / totalExpenses) * 100).toFixed(1)}% do total`}
+          subvalue={totalExpenses > 0 ? `${((totalFinancial / totalExpenses) * 100).toFixed(1)}% do total` : '0% do total'}
         />
         <StatCard 
           label="Doações Estimadas" 
           value={formatCurrency(totalDonations)} 
-          subvalue={`${((totalDonations / totalExpenses) * 100).toFixed(1)}% do total`}
+          subvalue={totalExpenses > 0 ? `${((totalDonations / totalExpenses) * 100).toFixed(1)}% do total` : '0% do total'}
         />
         <StatCard 
           label="Custo Médio por Voto" 
@@ -273,27 +273,32 @@ const BarChart: React.FC<{
   data: { label: string; value: number; color?: string }[];
   formatValue?: (v: number) => string;
 }> = ({ title, data, formatValue = (v) => formatNumber(v, 0) }) => {
-  const maxValue = Math.max(...data.map(d => d.value));
+  const maxValue = Math.max(...data.map(d => d.value), 1); // Prevent division by zero
   const chartColors = [colors.primary, colors.secondary, colors.accent, '#d57a55', '#8fbc8f', colors.destructive];
+  
+  if (data.length === 0) return null;
   
   return (
     <View style={styles.chartContainer}>
-      <Text style={styles.chartTitle}>{title}</Text>
-      {data.slice(0, 10).map((item, index) => (
-        <View key={item.label} style={styles.barChartRow}>
-          <Text style={styles.barLabel}>{item.label.length > 15 ? item.label.substring(0, 15) + '...' : item.label}</Text>
-          <View style={styles.barContainer}>
-            <View style={[
-              styles.bar, 
-              { 
-                width: `${(item.value / maxValue) * 100}%`,
-                backgroundColor: item.color || chartColors[index % chartColors.length]
-              }
-            ]} />
+      {title && <Text style={styles.chartTitle}>{title}</Text>}
+      {data.slice(0, 10).map((item, index) => {
+        const widthPercent = maxValue > 0 ? Math.min((item.value / maxValue) * 100, 100) : 0;
+        return (
+          <View key={item.label} style={styles.barChartRow}>
+            <Text style={styles.barLabel}>{item.label.length > 15 ? item.label.substring(0, 15) + '...' : item.label}</Text>
+            <View style={styles.barContainer}>
+              <View style={[
+                styles.bar, 
+                { 
+                  width: `${widthPercent}%`,
+                  backgroundColor: item.color || chartColors[index % chartColors.length]
+                }
+              ]} />
+            </View>
+            <Text style={styles.barValue}>{formatValue(item.value)}</Text>
           </View>
-          <Text style={styles.barValue}>{formatValue(item.value)}</Text>
-        </View>
-      ))}
+        );
+      })}
     </View>
   );
 };
@@ -450,7 +455,7 @@ const ExpenseTypesSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidaci
         />
         <StatCard 
           label="Top 3 Concentram" 
-          value={`${((top10Categories.slice(0, 3).reduce((s, c) => s + c.total, 0) / grandTotal) * 100).toFixed(1)}%`}
+          value={grandTotal > 0 ? `${((top10Categories.slice(0, 3).reduce((s, c) => s + c.total, 0) / grandTotal) * 100).toFixed(1)}%` : '0%'}
           subvalue="do total de gastos"
         />
       </View>
@@ -469,23 +474,26 @@ const ExpenseTypesSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidaci
         <View style={styles.column}>
           <View style={styles.chartContainer}>
             <Text style={styles.chartTitle}>Distribuição Percentual (Top 10)</Text>
-            {categoryAverages.map((item, index) => (
-              <View key={item.category} style={styles.barChartRow}>
-                <Text style={[styles.barLabel, { width: 120 }]}>
-                  {item.category.length > 18 ? item.category.substring(0, 18) + '...' : item.category}
-                </Text>
-                <View style={styles.barContainer}>
-                  <View style={[
-                    styles.bar, 
-                    { 
-                      width: `${item.percentage}%`,
-                      backgroundColor: [colors.primary, colors.secondary, colors.accent, '#d57a55', '#8fbc8f', colors.destructive][index % 6]
-                    }
-                  ]} />
+            {categoryAverages.map((item, index) => {
+              const safePercentage = isNaN(item.percentage) ? 0 : Math.min(item.percentage, 100);
+              return (
+                <View key={item.category} style={styles.barChartRow}>
+                  <Text style={[styles.barLabel, { width: 120 }]}>
+                    {item.category.length > 18 ? item.category.substring(0, 18) + '...' : item.category}
+                  </Text>
+                  <View style={styles.barContainer}>
+                    <View style={[
+                      styles.bar, 
+                      { 
+                        width: `${safePercentage}%`,
+                        backgroundColor: [colors.primary, colors.secondary, colors.accent, '#d57a55', '#8fbc8f', colors.destructive][index % 6]
+                      }
+                    ]} />
+                  </View>
+                  <Text style={styles.barValue}>{safePercentage.toFixed(1)}%</Text>
                 </View>
-                <Text style={styles.barValue}>{item.percentage.toFixed(1)}%</Text>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </View>
       </View>
@@ -498,13 +506,16 @@ const ExpenseTypesSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidaci
           <Text style={[styles.tableHeaderCell, { width: '25%', textAlign: 'right' }]}>Total</Text>
           <Text style={[styles.tableHeaderCell, { width: '25%', textAlign: 'right' }]}>% do Total</Text>
         </View>
-        {top20Categories.map((item, idx) => (
-          <View key={item.category} style={[styles.tableRow, idx % 2 === 1 && styles.tableRowAlt]}>
-            <Text style={[styles.tableCell, { width: '50%' }]}>{item.category}</Text>
-            <Text style={[styles.tableCell, { width: '25%', textAlign: 'right' }]}>{formatCurrency(item.total)}</Text>
-            <Text style={[styles.tableCell, { width: '25%', textAlign: 'right' }]}>{((item.total / grandTotal) * 100).toFixed(1)}%</Text>
-          </View>
-        ))}
+        {top20Categories.map((item, idx) => {
+          const percentOfTotal = grandTotal > 0 ? ((item.total / grandTotal) * 100).toFixed(1) : '0.0';
+          return (
+            <View key={item.category} style={[styles.tableRow, idx % 2 === 1 && styles.tableRowAlt]}>
+              <Text style={[styles.tableCell, { width: '50%' }]}>{item.category}</Text>
+              <Text style={[styles.tableCell, { width: '25%', textAlign: 'right' }]}>{formatCurrency(item.total)}</Text>
+              <Text style={[styles.tableCell, { width: '25%', textAlign: 'right' }]}>{percentOfTotal}%</Text>
+            </View>
+          );
+        })}
       </View>
     </View>
   );
