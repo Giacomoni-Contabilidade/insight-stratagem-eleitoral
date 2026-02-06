@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useCampaignStore } from '@/store/campaignStore';
+import { useData } from '@/contexts/DataContext';
 import { Candidacy } from '@/types/campaign';
 import { formatCurrency, formatNumber, formatPercentage } from '@/lib/dataParser';
 import { Button } from '@/components/ui/button';
@@ -56,8 +56,9 @@ export const CandidacyComparison: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterParty, setFilterParty] = useState<string>('');
 
-  const candidacies = useCampaignStore((s) => s.getFilteredCandidacies());
-  const activeDataset = useCampaignStore((s) => s.getActiveDataset());
+  const { getFilteredCandidacies, getActiveDataset } = useData();
+  const candidacies = getFilteredCandidacies();
+  const activeDataset = getActiveDataset();
 
   // Get unique parties
   const parties = useMemo(() => {

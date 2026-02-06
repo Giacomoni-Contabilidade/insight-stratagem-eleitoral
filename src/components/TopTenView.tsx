@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useCampaignStore } from '@/store/campaignStore';
+import { useData } from '@/contexts/DataContext';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
@@ -254,8 +254,7 @@ const RankingCard: React.FC<{
 };
 
 export const TopTenView: React.FC = () => {
-  const activeDatasetId = useCampaignStore((s) => s.activeDatasetId);
-  const datasets = useCampaignStore((s) => s.datasets);
+  const { activeDatasetId, datasets } = useData();
   const activeDataset = datasets.find((d) => d.id === activeDatasetId);
   
   const [selectedCategory, setSelectedCategory] = useState<LegalExpenseCategory | ''>('');

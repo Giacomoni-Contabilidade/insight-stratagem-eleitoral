@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCampaignStore } from '@/store/campaignStore';
+import { useData } from '@/contexts/DataContext';
 import { DataImport } from '@/components/DataImport';
 import { Dashboard } from '@/components/Dashboard';
 import { GroupComparison } from '@/components/GroupComparison';
@@ -25,14 +25,14 @@ import {
   User, 
   Layers,
   Database,
-  Menu,
-  X,
   BarChart3,
   GitCompareArrows,
   Trophy,
   ChevronLeft,
   ChevronRight,
-  FileDown
+  FileDown,
+  LogOut,
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -77,15 +77,29 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
-  const datasets = useCampaignStore((s) => s.datasets);
-  const activeDatasetId = useCampaignStore((s) => s.activeDatasetId);
-  const setActiveDataset = useCampaignStore((s) => s.setActiveDataset);
-  const viewMode = useCampaignStore((s) => s.viewMode);
-  const setViewMode = useCampaignStore((s) => s.setViewMode);
+  const {
+    datasets,
+    activeDatasetId,
+    setActiveDatasetId,
+    viewMode,
+    setViewMode,
+    signOut,
+    dataLoading,
+    user,
+    getActiveDataset,
+  } = useData();
   
-  const activeDataset = datasets.find((d) => d.id === activeDatasetId);
+  const activeDataset = getActiveDataset();
   
   const renderContent = () => {
+    if (dataLoading) {
+      return (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+    
     switch (currentView) {
       case 'dashboard':
         return <Dashboard />;
@@ -216,13 +230,22 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
           </Button>
         </div>
         
-        {/* Footer */}
+        {/* User & Logout */}
         {sidebarOpen && (
-          <div className="px-5 pb-5">
+          <div className="px-5 pb-5 space-y-3">
             <div className="rounded-xl bg-muted/50 p-4">
-              <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                Análise Estratégica<br />de Campanhas Eleitorais
+              <p className="text-xs text-muted-foreground text-center truncate mb-2">
+                {user?.email}
               </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={signOut}
+                className="w-full gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Sair
+              </Button>
             </div>
           </div>
         )}
@@ -246,7 +269,7 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
                 </div>
                 <Select 
                   value={activeDatasetId || ''} 
-                  onValueChange={(v) => setActiveDataset(v)}
+                  onValueChange={(v) => setActiveDatasetId(v)}
                 >
                   <SelectTrigger className="w-72 h-11 bg-background border-border/50 shadow-sm">
                     <SelectValue placeholder="Selecione um dataset" />

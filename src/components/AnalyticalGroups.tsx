@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCampaignStore } from '@/store/campaignStore';
+import { useData } from '@/contexts/DataContext';
 import { LEGAL_EXPENSE_CATEGORIES, AnalyticalGroup } from '@/types/campaign';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -136,26 +136,19 @@ export const AnalyticalGroups: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<AnalyticalGroup | null>(null);
   
-  const analyticalGroups = useCampaignStore((s) => s.analyticalGroups);
-  const addAnalyticalGroup = useCampaignStore((s) => s.addAnalyticalGroup);
-  const updateAnalyticalGroup = useCampaignStore((s) => s.updateAnalyticalGroup);
-  const deleteAnalyticalGroup = useCampaignStore((s) => s.deleteAnalyticalGroup);
+  const { analyticalGroups, updateAnalyticalGroup } = useData();
   
-  const handleSubmit = (data: GroupFormData) => {
+  // Note: For now, we only support editing existing groups
+  // Adding/deleting groups would require additional backend methods
+  
+  const handleSubmit = async (data: GroupFormData) => {
     if (editingGroup) {
-      updateAnalyticalGroup(editingGroup.id, {
+      await updateAnalyticalGroup(editingGroup.id, {
         name: data.name,
         categories: data.categories as any[],
         color: data.color,
       });
       toast.success('Grupo atualizado com sucesso');
-    } else {
-      addAnalyticalGroup({
-        name: data.name,
-        categories: data.categories as any[],
-        color: data.color,
-      });
-      toast.success('Grupo criado com sucesso');
     }
     setIsDialogOpen(false);
     setEditingGroup(null);
@@ -164,11 +157,6 @@ export const AnalyticalGroups: React.FC = () => {
   const handleEdit = (group: AnalyticalGroup) => {
     setEditingGroup(group);
     setIsDialogOpen(true);
-  };
-  
-  const handleDelete = (id: string) => {
-    deleteAnalyticalGroup(id);
-    toast.success('Grupo removido');
   };
   
   return (
@@ -233,14 +221,6 @@ export const AnalyticalGroups: React.FC = () => {
                   onClick={() => handleEdit(group)}
                 >
                   <Edit2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-destructive hover:text-destructive"
-                  onClick={() => handleDelete(group.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </div>

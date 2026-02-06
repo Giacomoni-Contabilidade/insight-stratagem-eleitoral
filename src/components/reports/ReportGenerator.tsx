@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { pdf } from '@react-pdf/renderer';
-import { useCampaignStore } from '@/store/campaignStore';
+import { useData } from '@/contexts/DataContext';
 import { CampaignReport, ReportSections } from './CampaignReport';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,8 +76,7 @@ const SECTION_CONFIGS: SectionConfig[] = [
 ];
 
 export const ReportGenerator: React.FC = () => {
-  const activeDatasetId = useCampaignStore((s) => s.activeDatasetId);
-  const datasets = useCampaignStore((s) => s.datasets);
+  const { activeDatasetId, datasets } = useData();
   const activeDataset = datasets.find((d) => d.id === activeDatasetId);
 
   const [sections, setSections] = useState<ReportSections>({

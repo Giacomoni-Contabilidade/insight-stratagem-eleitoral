@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useCampaignStore } from '@/store/campaignStore';
+import { useData } from '@/contexts/DataContext';
 import { formatCurrency, formatNumber, formatPercentage, calculatePercentile } from '@/lib/dataParser';
 import { Candidacy, LEGAL_EXPENSE_CATEGORIES } from '@/types/campaign';
 import { 
@@ -53,9 +53,7 @@ export const CandidacyProfile: React.FC = () => {
   const [selectedCandidacyId, setSelectedCandidacyId] = useState<string | null>(null);
   const [compareGroup, setCompareGroup] = useState<'all' | 'party' | 'gender'>('all');
   
-  const getFilteredCandidacies = useCampaignStore((s) => s.getFilteredCandidacies);
-  const viewMode = useCampaignStore((s) => s.viewMode);
-  const analyticalGroups = useCampaignStore((s) => s.analyticalGroups);
+  const { getFilteredCandidacies, viewMode, analyticalGroups } = useData();
   
   const candidacies = getFilteredCandidacies();
   

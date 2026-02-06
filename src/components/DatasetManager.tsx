@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCampaignStore } from '@/store/campaignStore';
+import { useData } from '@/contexts/DataContext';
 import { Dataset } from '@/types/campaign';
 import { formatCurrency, formatNumber } from '@/lib/dataParser';
 import { Button } from '@/components/ui/button';
@@ -126,10 +126,7 @@ const DatasetCard: React.FC<DatasetCardProps> = ({ dataset, isActive, onSelect, 
 };
 
 export const DatasetManager: React.FC = () => {
-  const datasets = useCampaignStore((s) => s.datasets);
-  const activeDatasetId = useCampaignStore((s) => s.activeDatasetId);
-  const setActiveDataset = useCampaignStore((s) => s.setActiveDataset);
-  const deleteDataset = useCampaignStore((s) => s.deleteDataset);
+  const { datasets, activeDatasetId, setActiveDatasetId, deleteDataset } = useData();
   
   if (datasets.length === 0) {
     return (
@@ -158,7 +155,7 @@ export const DatasetManager: React.FC = () => {
             key={dataset.id}
             dataset={dataset}
             isActive={dataset.id === activeDatasetId}
-            onSelect={() => setActiveDataset(dataset.id)}
+            onSelect={() => setActiveDatasetId(dataset.id)}
             onDelete={() => deleteDataset(dataset.id)}
           />
         ))}
