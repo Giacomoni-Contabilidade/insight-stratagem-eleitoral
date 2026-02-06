@@ -163,7 +163,7 @@ export const AnalyticalGroups: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<AnalyticalGroup | null>(null);
   
-  const { analyticalGroups, updateAnalyticalGroup } = useData();
+  const { analyticalGroups, addAnalyticalGroup, updateAnalyticalGroup, deleteAnalyticalGroup } = useData();
   
   // Build a map of category -> group name for exclusivity check
   const usedCategories = new Map<string, string>();
@@ -198,6 +198,15 @@ export const AnalyticalGroups: React.FC = () => {
         color: data.color,
       });
       toast.success('Grupo atualizado com sucesso');
+    } else {
+      const result = await addAnalyticalGroup({
+        name: data.name,
+        categories: data.categories as any[],
+        color: data.color,
+      });
+      if (result) {
+        toast.success('Grupo criado com sucesso');
+      }
     }
     setIsDialogOpen(false);
     setEditingGroup(null);
@@ -206,6 +215,12 @@ export const AnalyticalGroups: React.FC = () => {
   const handleEdit = (group: AnalyticalGroup) => {
     setEditingGroup(group);
     setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (group: AnalyticalGroup) => {
+    if (confirm(`Tem certeza que deseja excluir o grupo "${group.name}"?`)) {
+      await deleteAnalyticalGroup(group.id);
+    }
   };
   
   return (
@@ -329,6 +344,14 @@ export const AnalyticalGroups: React.FC = () => {
                   onClick={() => handleEdit(group)}
                 >
                   <Edit2 className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-destructive hover:text-destructive"
+                  onClick={() => handleDelete(group)}
+                >
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </div>

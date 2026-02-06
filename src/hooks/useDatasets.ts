@@ -323,6 +323,34 @@ export const useDatasets = () => {
     }
   };
 
+  const addAnalyticalGroup = async (data: Omit<AnalyticalGroup, 'id'>): Promise<string | null> => {
+    if (!user) {
+      toast.error('Você precisa estar logado');
+      return null;
+    }
+
+    try {
+      const { data: newGroup, error } = await supabase
+        .from('analytical_groups')
+        .insert({
+          user_id: user.id,
+          name: data.name,
+          categories: data.categories,
+          color: data.color || '#215437',
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      await fetchData();
+      return newGroup.id;
+    } catch (error) {
+      console.error('Error creating analytical group:', error);
+      toast.error('Erro ao criar grupo');
+      return null;
+    }
+  };
+
   const updateAnalyticalGroup = async (id: string, updates: Partial<AnalyticalGroup>) => {
     try {
       const { error } = await supabase
@@ -342,6 +370,22 @@ export const useDatasets = () => {
     }
   };
 
+  const deleteAnalyticalGroup = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('analytical_groups')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchData();
+      toast.success('Grupo excluído');
+    } catch (error) {
+      console.error('Error deleting analytical group:', error);
+      toast.error('Erro ao excluir grupo');
+    }
+  };
+
   const getActiveDataset = () => {
     return datasets.find(d => d.id === activeDatasetId);
   };
@@ -354,7 +398,9 @@ export const useDatasets = () => {
     loading,
     addDataset,
     deleteDataset,
+    addAnalyticalGroup,
     updateAnalyticalGroup,
+    deleteAnalyticalGroup,
     getActiveDataset,
     refetch: fetchData,
   };
