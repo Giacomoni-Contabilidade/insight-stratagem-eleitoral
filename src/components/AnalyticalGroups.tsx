@@ -18,7 +18,9 @@ import {
   Trash2, 
   Edit2, 
   Layers,
-  Tag
+  Tag,
+  AlertTriangle,
+  CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -37,7 +39,8 @@ const GroupForm: React.FC<{
   initialData?: AnalyticalGroup;
   onSubmit: (data: GroupFormData) => void;
   onCancel: () => void;
-}> = ({ initialData, onSubmit, onCancel }) => {
+  usedCategories: Map<string, string>; // category -> group name
+}> = ({ initialData, onSubmit, onCancel, usedCategories }) => {
   const [formData, setFormData] = useState<GroupFormData>({
     name: initialData?.name || '',
     categories: initialData?.categories || [],
@@ -64,6 +67,12 @@ const GroupForm: React.FC<{
       return;
     }
     onSubmit(formData);
+  };
+
+  // Check if category is used by another group (not the one being edited)
+  const isCategoryUsedElsewhere = (cat: string) => {
+    const usedBy = usedCategories.get(cat);
+    return usedBy && usedBy !== initialData?.name;
   };
   
   return (
@@ -103,19 +112,37 @@ const GroupForm: React.FC<{
             {formData.categories.length} selecionadas
           </p>
           <div className="max-h-64 overflow-y-auto scrollbar-thin border border-border rounded-lg p-3 space-y-2">
-            {LEGAL_EXPENSE_CATEGORIES.map((cat) => (
-              <label
-                key={cat}
-                className="flex items-start gap-3 cursor-pointer hover:bg-muted/30 p-2 rounded-md transition-colors"
-              >
-                <Checkbox
-                  checked={formData.categories.includes(cat)}
-                  onCheckedChange={() => toggleCategory(cat)}
-                  className="mt-0.5"
-                />
-                <span className="text-sm">{cat}</span>
-              </label>
-            ))}
+            {LEGAL_EXPENSE_CATEGORIES.map((cat) => {
+              const usedBy = usedCategories.get(cat);
+              const isUsedElsewhere = isCategoryUsedElsewhere(cat);
+              const isSelected = formData.categories.includes(cat);
+              
+              return (
+                <label
+                  key={cat}
+                  className={`flex items-start gap-3 p-2 rounded-md transition-colors ${
+                    isUsedElsewhere 
+                      ? 'opacity-50 cursor-not-allowed bg-muted/20' 
+                      : 'cursor-pointer hover:bg-muted/30'
+                  }`}
+                >
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={() => !isUsedElsewhere && toggleCategory(cat)}
+                    disabled={isUsedElsewhere}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm">{cat}</span>
+                    {isUsedElsewhere && usedBy && (
+                      <p className="text-xs text-muted-foreground">
+                        Já está em: {usedBy}
+                      </p>
+                    )}
+                  </div>
+                </label>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -138,8 +165,30 @@ export const AnalyticalGroups: React.FC = () => {
   
   const { analyticalGroups, updateAnalyticalGroup } = useData();
   
-  // Note: For now, we only support editing existing groups
-  // Adding/deleting groups would require additional backend methods
+  // Build a map of category -> group name for exclusivity check
+  const usedCategories = new Map<string, string>();
+  analyticalGroups.forEach(group => {
+    group.categories.forEach(cat => {
+      usedCategories.set(cat, group.name);
+    });
+  });
+  
+  // Find orphan categories (not in any group)
+  const orphanCategories = LEGAL_EXPENSE_CATEGORIES.filter(
+    cat => !usedCategories.has(cat)
+  );
+  
+  // Find duplicate categories (in multiple groups) - for validation display
+  const categoryGroupCount = new Map<string, string[]>();
+  analyticalGroups.forEach(group => {
+    group.categories.forEach(cat => {
+      const existing = categoryGroupCount.get(cat) || [];
+      categoryGroupCount.set(cat, [...existing, group.name]);
+    });
+  });
+  const duplicateCategories = Array.from(categoryGroupCount.entries())
+    .filter(([_, groups]) => groups.length > 1)
+    .map(([cat, groups]) => ({ category: cat, groups }));
   
   const handleSubmit = async (data: GroupFormData) => {
     if (editingGroup) {
@@ -192,11 +241,70 @@ export const AnalyticalGroups: React.FC = () => {
                 setIsDialogOpen(false);
                 setEditingGroup(null);
               }}
+              usedCategories={usedCategories}
             />
           </DialogContent>
         </Dialog>
       </div>
       
+      {/* Warnings for orphan or duplicate categories */}
+      {(orphanCategories.length > 0 || duplicateCategories.length > 0) && (
+        <div className="space-y-3">
+          {orphanCategories.length > 0 && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                <span className="font-medium text-amber-600 dark:text-amber-400">
+                  {orphanCategories.length} categorias sem grupo
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-2">
+                Essas categorias não serão contabilizadas na soma dos grupos analíticos:
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {orphanCategories.map(cat => (
+                  <span key={cat} className="chip bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs">
+                    {cat.substring(0, 30)}{cat.length > 30 ? '...' : ''}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {duplicateCategories.length > 0 && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-4 h-4 text-red-500" />
+                <span className="font-medium text-red-600 dark:text-red-400">
+                  {duplicateCategories.length} categorias duplicadas
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-2">
+                Essas categorias estão em mais de um grupo (serão contadas em dobro):
+              </p>
+              <div className="space-y-1">
+                {duplicateCategories.map(({ category, groups }) => (
+                  <div key={category} className="text-xs">
+                    <span className="font-medium">{category}</span>
+                    <span className="text-muted-foreground"> → {groups.join(', ')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Status badge */}
+      {orphanCategories.length === 0 && duplicateCategories.length === 0 && (
+        <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-green-500" />
+          <span className="text-sm text-green-600 dark:text-green-400">
+            Todas as {LEGAL_EXPENSE_CATEGORIES.length} categorias estão atribuídas a exatamente um grupo.
+          </span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {analyticalGroups.map((group) => (
           <div
