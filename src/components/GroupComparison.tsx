@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCampaignStore } from '@/store/campaignStore';
+import { useData } from '@/contexts/DataContext';
 import { formatCurrency, formatNumber, formatPercentage, calculateMedian } from '@/lib/dataParser';
 import { 
   Select,
@@ -59,9 +59,8 @@ export const GroupComparison: React.FC = () => {
   const [groupBy, setGroupBy] = useState<GroupByField>('gender');
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   
-  const getFilteredCandidacies = useCampaignStore((s) => s.getFilteredCandidacies);
+  const { getFilteredCandidacies, analyticalGroups } = useData();
   const candidacies = getFilteredCandidacies();
-  const analyticalGroups = useCampaignStore((s) => s.analyticalGroups);
   
   if (candidacies.length === 0) {
     return (

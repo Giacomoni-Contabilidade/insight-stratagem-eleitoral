@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCampaignStore } from '@/store/campaignStore';
+import { useData } from '@/contexts/DataContext';
 import { formatCurrency, formatNumber, formatPercentage, calculateMedian } from '@/lib/dataParser';
 import { 
   TrendingUp, 
@@ -71,10 +71,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, trend
 
 export const Dashboard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   (props, ref) => {
-  const getFilteredCandidacies = useCampaignStore((s) => s.getFilteredCandidacies);
-  const getActiveDataset = useCampaignStore((s) => s.getActiveDataset);
-  const viewMode = useCampaignStore((s) => s.viewMode);
-  const analyticalGroups = useCampaignStore((s) => s.analyticalGroups);
+  const { getFilteredCandidacies, getActiveDataset, viewMode, analyticalGroups } = useData();
   
   const dataset = getActiveDataset();
   const candidacies = getFilteredCandidacies();

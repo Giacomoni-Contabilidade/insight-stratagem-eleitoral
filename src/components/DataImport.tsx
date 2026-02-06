@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { parseSpreadsheetData, validateParsedData } from '@/lib/dataParser';
-import { useCampaignStore } from '@/store/campaignStore';
+import { useData } from '@/contexts/DataContext';
 import { Candidacy, ParsedRow, COLUMN_ORDER } from '@/types/campaign';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,8 @@ import {
   CheckCircle2, 
   Upload,
   X,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -52,8 +53,9 @@ export const DataImport: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
     position: '',
   });
   const [step, setStep] = useState<'paste' | 'validate' | 'configure'>('paste');
+  const [importing, setImporting] = useState(false);
   
-  const addDataset = useCampaignStore((s) => s.addDataset);
+  const { addDataset } = useData();
   
   const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const text = e.clipboardData.getData('text');
@@ -90,39 +92,47 @@ export const DataImport: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
     setStep('configure');
   };
   
-  const handleImport = () => {
+  const handleImport = async () => {
     if (!formData.name || !formData.state || !formData.position) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
     
-    const candidacies: Candidacy[] = valid.map((row) => ({
-      ...row.data,
-      datasetId: '', // Will be set by store
-    })) as Candidacy[];
+    setImporting(true);
     
-    addDataset({
-      name: formData.name,
-      year: parseInt(formData.year),
-      state: formData.state,
-      position: formData.position,
-      candidacies,
-    });
-    
-    toast.success(`${candidacies.length} candidaturas importadas com sucesso!`);
-    
-    // Reset
-    setPastedData('');
-    setParsedRows([]);
-    setStep('paste');
-    setFormData({
-      name: '',
-      year: new Date().getFullYear().toString(),
-      state: '',
-      position: '',
-    });
-    
-    onSuccess?.();
+    try {
+      const candidacies: Candidacy[] = valid.map((row) => ({
+        ...row.data,
+        datasetId: '', // Will be set by store
+      })) as Candidacy[];
+      
+      await addDataset({
+        name: formData.name,
+        year: parseInt(formData.year),
+        state: formData.state,
+        position: formData.position,
+        candidacies,
+      });
+      
+      toast.success(`${candidacies.length} candidaturas importadas com sucesso!`);
+      
+      // Reset
+      setPastedData('');
+      setParsedRows([]);
+      setStep('paste');
+      setFormData({
+        name: '',
+        year: new Date().getFullYear().toString(),
+        state: '',
+        position: '',
+      });
+      
+      onSuccess?.();
+    } catch (error) {
+      toast.error('Erro ao importar dados');
+    } finally {
+      setImporting(false);
+    }
   };
   
   const handleReset = () => {
@@ -363,10 +373,14 @@ export const DataImport: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
             </Button>
             <Button 
               onClick={handleImport}
-              disabled={!formData.name || !formData.state || !formData.position}
+              disabled={!formData.name || !formData.state || !formData.position || importing}
             >
-              <CheckCircle2 className="w-4 h-4 mr-2" />
-              Importar dataset
+              {importing ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+              )}
+              {importing ? 'Importando...' : 'Importar dataset'}
             </Button>
           </div>
         </div>
