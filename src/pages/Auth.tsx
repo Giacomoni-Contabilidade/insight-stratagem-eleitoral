@@ -5,14 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { BarChart3, Lock, Mail, User } from 'lucide-react';
+import { BarChart3, Lock, Mail } from 'lucide-react';
 import { z } from 'zod';
 
 const emailSchema = z.string().email('Email inválido');
 const passwordSchema = z.string().min(6, 'Senha deve ter pelo menos 6 caracteres');
 
 export const Auth: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -57,46 +56,23 @@ export const Auth: React.FC = () => {
     setLoading(true);
     
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            toast.error('Email ou senha incorretos');
-          } else if (error.message.includes('Email not confirmed')) {
-            toast.error('Por favor, confirme seu email antes de fazer login');
-          } else {
-            toast.error(error.message);
-          }
-          return;
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('Email ou senha incorretos');
+        } else if (error.message.includes('Email not confirmed')) {
+          toast.error('Por favor, confirme seu email antes de fazer login');
+        } else {
+          toast.error(error.message);
         }
-        
-        toast.success('Login realizado com sucesso!');
-      } else {
-        const redirectUrl = `${window.location.origin}/`;
-        
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-          },
-        });
-        
-        if (error) {
-          if (error.message.includes('User already registered')) {
-            toast.error('Este email já está cadastrado. Tente fazer login.');
-          } else {
-            toast.error(error.message);
-          }
-          return;
-        }
-        
-        toast.success('Conta criada! Verifique seu email para confirmar.');
+        return;
       }
+      
+      toast.success('Login realizado com sucesso!');
     } catch (error) {
       toast.error('Ocorreu um erro. Tente novamente.');
     } finally {
@@ -114,7 +90,7 @@ export const Auth: React.FC = () => {
             </div>
             <h1 className="text-2xl font-bold">Análise de Campanhas</h1>
             <p className="text-muted-foreground">
-              {isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
+              Entre na sua conta
             </p>
           </div>
           
@@ -152,19 +128,13 @@ export const Auth: React.FC = () => {
             </div>
             
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Criar conta')}
+              {loading ? 'Carregando...' : 'Entrar'}
             </Button>
           </form>
           
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-primary hover:underline"
-            >
-              {isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entre'}
-            </button>
-          </div>
+          <p className="text-center text-xs text-muted-foreground">
+            Acesso restrito. Contate o administrador para obter credenciais.
+          </p>
         </div>
       </div>
     </div>
