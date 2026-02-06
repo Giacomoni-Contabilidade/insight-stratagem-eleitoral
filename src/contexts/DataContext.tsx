@@ -20,7 +20,9 @@ interface DataContextType {
   // Actions
   addDataset: (data: Omit<Dataset, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string | null>;
   deleteDataset: (id: string) => Promise<void>;
+  addAnalyticalGroup: (data: Omit<AnalyticalGroup, 'id'>) => Promise<string | null>;
   updateAnalyticalGroup: (id: string, updates: Partial<AnalyticalGroup>) => Promise<void>;
+  deleteAnalyticalGroup: (id: string) => Promise<void>;
   getActiveDataset: () => Dataset | undefined;
   refetch: () => Promise<void>;
   
@@ -93,7 +95,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Actions
     addDataset: datasetsHook.addDataset,
     deleteDataset: datasetsHook.deleteDataset,
+    addAnalyticalGroup: datasetsHook.addAnalyticalGroup,
     updateAnalyticalGroup: datasetsHook.updateAnalyticalGroup,
+    deleteAnalyticalGroup: datasetsHook.deleteAnalyticalGroup,
     getActiveDataset: datasetsHook.getActiveDataset,
     refetch: datasetsHook.refetch,
     
