@@ -9,6 +9,7 @@ import { AnalyticalGroups } from '@/components/AnalyticalGroups';
 import { DatasetManager } from '@/components/DatasetManager';
 import { TopTenView } from '@/components/TopTenView';
 import { ReportGenerator } from '@/components/reports';
+import { DatasetComparison } from '@/components/DatasetComparison';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -36,7 +37,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten' | 'reports';
+type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten' | 'reports' | 'dataset-comparison';
 
 interface NavItem {
   id: View;
@@ -59,6 +60,7 @@ const NAV_SECTIONS: NavSection[] = [
       { id: 'comparison', label: 'Grupos', icon: <Users className="w-5 h-5" />, description: 'Comparações' },
       { id: 'candidacy-comparison', label: 'Comparar', icon: <GitCompareArrows className="w-5 h-5" />, description: 'Candidaturas' },
       { id: 'profile', label: 'Perfil', icon: <User className="w-5 h-5" />, description: 'Individual' },
+      { id: 'dataset-comparison', label: 'Datasets', icon: <Database className="w-5 h-5" />, description: 'Comparar datasets' },
       { id: 'reports', label: 'Relatórios', icon: <FileDown className="w-5 h-5" />, description: 'Exportar PDF' },
     ],
   },
@@ -117,6 +119,8 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
         return <AnalyticalGroups />;
       case 'datasets':
         return <DatasetManager />;
+      case 'dataset-comparison':
+        return <DatasetComparison />;
       case 'reports':
         return <ReportGenerator />;
       default:
