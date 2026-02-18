@@ -5,9 +5,28 @@ import {
   Dataset, 
   Candidacy, 
   AnalyticalGroup,
-  type LegalExpenseCategory 
+  type LegalExpenseCategory,
+  type Gender,
+  type Race,
+  type Education,
 } from '@/types/campaign';
 import type { User } from '@supabase/supabase-js';
+
+const VALID_GENDERS: Gender[] = ['Masculino', 'Feminino', 'Não informado'];
+const VALID_RACES: Race[] = ['Branca', 'Preta', 'Parda', 'Amarela', 'Indígena', 'Não informado'];
+const VALID_EDUCATIONS: Education[] = [
+  'Fundamental incompleto', 'Fundamental completo',
+  'Médio incompleto', 'Médio completo',
+  'Superior incompleto', 'Superior completo',
+  'Pós-graduação', 'Não informado',
+];
+
+const safeGender = (v: string): Gender =>
+  VALID_GENDERS.includes(v as Gender) ? (v as Gender) : 'Não informado';
+const safeRace = (v: string): Race =>
+  VALID_RACES.includes(v as Race) ? (v as Race) : 'Não informado';
+const safeEducation = (v: string): Education =>
+  VALID_EDUCATIONS.includes(v as Education) ? (v as Education) : 'Não informado';
 
 interface DatabaseDataset {
   id: string;
@@ -161,9 +180,9 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
             datasetId: c.dataset_id,
             name: c.name,
             party: c.party,
-            gender: c.gender as any,
-            race: c.race as any,
-            education: c.education as any,
+            gender: safeGender(c.gender),
+            race: safeRace(c.race),
+            education: safeEducation(c.education),
             occupation: c.occupation,
             votes: c.votes,
             financialExpenses: Number(c.financial_expenses),
