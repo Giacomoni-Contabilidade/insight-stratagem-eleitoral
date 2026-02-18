@@ -9,6 +9,7 @@ import { AnalyticalGroups } from '@/components/AnalyticalGroups';
 import { DatasetManager } from '@/components/DatasetManager';
 import { TopTenView } from '@/components/TopTenView';
 import { ReportGenerator } from '@/components/reports';
+import { UserManagement } from '@/components/UserManagement';
 import { DatasetComparison } from '@/components/DatasetComparison';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,7 +38,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten' | 'reports' | 'dataset-comparison';
+type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten' | 'reports' | 'dataset-comparison' | 'users';
 
 interface NavItem {
   id: View;
@@ -51,7 +52,7 @@ interface NavSection {
   items: NavItem[];
 }
 
-const NAV_SECTIONS: NavSection[] = [
+const getNavSections = (isAdmin: boolean): NavSection[] => [
   {
     title: 'Análise',
     items: [
@@ -70,6 +71,7 @@ const NAV_SECTIONS: NavSection[] = [
       { id: 'groups', label: 'Config. Grupos', icon: <Layers className="w-5 h-5" />, description: 'Categorias' },
       { id: 'datasets', label: 'Datasets', icon: <Database className="w-5 h-5" />, description: 'Gerenciar' },
       { id: 'import', label: 'Importar', icon: <Upload className="w-5 h-5" />, description: 'Novos dados' },
+      ...(isAdmin ? [{ id: 'users' as View, label: 'Usuários', icon: <Users className="w-5 h-5" />, description: 'Gerenciar contas' }] : []),
     ],
   },
 ];
@@ -88,10 +90,12 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
     signOut,
     dataLoading,
     user,
+    isAdmin,
     getActiveDataset,
   } = useData();
   
   const activeDataset = getActiveDataset();
+  const navSections = getNavSections(isAdmin);
   
   const renderContent = () => {
     if (dataLoading) {
@@ -123,6 +127,8 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
         return <DatasetComparison />;
       case 'reports':
         return <ReportGenerator />;
+      case 'users':
+        return <UserManagement />;
       default:
         return <Dashboard />;
     }
@@ -157,7 +163,7 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
         
         {/* Navigation */}
         <nav className="flex-1 py-6 px-3 space-y-6 overflow-y-auto scrollbar-thin">
-          {NAV_SECTIONS.map((section, idx) => (
+          {navSections.map((section, idx) => (
             <div key={section.title}>
               {sidebarOpen && (
                 <h3 className="px-3 mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
