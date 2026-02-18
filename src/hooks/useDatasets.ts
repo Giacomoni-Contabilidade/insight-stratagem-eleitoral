@@ -196,16 +196,19 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
       }
 
       // Set active dataset to first one if none selected
-      if (transformedDatasets.length > 0 && !activeDatasetId) {
-        setActiveDatasetId(transformedDatasets[0].id);
-      }
+      setActiveDatasetId(prev => {
+        if (!prev && transformedDatasets.length > 0) {
+          return transformedDatasets[0].id;
+        }
+        return prev;
+      });
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Erro ao carregar dados');
     } finally {
       setLoading(false);
     }
-  }, [user, activeDatasetId]);
+  }, [user]);
 
   const createDefaultAnalyticalGroups = async (): Promise<AnalyticalGroup[]> => {
     const groups: AnalyticalGroup[] = [];

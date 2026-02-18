@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import { useData } from '@/contexts/DataContext';
 import { CampaignReport, ReportSections } from './CampaignReport';
@@ -91,6 +91,12 @@ export const ReportGenerator: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCandidacies, setSelectedCandidacies] = useState<Candidacy[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Reset selected candidacies when dataset changes
+  useEffect(() => {
+    setSelectedCandidacies([]);
+    setSearchQuery('');
+  }, [activeDatasetId]);
 
   const filteredCandidacies = useMemo(() => {
     if (!activeDataset || !searchQuery.trim()) return [];
