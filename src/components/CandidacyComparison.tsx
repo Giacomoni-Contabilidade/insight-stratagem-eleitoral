@@ -41,12 +41,12 @@ import {
 } from 'lucide-react';
 
 const CHART_COLORS = [
-  'hsl(200, 46%, 20%)',   // Primary teal
-  'hsl(149, 43%, 23%)',   // Dark green
-  'hsl(43, 78%, 55%)',    // Gold
-  'hsl(17, 60%, 58%)',    // Coral
-  'hsl(107, 34%, 56%)',   // Light green
-  'hsl(6, 62%, 45%)',     // Red
+  'hsl(200, 60%, 40%)',   // Blue
+  'hsl(149, 50%, 38%)',   // Green
+  'hsl(43, 85%, 50%)',    // Gold
+  'hsl(17, 70%, 55%)',    // Coral
+  'hsl(270, 50%, 55%)',   // Purple
+  'hsl(6, 65%, 50%)',     // Red
 ];
 
 const MAX_COMPARISON = 6;
