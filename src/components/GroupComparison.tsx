@@ -107,7 +107,6 @@ export const GroupComparison: React.FC = () => {
   }).sort((a, b) => b.count - a.count);
   
   // Data for charts
-  const availableGroups = groupStats.map((g) => g.name);
   const displayGroups = groupStats.slice(0, 5);
   
   // Radar data for expense distribution comparison
