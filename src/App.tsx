@@ -57,18 +57,26 @@ const AppRoutes: React.FC = () => {
   );
 };
 
-const App: React.FC = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <BrowserRouter>
-        <DataProvider>
-          <Toaster />
-          <Sonner />
-          <AppRoutes />
-        </DataProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+const App = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  function AppComponent(props, ref) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <BrowserRouter>
+            <DataProvider>
+              <div ref={ref} {...props}>
+                <Toaster />
+                <Sonner />
+                <AppRoutes />
+              </div>
+            </DataProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  }
 );
+
+App.displayName = "App";
 
 export default App;
