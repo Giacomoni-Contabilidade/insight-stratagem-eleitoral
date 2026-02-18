@@ -56,7 +56,7 @@ export const CandidacyComparison: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterParty, setFilterParty] = useState<string>('');
 
-  const { getFilteredCandidacies, getActiveDataset, activeDatasetId } = useData();
+  const { getFilteredCandidacies, getActiveDataset, activeDatasetId, viewMode, analyticalGroups } = useData();
   const candidacies = getFilteredCandidacies();
   const activeDataset = getActiveDataset();
 
@@ -143,10 +143,25 @@ export const CandidacyComparison: React.FC = () => {
   const radarData = useMemo(() => {
     if (selectedCandidacies.length === 0) return [];
 
+    if (viewMode === 'analytical' && analyticalGroups.length > 0) {
+      // Analytical mode: radar axes = analytical groups, values = expense totals per group per candidacy
+      return analyticalGroups.map((ag) => {
+        const data: Record<string, any> = { metric: ag.name, fullMark: 100 };
+        const totals = selectedCandidacies.map((c) =>
+          ag.categories.reduce((sum, cat) => sum + (c.expenses[cat] || 0), 0)
+        );
+        const maxVal = Math.max(...totals, 1);
+        selectedCandidacies.forEach((c, i) => {
+          data[c.name] = (totals[i] / maxVal) * 100;
+        });
+        return data;
+      });
+    }
+
+    // Legal mode: generic metrics
     const maxVotes = Math.max(...selectedCandidacies.map((c) => c.votes), 1);
     const maxExpenses = Math.max(...selectedCandidacies.map((c) => c.totalExpenses), 1);
     const maxCostPerVote = Math.max(...selectedCandidacies.map((c) => c.costPerVote), 1);
-    const maxFinancialPct = 1;
 
     return [
       { metric: 'Votos', fullMark: 100 },
@@ -173,7 +188,7 @@ export const CandidacyComparison: React.FC = () => {
       });
       return result;
     });
-  }, [selectedCandidacies]);
+  }, [selectedCandidacies, viewMode, analyticalGroups]);
 
   // Calculate comparison stats
   const comparisonStats = useMemo(() => {
@@ -464,6 +479,33 @@ export const CandidacyComparison: React.FC = () => {
                             </td>
                           ))}
                         </tr>
+                        {viewMode === 'analytical' && analyticalGroups.length > 0 && (
+                          <>
+                            <tr>
+                              <td colSpan={selectedCandidacies.length + 1} className="font-semibold text-xs text-muted-foreground uppercase tracking-wider pt-4 pb-1 border-t">
+                                Grupos Analíticos
+                              </td>
+                            </tr>
+                            {analyticalGroups.map((ag) => (
+                              <tr key={ag.id}>
+                                <td className="font-medium">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: ag.color || 'hsl(var(--primary))' }} />
+                                    {ag.name}
+                                  </div>
+                                </td>
+                                {selectedCandidacies.map((c) => {
+                                  const total = ag.categories.reduce((sum, cat) => sum + (c.expenses[cat] || 0), 0);
+                                  return (
+                                    <td key={c.id} className="text-right font-mono">
+                                      {formatCurrency(total)}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))}
+                          </>
+                        )}
                         <tr>
                           <td className="font-medium">Gênero</td>
                           {selectedCandidacies.map((c) => (
@@ -542,7 +584,9 @@ export const CandidacyComparison: React.FC = () => {
                   {/* Radar Chart */}
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-base">Perfil Comparativo (Normalizado)</CardTitle>
+                      <CardTitle className="text-base">
+                        Perfil Comparativo ({viewMode === 'analytical' ? 'Grupos Analíticos' : 'Normalizado'})
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
