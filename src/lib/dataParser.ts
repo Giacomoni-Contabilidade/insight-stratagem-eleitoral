@@ -68,26 +68,31 @@ const parseNumber = (value: string): number => {
       cleaned = cleaned.replace(/,/g, '');
     }
   } else if (lastComma !== -1) {
-    // Only comma: check if it's a thousands separator (e.g. "1,234") or decimal (e.g. "0,56")
-    const afterComma = cleaned.split(',')[1];
-    if (afterComma && afterComma.length === 3 && /^\d{3}$/.test(afterComma)) {
-      // Likely thousands separator (pt-BR integer like "1,234" is unlikely; 
-      // but "1.234" with only dot IS common in pt-BR as thousands)
-      cleaned = cleaned.replace(',', '.');
+    // Only comma present — pt-BR context: comma is always decimal separator
+    // Multiple commas would be invalid, treat as thousands (remove all)
+    const commaCount = (cleaned.match(/,/g) || []).length;
+    if (commaCount > 1) {
+      // Multiple commas: invalid, remove all
+      cleaned = cleaned.replace(/,/g, '');
     } else {
-      // Decimal separator (e.g. "0,56" or "1234,5")
+      // Single comma: always decimal in pt-BR context (e.g. "1234,56" or "0,5")
       cleaned = cleaned.replace(',', '.');
     }
   } else if (lastDot !== -1) {
-    // Only dot: check if it's a thousands separator (e.g. "1.234" in pt-BR)
-    const parts = cleaned.split('.');
-    const afterDot = parts[parts.length - 1];
-    if (parts.length === 2 && afterDot.length === 3 && /^\d{3}$/.test(afterDot) && parts[0].length >= 1) {
-      // Ambiguous: "1.234" could be 1234 (pt-BR) or 1.234 (en-US)
-      // In pt-BR financial context, assume thousands separator
-      cleaned = cleaned.replace('.', '');
+    // Only dot present — check for pt-BR thousands pattern
+    const dotCount = (cleaned.match(/\./g) || []).length;
+    if (dotCount > 1) {
+      // Multiple dots: "1.234.567" — all are thousands separators
+      cleaned = cleaned.replace(/\./g, '');
+    } else {
+      const parts = cleaned.split('.');
+      const afterDot = parts[1];
+      if (afterDot && afterDot.length === 3 && /^\d{3}$/.test(afterDot) && parts[0].length >= 1) {
+        // "1.234" — pt-BR thousands separator
+        cleaned = cleaned.replace('.', '');
+      }
+      // else: decimal (e.g. "1.5", "12.34")
     }
-    // else: keep dot as decimal (e.g. "1.5", "12.34", "1.2345")
   }
 
   let num = parseFloat(cleaned);
