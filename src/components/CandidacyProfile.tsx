@@ -298,15 +298,19 @@ export const CandidacyProfile: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {benchmarks.map((b) => (
+                    {benchmarks.map((b) => {
+                        const fmt = b.field === 'Votos'
+                          ? (v: number) => v.toLocaleString('pt-BR')
+                          : formatCurrency;
+                        return (
                         <tr key={b.field}>
                           <td className="font-medium">{b.field}</td>
-                          <td className="text-right font-mono">{formatCurrency(b.candidateValue)}</td>
+                          <td className="text-right font-mono">{fmt(b.candidateValue)}</td>
                           <td className="text-right font-mono text-muted-foreground">
-                            {formatCurrency(b.groupAvg)}
+                            {fmt(b.groupAvg)}
                           </td>
                           <td className="text-right font-mono text-muted-foreground">
-                            {formatCurrency(b.groupMedian)}
+                            {fmt(b.groupMedian)}
                           </td>
                           <td className="text-right">
                             <span className={`inline-flex items-center gap-1 ${
@@ -320,7 +324,8 @@ export const CandidacyProfile: React.FC = () => {
                             </span>
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

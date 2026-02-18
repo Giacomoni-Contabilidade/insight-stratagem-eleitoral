@@ -239,6 +239,9 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
     if (isAuthenticated) {
       fetchData();
     } else {
+      setDatasets([]);
+      setAnalyticalGroups([]);
+      setActiveDatasetId(null);
       setLoading(false);
     }
   }, [isAuthenticated, fetchData]);
