@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 import { 
   Dataset, 
@@ -8,6 +7,7 @@ import {
   AnalyticalGroup,
   type LegalExpenseCategory 
 } from '@/types/campaign';
+import type { User } from '@supabase/supabase-js';
 
 interface DatabaseDataset {
   id: string;
@@ -100,8 +100,9 @@ const DEFAULT_ANALYTICAL_GROUPS: Omit<AnalyticalGroup, 'id'>[] = [
   },
 ];
 
-export const useDatasets = () => {
-  const { user, isAuthenticated } = useAuth();
+export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolean) => {
+  const user = authUser ?? null;
+  const isAuthenticated = authIsAuthenticated ?? false;
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [analyticalGroups, setAnalyticalGroups] = useState<AnalyticalGroup[]>([]);
   const [activeDatasetId, setActiveDatasetId] = useState<string | null>(null);

@@ -59,7 +59,7 @@ const parseNumber = (value: string): number => {
   const lastComma = cleaned.lastIndexOf(',');
 
   if (lastDot !== -1 && lastComma !== -1) {
-    // Decide decimal separator by last occurrence
+    // Both separators present: last one is decimal
     if (lastComma > lastDot) {
       // "1.234,56" -> remove thousands dots, comma to dot
       cleaned = cleaned.replace(/\./g, '').replace(',', '.');
@@ -68,8 +68,26 @@ const parseNumber = (value: string): number => {
       cleaned = cleaned.replace(/,/g, '');
     }
   } else if (lastComma !== -1) {
-    // Only comma present: assume comma is decimal
-    cleaned = cleaned.replace(',', '.');
+    // Only comma: check if it's a thousands separator (e.g. "1,234") or decimal (e.g. "0,56")
+    const afterComma = cleaned.split(',')[1];
+    if (afterComma && afterComma.length === 3 && /^\d{3}$/.test(afterComma)) {
+      // Likely thousands separator (pt-BR integer like "1,234" is unlikely; 
+      // but "1.234" with only dot IS common in pt-BR as thousands)
+      cleaned = cleaned.replace(',', '.');
+    } else {
+      // Decimal separator (e.g. "0,56" or "1234,5")
+      cleaned = cleaned.replace(',', '.');
+    }
+  } else if (lastDot !== -1) {
+    // Only dot: check if it's a thousands separator (e.g. "1.234" in pt-BR)
+    const parts = cleaned.split('.');
+    const afterDot = parts[parts.length - 1];
+    if (parts.length === 2 && afterDot.length === 3 && /^\d{3}$/.test(afterDot) && parts[0].length >= 1) {
+      // Ambiguous: "1.234" could be 1234 (pt-BR) or 1.234 (en-US)
+      // In pt-BR financial context, assume thousands separator
+      cleaned = cleaned.replace('.', '');
+    }
+    // else: keep dot as decimal (e.g. "1.5", "12.34", "1.2345")
   }
 
   let num = parseFloat(cleaned);

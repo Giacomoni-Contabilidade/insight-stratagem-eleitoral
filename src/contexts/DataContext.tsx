@@ -47,7 +47,7 @@ const DataContext = createContext<DataContextType | null>(null);
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const auth = useAuth();
-  const datasetsHook = useDatasets();
+  const datasetsHook = useDatasets(auth.user, auth.isAuthenticated);
   
   const [viewMode, setViewMode] = useState<'legal' | 'analytical'>('legal');
   const [filters, setFiltersState] = useState<FilterState>(DEFAULT_FILTERS);
