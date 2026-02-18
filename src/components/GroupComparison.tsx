@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { formatCurrency, formatNumber, formatPercentage, calculateMedian } from '@/lib/dataParser';
 import { 
@@ -59,9 +59,66 @@ export const GroupComparison: React.FC = () => {
   const [groupBy, setGroupBy] = useState<GroupByField>('gender');
   
   
-  const { getFilteredCandidacies, analyticalGroups } = useData();
+  const { getFilteredCandidacies, analyticalGroups, viewMode } = useData();
   const candidacies = getFilteredCandidacies();
   
+  // Group candidacies by selected field (must be before early return for hooks order)
+  const groups = useMemo(() => candidacies.reduce((acc, c) => {
+    const key = c[groupBy];
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(c);
+    return acc;
+  }, {} as Record<string, typeof candidacies>), [candidacies, groupBy]);
+  
+  const groupStats: GroupStats[] = useMemo(() => Object.entries(groups).map(([name, members]) => {
+    const totalVotes = members.reduce((sum, m) => sum + m.votes, 0);
+    const totalExpenses = members.reduce((sum, m) => sum + m.totalExpenses, 0);
+    const totalFinancialExpenses = members.reduce((sum, m) => sum + m.financialExpenses, 0);
+    const totalEstimatedDonations = members.reduce((sum, m) => sum + m.estimatedDonations, 0);
+    const costPerVotes = members.filter(m => m.votes > 0).map((m) => m.costPerVote);
+    const financialPct = totalExpenses > 0 ? totalFinancialExpenses / totalExpenses : 0;
+    return {
+      name, count: members.length, totalVotes, totalExpenses, totalFinancialExpenses,
+      totalEstimatedDonations,
+      avgCostPerVote: totalVotes > 0 ? totalExpenses / totalVotes : 0,
+      medianCostPerVote: calculateMedian(costPerVotes), financialPct,
+    };
+  }).sort((a, b) => b.count - a.count), [groups]);
+  
+  const displayGroups = useMemo(() => groupStats.slice(0, 5), [groupStats]);
+  
+  const radarData = useMemo(() => {
+    if (viewMode === 'analytical' && analyticalGroups.length > 0) {
+      return analyticalGroups.map((ag) => {
+        const data: Record<string, any> = { category: ag.name };
+        displayGroups.forEach((group) => {
+          const groupCandidacies = candidacies.filter((c) => c[groupBy] === group.name);
+          const total = groupCandidacies.reduce((sum, c) =>
+            sum + ag.categories.reduce((catSum, cat) => catSum + (c.expenses[cat] || 0), 0), 0);
+          data[group.name] = total;
+        });
+        return data;
+      });
+    }
+    const categoryTotals = new Map<string, number>();
+    candidacies.forEach((c) => {
+      Object.entries(c.expenses).forEach(([cat, val]) => {
+        categoryTotals.set(cat, (categoryTotals.get(cat) || 0) + val);
+      });
+    });
+    const topCategories = Array.from(categoryTotals.entries())
+      .sort((a, b) => b[1] - a[1]).slice(0, 8).map(([cat]) => cat);
+    return topCategories.map((cat) => {
+      const data: Record<string, any> = { category: cat.length > 20 ? cat.slice(0, 20) + '…' : cat };
+      displayGroups.forEach((group) => {
+        const groupCandidacies = candidacies.filter((c) => c[groupBy] === group.name);
+        const total = groupCandidacies.reduce((sum, c) => sum + (c.expenses[cat as keyof typeof c.expenses] || 0), 0);
+        data[group.name] = total;
+      });
+      return data;
+    });
+  }, [viewMode, analyticalGroups, displayGroups, candidacies, groupBy]);
+
   if (candidacies.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -73,54 +130,6 @@ export const GroupComparison: React.FC = () => {
       </div>
     );
   }
-  
-  // Group candidacies by selected field
-  const groups = candidacies.reduce((acc, c) => {
-    const key = c[groupBy];
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(c);
-    return acc;
-  }, {} as Record<string, typeof candidacies>);
-  
-  // Calculate stats for each group
-  const groupStats: GroupStats[] = Object.entries(groups).map(([name, members]) => {
-    const totalVotes = members.reduce((sum, m) => sum + m.votes, 0);
-    const totalExpenses = members.reduce((sum, m) => sum + m.totalExpenses, 0);
-    const totalFinancialExpenses = members.reduce((sum, m) => sum + m.financialExpenses, 0);
-    const totalEstimatedDonations = members.reduce((sum, m) => sum + m.estimatedDonations, 0);
-    const costPerVotes = members.filter(m => m.votes > 0).map((m) => m.costPerVote);
-    const financialPct = totalExpenses > 0 ? totalFinancialExpenses / totalExpenses : 0;
-    
-    return {
-      name,
-      count: members.length,
-      totalVotes,
-      totalExpenses,
-      totalFinancialExpenses,
-      totalEstimatedDonations,
-      avgCostPerVote: totalVotes > 0 ? totalExpenses / totalVotes : 0,
-      medianCostPerVote: calculateMedian(costPerVotes),
-      financialPct,
-    };
-  }).sort((a, b) => b.count - a.count);
-  
-  // Data for charts
-  const displayGroups = groupStats.slice(0, 5);
-  
-  // Radar data for expense distribution comparison
-  const radarData = analyticalGroups.slice(0, 6).map((ag) => {
-    const data: Record<string, any> = { category: ag.name };
-    displayGroups.forEach((group) => {
-      const groupCandidacies = candidacies.filter((c) => c[groupBy] === group.name);
-      const total = groupCandidacies.reduce((sum, c) => {
-        return sum + ag.categories.reduce((catSum, cat) => catSum + (c.expenses[cat] || 0), 0);
-      }, 0);
-      data[group.name] = total;
-    });
-    return data;
-  });
   
   return (
     <div className="space-y-6 animate-fade-in">
@@ -232,7 +241,9 @@ export const GroupComparison: React.FC = () => {
         
         {/* Radar Chart - Expense Distribution */}
         <div className="glass-panel rounded-xl p-6">
-          <h3 className="text-sm font-semibold mb-4">Perfil de gastos por grupo analítico</h3>
+          <h3 className="text-sm font-semibold mb-4">
+            Perfil de gastos ({viewMode === 'analytical' ? 'por grupo analítico' : 'por categoria legal'})
+          </h3>
           <ResponsiveContainer width="100%" height={350}>
             <RadarChart data={radarData}>
               <PolarGrid stroke="hsl(var(--border))" />
