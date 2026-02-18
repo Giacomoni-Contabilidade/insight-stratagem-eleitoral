@@ -106,13 +106,18 @@ export const DataImport: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
         datasetId: '', // Will be set by store
       })) as Candidacy[];
       
-      await addDataset({
+      const datasetId = await addDataset({
         name: formData.name,
         year: parseInt(formData.year),
         state: formData.state,
         position: formData.position,
         candidacies,
       });
+      
+      if (!datasetId) {
+        toast.error('Erro ao salvar dataset no banco de dados. Tente novamente.');
+        return;
+      }
       
       toast.success(`${candidacies.length} candidaturas importadas com sucesso!`);
       
