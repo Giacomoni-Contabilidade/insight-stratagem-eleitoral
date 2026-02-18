@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, type ReactNode } from 'react';
 import { useDatasets } from '@/hooks/useDatasets';
 import { useAuth } from '@/hooks/useAuth';
 import { Dataset, Candidacy, AnalyticalGroup, FilterState } from '@/types/campaign';
