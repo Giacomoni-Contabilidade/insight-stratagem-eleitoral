@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { Candidacy } from '@/types/campaign';
 import { formatCurrency, formatNumber, formatPercentage } from '@/lib/dataParser';
@@ -56,9 +56,16 @@ export const CandidacyComparison: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterParty, setFilterParty] = useState<string>('');
 
-  const { getFilteredCandidacies, getActiveDataset } = useData();
+  const { getFilteredCandidacies, getActiveDataset, activeDatasetId } = useData();
   const candidacies = getFilteredCandidacies();
   const activeDataset = getActiveDataset();
+
+  // Reset selection when dataset changes
+  useEffect(() => {
+    setSelectedIds([]);
+    setSearchTerm('');
+    setFilterParty('');
+  }, [activeDatasetId]);
 
   // Get unique parties
   const parties = useMemo(() => {
