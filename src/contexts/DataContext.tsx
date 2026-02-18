@@ -52,6 +52,12 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [viewMode, setViewMode] = useState<'legal' | 'analytical'>('legal');
   const [filters, setFiltersState] = useState<FilterState>(DEFAULT_FILTERS);
 
+  // Reset filters when active dataset changes to prevent stale filters hiding data
+  const setActiveDatasetId = (id: string | null) => {
+    datasetsHook.setActiveDatasetId(id);
+    setFiltersState(DEFAULT_FILTERS);
+  };
+
   const setFilters = (newFilters: Partial<FilterState>) => {
     setFiltersState(prev => ({ ...prev, ...newFilters }));
   };
@@ -89,7 +95,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     datasets: datasetsHook.datasets,
     analyticalGroups: datasetsHook.analyticalGroups,
     activeDatasetId: datasetsHook.activeDatasetId,
-    setActiveDatasetId: datasetsHook.setActiveDatasetId,
+    setActiveDatasetId,
     dataLoading: datasetsHook.loading,
     
     // Actions

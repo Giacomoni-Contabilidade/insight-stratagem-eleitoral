@@ -58,7 +58,11 @@ const computeMetrics = (ds: Dataset): DatasetMetrics => {
   const totalFinancial = cands.reduce((s, c) => s + c.financialExpenses, 0);
   const totalDonations = cands.reduce((s, c) => s + c.estimatedDonations, 0);
   const cpvs = cands.map((c) => c.costPerVote).filter((v) => v > 0 && isFinite(v)).sort((a, b) => a - b);
-  const median = cpvs.length > 0 ? cpvs[Math.floor(cpvs.length / 2)] : 0;
+  const median = cpvs.length === 0
+    ? 0
+    : cpvs.length % 2 === 1
+      ? cpvs[Math.floor(cpvs.length / 2)]
+      : (cpvs[cpvs.length / 2 - 1] + cpvs[cpvs.length / 2]) / 2;
   const avgCpv = cpvs.length > 0 ? cpvs.reduce((s, v) => s + v, 0) / cpvs.length : 0;
 
   return {

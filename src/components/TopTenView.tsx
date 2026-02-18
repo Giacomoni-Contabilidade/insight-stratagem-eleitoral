@@ -254,12 +254,12 @@ const RankingCard: React.FC<{
 };
 
 export const TopTenView: React.FC = () => {
-  const { activeDatasetId, datasets } = useData();
+  const { activeDatasetId, datasets, getFilteredCandidacies } = useData();
   const activeDataset = datasets.find((d) => d.id === activeDatasetId);
   
   const [selectedCategory, setSelectedCategory] = useState<LegalExpenseCategory | ''>('');
 
-  const candidates = activeDataset?.candidacies || [];
+  const candidates = getFilteredCandidacies();
 
   const categoryConfig: RankingConfig = {
     id: 'category-expenses',
