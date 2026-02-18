@@ -216,9 +216,10 @@ export const formatPercentage = (value: number, decimals = 1): string => {
 };
 
 export const calculatePercentile = (value: number, allValues: number[]): number => {
+  if (allValues.length === 0) return 0;
   const sorted = [...allValues].sort((a, b) => a - b);
-  const index = sorted.findIndex((v) => v >= value);
-  return ((index + 1) / sorted.length) * 100;
+  const belowCount = sorted.filter((v) => v < value).length;
+  return (belowCount / sorted.length) * 100;
 };
 
 export const calculateMedian = (values: number[]): number => {
