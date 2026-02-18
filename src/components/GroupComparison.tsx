@@ -57,7 +57,7 @@ interface GroupStats {
 
 export const GroupComparison: React.FC = () => {
   const [groupBy, setGroupBy] = useState<GroupByField>('gender');
-  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  
   
   const { getFilteredCandidacies, analyticalGroups } = useData();
   const candidacies = getFilteredCandidacies();
@@ -108,9 +108,7 @@ export const GroupComparison: React.FC = () => {
   
   // Data for charts
   const availableGroups = groupStats.map((g) => g.name);
-  const displayGroups = selectedGroups.length > 0 
-    ? groupStats.filter((g) => selectedGroups.includes(g.name))
-    : groupStats.slice(0, 5);
+  const displayGroups = groupStats.slice(0, 5);
   
   // Radar data for expense distribution comparison
   const radarData = analyticalGroups.slice(0, 6).map((ag) => {
@@ -140,7 +138,6 @@ export const GroupComparison: React.FC = () => {
             <Label className="text-xs">Agrupar por</Label>
             <Select value={groupBy} onValueChange={(v) => {
               setGroupBy(v as GroupByField);
-              setSelectedGroups([]);
             }}>
               <SelectTrigger className="w-40">
                 <SelectValue />
