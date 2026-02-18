@@ -13,6 +13,16 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { 
   Plus, 
   Trash2, 
@@ -217,9 +227,12 @@ export const AnalyticalGroups: React.FC = () => {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (group: AnalyticalGroup) => {
-    if (confirm(`Tem certeza que deseja excluir o grupo "${group.name}"?`)) {
-      await deleteAnalyticalGroup(group.id);
+  const [deleteTarget, setDeleteTarget] = useState<AnalyticalGroup | null>(null);
+
+  const handleDelete = async () => {
+    if (deleteTarget) {
+      await deleteAnalyticalGroup(deleteTarget.id);
+      setDeleteTarget(null);
     }
   };
   
@@ -349,7 +362,7 @@ export const AnalyticalGroups: React.FC = () => {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 text-destructive hover:text-destructive"
-                  onClick={() => handleDelete(group)}
+                  onClick={() => setDeleteTarget(group)}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -399,6 +412,21 @@ export const AnalyticalGroups: React.FC = () => {
           })}
         </div>
       </div>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir grupo</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o grupo "{deleteTarget?.name}"? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
