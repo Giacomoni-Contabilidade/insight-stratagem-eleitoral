@@ -52,7 +52,7 @@ interface DatasetMetrics {
 
 const computeMetrics = (ds: Dataset): DatasetMetrics => {
   const cands = ds.candidacies || [];
-  const n = cands.length || 1;
+  const n = cands.length;
   const totalVotes = cands.reduce((s, c) => s + c.votes, 0);
   const totalExpenses = cands.reduce((s, c) => s + c.totalExpenses, 0);
   const totalFinancial = cands.reduce((s, c) => s + c.financialExpenses, 0);
@@ -67,15 +67,15 @@ const computeMetrics = (ds: Dataset): DatasetMetrics => {
 
   return {
     dataset: ds,
-    totalCandidacies: cands.length,
+    totalCandidacies: n,
     totalVotes,
     totalExpenses,
     totalFinancial,
     totalDonations,
     avgCostPerVote: avgCpv,
     medianCostPerVote: median,
-    avgVotes: totalVotes / n,
-    avgExpenses: totalExpenses / n,
+    avgVotes: n > 0 ? totalVotes / n : 0,
+    avgExpenses: n > 0 ? totalExpenses / n : 0,
   };
 };
 

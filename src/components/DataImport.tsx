@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { parseSpreadsheetData, validateParsedData } from '@/lib/dataParser';
 import { useData } from '@/contexts/DataContext';
-import { Candidacy, ParsedRow, COLUMN_ORDER } from '@/types/campaign';
+import { Candidacy, ParsedRow, COLUMN_ORDER, type LegalExpenseCategory } from '@/types/campaign';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -93,30 +93,51 @@ export const DataImport: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
   };
   
   const handleImport = async () => {
-    if (!formData.name || !formData.state || !formData.position) {
+    const trimmedName = formData.name.trim();
+    const trimmedState = formData.state.trim();
+    const trimmedPosition = formData.position.trim();
+
+    if (!trimmedName || !trimmedState || !trimmedPosition) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
 
+    const currentYear = new Date().getFullYear();
+    const maxYear = currentYear + 4;
     const year = parseInt(formData.year);
-    if (isNaN(year) || year < 2000 || year > 2030) {
-      toast.error('Ano deve estar entre 2000 e 2030');
+    if (isNaN(year) || year < 2000 || year > maxYear) {
+      toast.error(`Ano deve estar entre 2000 e ${maxYear}`);
       return;
     }
     
     setImporting(true);
     
     try {
-      const candidacies = valid.map((row) => ({
-        ...row.data,
-      })) as Omit<Candidacy, 'id' | 'datasetId'>[];
+      const candidacies: Candidacy[] = valid.map((row) => ({
+        id: row.data.id ?? '',
+        datasetId: '',
+        name: row.data.name ?? '',
+        party: row.data.party ?? '',
+        gender: row.data.gender ?? 'Não informado',
+        race: row.data.race ?? 'Não informado',
+        education: row.data.education ?? 'Não informado',
+        occupation: row.data.occupation ?? 'Não informado',
+        votes: row.data.votes ?? 0,
+        financialExpenses: row.data.financialExpenses ?? 0,
+        estimatedDonations: row.data.estimatedDonations ?? 0,
+        totalExpenses: row.data.totalExpenses ?? 0,
+        costPerVote: row.data.costPerVote ?? 0,
+        financialExpensesPct: row.data.financialExpensesPct ?? 0,
+        estimatedDonationsPct: row.data.estimatedDonationsPct ?? 0,
+        expenses: row.data.expenses ?? ({} as Record<LegalExpenseCategory, number>),
+      }));
       
       const datasetId = await addDataset({
-        name: formData.name,
+        name: trimmedName,
         year,
-        state: formData.state,
-        position: formData.position,
-        candidacies: candidacies as Candidacy[],
+        state: trimmedState,
+        position: trimmedPosition,
+        candidacies,
       });
       
       if (!datasetId) {
@@ -335,7 +356,7 @@ export const DataImport: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
                 id="year"
                 type="number"
                 min="2000"
-                max="2030"
+                max={new Date().getFullYear() + 4}
                 value={formData.year}
                 onChange={(e) => setFormData({ ...formData, year: e.target.value })}
                 className="mt-1.5"

@@ -263,7 +263,14 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
         .select()
         .single();
 
-      if (!error && data) {
+      if (error) {
+        // Unique constraint conflict — group already exists, skip
+        if (error.code === '23505') continue;
+        console.warn('Error creating default group:', error);
+        continue;
+      }
+
+      if (data) {
         groups.push({
           id: data.id,
           name: data.name,
