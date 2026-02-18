@@ -124,7 +124,7 @@ export const CandidacyProfile: React.FC = () => {
     if (!selectedCandidacy) return [];
     
     if (viewMode === 'analytical') {
-      return analyticalGroups.slice(0, 6).map((group) => {
+      return analyticalGroups.map((group) => {
         const candidateValue = group.categories.reduce(
           (sum, cat) => sum + (selectedCandidacy.expenses[cat] || 0), 0
         );
