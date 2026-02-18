@@ -201,10 +201,29 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
 
       setDatasets(transformedDatasets);
 
-      // If no analytical groups, create defaults
+      // If no analytical groups, create defaults (with re-check to avoid race condition)
       if (dbGroups.length === 0 && user) {
-        const defaultGroups = await createDefaultAnalyticalGroups();
-        setAnalyticalGroups(defaultGroups);
+        // Re-check to prevent duplicate creation from concurrent loads
+        const { data: recheck } = await supabase
+          .from('analytical_groups')
+          .select('id')
+          .limit(1);
+        if (recheck && recheck.length > 0) {
+          // Another load already created them, re-fetch
+          const { data: freshGroups } = await supabase
+            .from('analytical_groups')
+            .select('*')
+            .order('created_at', { ascending: true });
+          setAnalyticalGroups((freshGroups || []).map(g => ({
+            id: g.id,
+            name: g.name,
+            categories: g.categories as LegalExpenseCategory[],
+            color: g.color,
+          })));
+        } else {
+          const defaultGroups = await createDefaultAnalyticalGroups();
+          setAnalyticalGroups(defaultGroups);
+        }
       } else {
         setAnalyticalGroups(dbGroups.map(g => ({
           id: g.id,
@@ -386,13 +405,16 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
 
   const updateAnalyticalGroup = async (id: string, updates: Partial<AnalyticalGroup>) => {
     try {
+      const payload: Record<string, unknown> = {};
+      if (updates.name !== undefined) payload.name = updates.name;
+      if (updates.categories !== undefined) payload.categories = updates.categories;
+      if (updates.color !== undefined) payload.color = updates.color;
+
+      if (Object.keys(payload).length === 0) return;
+
       const { error } = await supabase
         .from('analytical_groups')
-        .update({
-          name: updates.name,
-          categories: updates.categories,
-          color: updates.color,
-        })
+        .update(payload)
         .eq('id', id);
 
       if (error) throw error;
