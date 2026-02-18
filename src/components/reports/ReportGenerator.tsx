@@ -23,7 +23,8 @@ import {
   X,
   FileDown,
   Receipt,
-  Medal
+  Medal,
+  Layers
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Candidacy } from '@/types/campaign';
@@ -62,6 +63,12 @@ const SECTION_CONFIGS: SectionConfig[] = [
     icon: <Medal className="w-5 h-5" />,
   },
   {
+    id: 'analyticalGroups',
+    label: 'Grupos Analíticos',
+    description: 'Gastos organizados pelos grupos analíticos configurados',
+    icon: <Layers className="w-5 h-5" />,
+  },
+  {
     id: 'comparison',
     label: 'Comparativo de Candidaturas',
     description: 'Tabela comparando candidaturas selecionadas lado a lado',
@@ -76,7 +83,7 @@ const SECTION_CONFIGS: SectionConfig[] = [
 ];
 
 export const ReportGenerator: React.FC = () => {
-  const { activeDatasetId, datasets } = useData();
+  const { activeDatasetId, datasets, analyticalGroups } = useData();
   const activeDataset = datasets.find((d) => d.id === activeDatasetId);
 
   const [sections, setSections] = useState<ReportSections>({
@@ -86,6 +93,7 @@ export const ReportGenerator: React.FC = () => {
     distributions: true,
     expenseTypes: true,
     expenseChampions: true,
+    analyticalGroups: false,
   });
   const [clientName, setClientName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -156,6 +164,7 @@ export const ReportGenerator: React.FC = () => {
           dataset={activeDataset}
           sections={sections}
           selectedCandidacies={selectedCandidacies}
+          analyticalGroups={analyticalGroups}
           generatedAt={new Date()}
           clientName={clientName || undefined}
         />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Document, Page, View, Text } from '@react-pdf/renderer';
 import { styles, colors } from './PDFStyles';
-import { Candidacy, Dataset, LEGAL_EXPENSE_CATEGORIES, LegalExpenseCategory } from '@/types/campaign';
+import { Candidacy, Dataset, LEGAL_EXPENSE_CATEGORIES, LegalExpenseCategory, AnalyticalGroup } from '@/types/campaign';
 import { formatCurrency, formatNumber, calculateMedian } from '@/lib/dataParser';
 
 export interface ReportSections {
@@ -11,12 +11,14 @@ export interface ReportSections {
   distributions: boolean;
   expenseTypes: boolean;
   expenseChampions: boolean;
+  analyticalGroups: boolean;
 }
 
 interface ReportProps {
   dataset: Dataset;
   sections: ReportSections;
   selectedCandidacies?: Candidacy[];
+  analyticalGroups?: AnalyticalGroup[];
   generatedAt: Date;
   clientName?: string;
 }
@@ -607,11 +609,82 @@ const ExpenseChampionsSection: React.FC<{ candidacies: Candidacy[] }> = ({ candi
   );
 };
 
+// Analytical Groups Section
+const AnalyticalGroupsSection: React.FC<{ 
+  candidacies: Candidacy[]; 
+  groups: AnalyticalGroup[];
+}> = ({ candidacies, groups }) => {
+  if (groups.length === 0) return null;
+
+  const groupData = groups.map(group => {
+    const total = candidacies.reduce((sum, c) => {
+      return sum + group.categories.reduce((catSum, cat) => catSum + (c.expenses[cat] || 0), 0);
+    }, 0);
+    return { name: group.name, total, color: group.color, categories: group.categories };
+  }).sort((a, b) => b.total - a.total);
+
+  const grandTotal = groupData.reduce((sum, g) => sum + g.total, 0);
+
+  return (
+    <View>
+      <Text style={styles.sectionTitle}>Análise por Grupos Analíticos</Text>
+      
+      <View style={styles.statsGrid}>
+        <StatCard 
+          label="Grupos Configurados" 
+          value={String(groups.length)} 
+        />
+        <StatCard 
+          label="Total de Gastos" 
+          value={formatCurrency(grandTotal)} 
+        />
+        <StatCard 
+          label="Maior Grupo" 
+          value={groupData.length > 0 ? groupData[0].name : '-'} 
+          subvalue={groupData.length > 0 ? formatCurrency(groupData[0].total) : ''}
+        />
+      </View>
+
+      <BarChart 
+        title="Gastos por Grupo Analítico" 
+        data={groupData.map(g => ({
+          label: g.name.length > 20 ? g.name.substring(0, 20) + '...' : g.name,
+          value: g.total,
+          color: g.color,
+        }))}
+        formatValue={formatCurrency}
+      />
+
+      {/* Detail table */}
+      <View style={[styles.chartContainer, { marginTop: 12 }]}>
+        <Text style={styles.chartTitle}>Detalhamento por Grupo</Text>
+        <View style={styles.tableHeader}>
+          <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Grupo</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>Total</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right' }]}>% do Total</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>Categorias</Text>
+        </View>
+        {groupData.map((g, idx) => (
+          <View key={g.name} style={[styles.tableRow, idx % 2 === 1 ? styles.tableRowAlt : {}]}>
+            <Text style={[styles.tableCellBold, { flex: 2 }]}>{g.name}</Text>
+            <Text style={[styles.tableCell, { flex: 1, textAlign: 'right' }]}>{formatCurrency(g.total)}</Text>
+            <Text style={[styles.tableCell, { flex: 1, textAlign: 'right' }]}>
+              {grandTotal > 0 ? ((g.total / grandTotal) * 100).toFixed(1) + '%' : '0%'}
+            </Text>
+            <Text style={[styles.tableCell, { flex: 1, textAlign: 'center' }]}>{String(g.categories.length)}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
+
 // Main Report Document
 export const CampaignReport: React.FC<ReportProps> = ({
   dataset,
   sections,
   selectedCandidacies = [],
+  analyticalGroups = [],
   generatedAt,
   clientName,
 }) => {
@@ -654,6 +727,15 @@ export const CampaignReport: React.FC<ReportProps> = ({
         <Page size="A4" style={styles.page}>
           <PageHeader title="Campeões por Categoria" datasetName={dataset.name} />
           <ExpenseChampionsSection candidacies={candidacies} />
+          <PageFooter />
+        </Page>
+      )}
+
+      {/* Analytical Groups Page */}
+      {sections.analyticalGroups && analyticalGroups.length > 0 && (
+        <Page size="A4" style={styles.page}>
+          <PageHeader title="Grupos Analíticos" datasetName={dataset.name} />
+          <AnalyticalGroupsSection candidacies={candidacies} groups={analyticalGroups} />
           <PageFooter />
         </Page>
       )}
