@@ -316,7 +316,10 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
 
         if (candidaturesError) {
           // Rollback: delete the incomplete dataset
-          await supabase.from('datasets').delete().eq('id', newDataset.id);
+          const { error: rollbackError } = await supabase.from('datasets').delete().eq('id', newDataset.id);
+          if (rollbackError) {
+            console.error('Rollback failed, orphan dataset:', newDataset.id, rollbackError);
+          }
           throw candidaturesError;
         }
       }
