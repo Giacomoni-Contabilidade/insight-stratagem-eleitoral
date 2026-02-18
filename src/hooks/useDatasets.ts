@@ -292,7 +292,11 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
           .from('candidatures')
           .insert(candidaturesToInsert);
 
-        if (candidaturesError) throw candidaturesError;
+        if (candidaturesError) {
+          // Rollback: delete the incomplete dataset
+          await supabase.from('datasets').delete().eq('id', newDataset.id);
+          throw candidaturesError;
+        }
       }
 
       await fetchData();
