@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, type ReactNode } from 'react';
 import { useDatasets } from '@/hooks/useDatasets';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { Dataset, Candidacy, AnalyticalGroup, FilterState } from '@/types/campaign';
 
 interface DataContextType {
@@ -8,6 +9,7 @@ interface DataContextType {
   user: ReturnType<typeof useAuth>['user'];
   isAuthenticated: boolean;
   authLoading: boolean;
+  isAdmin: boolean;
   signOut: () => Promise<void>;
   
   // Data
@@ -47,6 +49,7 @@ const DataContext = createContext<DataContextType | null>(null);
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const auth = useAuth();
+  const { isAdmin, roleLoading } = useUserRole(auth.user);
   const datasetsHook = useDatasets(auth.user, auth.isAuthenticated);
   
   const [viewMode, setViewMode] = useState<'legal' | 'analytical'>('legal');
@@ -88,7 +91,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Auth
     user: auth.user,
     isAuthenticated: auth.isAuthenticated,
-    authLoading: auth.loading,
+    authLoading: auth.loading || roleLoading,
+    isAdmin,
     signOut: auth.signOut,
     
     // Data
