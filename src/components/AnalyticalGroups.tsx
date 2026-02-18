@@ -139,7 +139,7 @@ const GroupForm: React.FC<{
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={() => !isUsedElsewhere && toggleCategory(cat)}
-                    disabled={isUsedElsewhere}
+                    disabled={isUsedElsewhere || false}
                     className="mt-0.5"
                   />
                   <div className="flex-1">

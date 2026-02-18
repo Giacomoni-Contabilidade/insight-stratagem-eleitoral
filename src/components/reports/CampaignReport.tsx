@@ -404,7 +404,7 @@ const ComparisonSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies
         
         {/* Metric rows */}
         {metrics.map((metric, idx) => (
-          <View key={metric.label} style={[styles.comparisonRow, idx % 2 === 1 && { backgroundColor: colors.background }]}>
+          <View key={metric.label} style={[styles.comparisonRow, ...(idx % 2 === 1 ? [{ backgroundColor: colors.background }] : [])]}>
             <View style={styles.comparisonLabel}>
               <Text>{metric.label}</Text>
             </View>
@@ -509,7 +509,7 @@ const ExpenseTypesSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidaci
         {top20Categories.map((item, idx) => {
           const percentOfTotal = grandTotal > 0 ? ((item.total / grandTotal) * 100).toFixed(1) : '0.0';
           return (
-            <View key={item.category} style={[styles.tableRow, idx % 2 === 1 && styles.tableRowAlt]}>
+             <View key={item.category} style={[styles.tableRow, ...(idx % 2 === 1 ? [styles.tableRowAlt] : [])]}>
               <Text style={[styles.tableCell, { width: '50%' }]}>{item.category}</Text>
               <Text style={[styles.tableCell, { width: '25%', textAlign: 'right' }]}>{formatCurrency(item.total)}</Text>
               <Text style={[styles.tableCell, { width: '25%', textAlign: 'right' }]}>{percentOfTotal}%</Text>
@@ -579,7 +579,7 @@ const ExpenseChampionsSection: React.FC<{ candidacies: Candidacy[] }> = ({ candi
           <Text style={[styles.tableHeaderCell, { width: '15%', textAlign: 'right' }]}>% Cat.</Text>
         </View>
         {top15Champions.map((item, idx) => (
-          <View key={item.category} style={[styles.tableRow, idx % 2 === 1 && styles.tableRowAlt]}>
+          <View key={item.category} style={[styles.tableRow, ...(idx % 2 === 1 ? [styles.tableRowAlt] : [])]}>
             <Text style={[styles.tableCell, { width: '35%' }]}>
               {item.category.length > 30 ? item.category.substring(0, 30) + '...' : item.category}
             </Text>
