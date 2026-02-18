@@ -17,6 +17,7 @@ import {
 import {
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -287,8 +288,8 @@ export const DatasetComparison: React.FC = () => {
                   }}
                 />
                 <Bar dataKey="Total Despesas" radius={[6, 6, 0, 0]}>
-                  {barChartData.map((entry, i) => (
-                    <rect key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                  {barChartData.map((_, i) => (
+                    <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>
