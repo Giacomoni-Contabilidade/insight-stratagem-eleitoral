@@ -254,6 +254,7 @@ export const ReportGenerator: React.FC = () => {
                   <Checkbox
                     checked={sections[config.id]}
                     onCheckedChange={() => toggleSection(config.id)}
+                    onClick={(e) => e.stopPropagation()}
                     className="mt-0.5"
                   />
                   <div className={cn(
