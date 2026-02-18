@@ -183,7 +183,7 @@ const RankingsSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies }
       <View style={styles.twoColumnGrid}>
         <View style={styles.column}>
           <View style={styles.rankingContainer}>
-            <Text style={styles.rankingTitle}>[1o] Mais Votados</Text>
+            <Text style={styles.rankingTitle}>Mais Votados</Text>
             {mostVoted.map((c, i) => (
               <RankingItem 
                 key={c.id} 
@@ -196,7 +196,7 @@ const RankingsSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies }
           </View>
           
           <View style={styles.rankingContainer}>
-            <Text style={styles.rankingTitle}>[R$] Maiores Gastos</Text>
+            <Text style={styles.rankingTitle}>Maiores Gastos</Text>
             {mostExpenses.map((c, i) => (
               <RankingItem 
                 key={c.id} 
@@ -209,7 +209,7 @@ const RankingsSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies }
           </View>
           
           <View style={styles.rankingContainer}>
-            <Text style={styles.rankingTitle}>[v] Votos Mais Baratos</Text>
+            <Text style={styles.rankingTitle}>Votos Mais Baratos</Text>
             {cheapestVotes.map((c, i) => (
               <RankingItem 
                 key={c.id} 
@@ -224,7 +224,7 @@ const RankingsSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies }
         
         <View style={styles.column}>
           <View style={styles.rankingContainer}>
-            <Text style={styles.rankingTitle}>[#] Menos Votados</Text>
+            <Text style={styles.rankingTitle}>Menos Votados</Text>
             {leastVoted.map((c, i) => (
               <RankingItem 
                 key={c.id} 
@@ -237,7 +237,7 @@ const RankingsSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies }
           </View>
           
           <View style={styles.rankingContainer}>
-            <Text style={styles.rankingTitle}>[c] Menores Gastos</Text>
+            <Text style={styles.rankingTitle}>Menores Gastos</Text>
             {leastExpenses.map((c, i) => (
               <RankingItem 
                 key={c.id} 
@@ -250,7 +250,7 @@ const RankingsSection: React.FC<{ candidacies: Candidacy[] }> = ({ candidacies }
           </View>
           
           <View style={styles.rankingContainer}>
-            <Text style={styles.rankingTitle}>[!] Votos Mais Caros</Text>
+            <Text style={styles.rankingTitle}>Votos Mais Caros</Text>
             {expensiveVotes.map((c, i) => (
               <RankingItem 
                 key={c.id} 
