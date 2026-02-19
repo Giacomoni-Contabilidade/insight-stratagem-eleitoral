@@ -87,6 +87,7 @@ export interface Dataset {
   state: string;
   position: string;
   candidacies: Candidacy[];
+  candidacyCount: number; // lightweight count fetched without loading all candidacies
   createdAt: Date;
   updatedAt: Date;
 }

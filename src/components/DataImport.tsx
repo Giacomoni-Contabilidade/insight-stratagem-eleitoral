@@ -476,6 +476,7 @@ const PasteTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
         state: trimmedState,
         position: trimmedPosition,
         candidacies,
+        candidacyCount: candidacies.length,
       });
       
       if (!datasetId) {
