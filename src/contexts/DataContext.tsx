@@ -52,6 +52,7 @@ const DEFAULT_FILTERS: FilterState = {
   occupations: [],
 };
 
+// Force clean HMR rebuild
 const DataContext = createContext<DataContextType | null>(null);
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
