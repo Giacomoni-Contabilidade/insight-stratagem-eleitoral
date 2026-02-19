@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { Dataset, Candidacy } from '@/types/campaign';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -224,6 +225,20 @@ export const DatasetComparison: React.FC = () => {
                 </div>
               </label>
             ))}
+          </div>
+          <div className="flex gap-2 mt-3">
+            <Button variant="outline" size="sm" onClick={() => setSelectedIds(datasets.map(d => d.id))}>
+              Marcar tudo
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setSelectedIds([])}>
+              Desmarcar tudo
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => {
+              const allIds = datasets.map(d => d.id);
+              setSelectedIds(allIds.filter(id => !effectiveIds.includes(id)));
+            }}>
+              Inverter
+            </Button>
           </div>
         </CardContent>
       </Card>
