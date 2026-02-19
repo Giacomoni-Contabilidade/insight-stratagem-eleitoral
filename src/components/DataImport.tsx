@@ -51,6 +51,7 @@ interface DatasetFormData {
 // ── File Upload Sub-component ──
 
 const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
+  const { refetch } = useData();
   const [file, setFile] = useState<File | null>(null);
   const [multiMode, setMultiMode] = useState(false);
   const [formData, setFormData] = useState<DatasetFormData>({
@@ -156,7 +157,8 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
         );
       }
 
-      // Reset
+      // Refresh datasets from backend then reset
+      await refetch();
       setFile(null);
       setFormData({ name: '', year: new Date().getFullYear().toString(), state: '', position: '' });
       if (fileInputRef.current) fileInputRef.current.value = '';
