@@ -290,7 +290,7 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
                         <div className="flex flex-col items-start">
                           <span className="font-medium">{ds.name}</span>
                           <span className="text-xs text-muted-foreground">
-                            {ds.candidacyCount || ds.candidacies?.length || 0} candidaturas
+                            {ds.candidacyCount} candidaturas
                           </span>
                         </div>
                       </SelectItem>

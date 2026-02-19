@@ -533,6 +533,15 @@ async function handleMultiMode(
       imported += batch.length;
     }
 
+    // Compute and store dataset metadata
+    const totalVotes = group.records.reduce((s, r) => s + (Number(r.votes) || 0), 0);
+    const totalExpenses = group.records.reduce((s, r) => s + (Number(r.total_expenses) || 0), 0);
+    await supabase.from("datasets").update({
+      candidacy_count: imported,
+      total_votes: totalVotes,
+      total_expenses: totalExpenses,
+    }).eq("id", datasetId);
+
     createdDatasets.push({ datasetId, position: group.position, state: group.state, imported });
   }
 

@@ -137,31 +137,40 @@ export type Database = {
       }
       datasets: {
         Row: {
+          candidacy_count: number
           created_at: string
           id: string
           name: string
           position: string
           state: string
+          total_expenses: number
+          total_votes: number
           updated_at: string
           user_id: string
           year: number
         }
         Insert: {
+          candidacy_count?: number
           created_at?: string
           id?: string
           name: string
           position: string
           state: string
+          total_expenses?: number
+          total_votes?: number
           updated_at?: string
           user_id: string
           year: number
         }
         Update: {
+          candidacy_count?: number
           created_at?: string
           id?: string
           name?: string
           position?: string
           state?: string
+          total_expenses?: number
+          total_votes?: number
           updated_at?: string
           user_id?: string
           year?: number
@@ -218,13 +227,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_candidature_counts: {
-        Args: never
-        Returns: {
-          count: number
-          dataset_id: string
-        }[]
-      }
       has_dataset_access: {
         Args: { _dataset_id: string; _user_id: string }
         Returns: boolean
