@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useData } from '@/contexts/DataContext';
+import { Switch } from '@/components/ui/switch';
 import { DataImport } from '@/components/DataImport';
 import { Dashboard } from '@/components/Dashboard';
 import { GroupComparison } from '@/components/GroupComparison';
@@ -35,8 +36,9 @@ import {
   FileDown,
   LogOut,
   Loader2
-} from 'lucide-react';
+  } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 
 type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten' | 'reports' | 'dataset-comparison' | 'users';
 
@@ -92,6 +94,8 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
     user,
     isAdmin,
     getActiveDataset,
+    hideZeroCandidates,
+    setHideZeroCandidates,
   } = useData();
   
   const activeDataset = getActiveDataset();
@@ -302,6 +306,18 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
           </div>
           
           <div className="flex items-center gap-4">
+            {/* Zero candidates filter */}
+            <div className="flex items-center gap-2">
+              <Switch
+                id="hide-zero"
+                checked={hideZeroCandidates}
+                onCheckedChange={setHideZeroCandidates}
+              />
+              <Label htmlFor="hide-zero" className="text-sm text-muted-foreground cursor-pointer whitespace-nowrap">
+                Ocultar zerados
+              </Label>
+            </div>
+            
             {/* View Mode Toggle */}
             {activeDataset && (
               <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1.5 shadow-inner">
