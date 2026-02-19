@@ -150,18 +150,31 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
       const dbDatasets = datasetsRes.data as DatabaseDataset[];
       const dbGroups = groupsRes.data as DatabaseAnalyticalGroup[];
 
-      // Fetch candidatures for all datasets
+      // Fetch candidatures for all datasets (paginated to overcome 1000-row limit)
       const datasetIds = dbDatasets.map(d => d.id);
       let candidatures: DatabaseCandidature[] = [];
 
       if (datasetIds.length > 0) {
-        const { data, error } = await supabase
-          .from('candidatures')
-          .select('*')
-          .in('dataset_id', datasetIds);
+        const PAGE_SIZE = 1000;
+        let from = 0;
+        let hasMore = true;
 
-        if (error) throw error;
-        candidatures = data as DatabaseCandidature[];
+        while (hasMore) {
+          const { data, error } = await supabase
+            .from('candidatures')
+            .select('*')
+            .in('dataset_id', datasetIds)
+            .range(from, from + PAGE_SIZE - 1);
+
+          if (error) throw error;
+          if (data && data.length > 0) {
+            candidatures = candidatures.concat(data as DatabaseCandidature[]);
+            from += PAGE_SIZE;
+            hasMore = data.length === PAGE_SIZE;
+          } else {
+            hasMore = false;
+          }
+        }
       }
 
       // Transform to app format
