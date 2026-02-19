@@ -47,6 +47,7 @@ export type Database = {
           created_at: string
           dataset_id: string
           education: string
+          elected: boolean
           estimated_donations: number
           expenses: Json
           financial_expenses: number
@@ -64,6 +65,7 @@ export type Database = {
           created_at?: string
           dataset_id: string
           education?: string
+          elected?: boolean
           estimated_donations?: number
           expenses?: Json
           financial_expenses?: number
@@ -81,6 +83,7 @@ export type Database = {
           created_at?: string
           dataset_id?: string
           education?: string
+          elected?: boolean
           estimated_donations?: number
           expenses?: Json
           financial_expenses?: number

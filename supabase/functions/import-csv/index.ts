@@ -31,7 +31,7 @@ const LEGAL_EXPENSE_CATEGORIES = [
 
 const SINGLE_EXPECTED_COLUMNS = 10 + LEGAL_EXPENSE_CATEGORIES.length; // 48
 // Multi format: Candidatura, Cargo, Partido, UF, Municipio, Genero, Raça_cor, Ensino, Ocupacao, Votos, Despesas_Financeiras, Doacoes_Estimadas, Total de gastos, [38 expense categories]
-const MULTI_EXPECTED_COLUMNS = 13 + LEGAL_EXPENSE_CATEGORIES.length; // 51
+const MULTI_EXPECTED_COLUMNS = 13 + LEGAL_EXPENSE_CATEGORIES.length + 1; // 52 (last column = Eleito)
 
 function normalizeGender(v: string): string {
   const n = v.toLowerCase().trim();
@@ -245,6 +245,10 @@ function parseRowMulti(columns: string[]) {
   const totalExpenses = financialExpenses + estimatedDonations;
   const costPerVote = votes > 0 ? totalExpenses / votes : 0;
 
+  // Last column: Eleito (boolean)
+  const eleitoCol = columns[13 + LEGAL_EXPENSE_CATEGORIES.length]?.trim().toLowerCase() || "";
+  const elected = eleitoCol === "true" || eleitoCol === "1" || eleitoCol === "sim" || eleitoCol === "s" || eleitoCol === "eleito";
+
   return {
     errors,
     position: normalizePosition(position),
@@ -262,6 +266,7 @@ function parseRowMulti(columns: string[]) {
       total_expenses: totalExpenses,
       cost_per_vote: costPerVote,
       expenses,
+      elected,
     },
   };
 }

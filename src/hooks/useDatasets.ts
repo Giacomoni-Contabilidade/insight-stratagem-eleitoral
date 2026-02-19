@@ -57,6 +57,7 @@ interface DatabaseCandidature {
   total_expenses: number;
   cost_per_vote: number;
   expenses: Record<string, number>;
+  elected: boolean;
   created_at: string;
 }
 
@@ -145,6 +146,7 @@ function transformCandidatures(rows: DatabaseCandidature[]): Candidacy[] {
       ? Number(c.estimated_donations) / Number(c.total_expenses) 
       : 0,
     expenses: c.expenses as Record<LegalExpenseCategory, number>,
+    elected: c.elected ?? false,
   }));
 }
 
@@ -448,6 +450,7 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
           total_expenses: c.totalExpenses,
           cost_per_vote: c.costPerVote,
           expenses: c.expenses,
+          elected: c.elected ?? false,
         }));
 
         const { error: candidaturesError } = await supabase
