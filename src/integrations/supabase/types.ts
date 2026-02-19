@@ -218,6 +218,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_candidature_counts: {
+        Args: never
+        Returns: {
+          count: number
+          dataset_id: string
+        }[]
+      }
       has_dataset_access: {
         Args: { _dataset_id: string; _user_id: string }
         Returns: boolean

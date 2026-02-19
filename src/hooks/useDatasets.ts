@@ -230,9 +230,10 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
     try {
       setLoading(true);
 
-      const [datasetsRes, groupsRes] = await Promise.all([
+      const [datasetsRes, groupsRes, countsRes] = await Promise.all([
         supabase.from('datasets').select('*').order('created_at', { ascending: false }),
         supabase.from('analytical_groups').select('*').order('created_at', { ascending: true }),
+        supabase.rpc('get_candidature_counts' as never) as unknown as { data: { dataset_id: string; count: number }[] | null; error: Error | null },
       ]);
 
       if (datasetsRes.error) throw datasetsRes.error;
@@ -240,6 +241,14 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
 
       const dbDatasets = datasetsRes.data as DatabaseDataset[];
       const dbGroups = groupsRes.data as DatabaseAnalyticalGroup[];
+
+      // Build count map (fallback to 0 if RPC fails)
+      const countMap = new Map<string, number>();
+      if (countsRes.data && !countsRes.error) {
+        for (const row of countsRes.data) {
+          countMap.set(row.dataset_id, Number(row.count));
+        }
+      }
 
       // Transform datasets WITHOUT candidacies (they'll be loaded on demand)
       const transformedDatasets: Dataset[] = dbDatasets.map(d => ({
@@ -251,6 +260,9 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
         createdAt: new Date(d.created_at),
         updatedAt: new Date(d.updated_at),
         candidacies: candidaciesCache.current.get(d.id) || [],
+        candidacyCount: candidaciesCache.current.has(d.id) 
+          ? candidaciesCache.current.get(d.id)!.length 
+          : (countMap.get(d.id) ?? 0),
       }));
 
       setDatasets(transformedDatasets);

@@ -100,7 +100,7 @@ const DatasetCard: React.FC<DatasetCardProps> = ({ dataset, isActive, onSelect, 
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Users className="w-4 h-4" />
-          <span>{dataset.candidacies.length} candidaturas</span>
+          <span>{dataset.candidacyCount || dataset.candidacies.length} candidaturas</span>
         </div>
       </div>
       
