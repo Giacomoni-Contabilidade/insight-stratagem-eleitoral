@@ -29,7 +29,9 @@ const LEGAL_EXPENSE_CATEGORIES = [
   "Taxa de Administração de Financiamento Coletivo","Telefone",
 ] as const;
 
-const EXPECTED_COLUMNS = 10 + LEGAL_EXPENSE_CATEGORIES.length; // 48
+const SINGLE_EXPECTED_COLUMNS = 10 + LEGAL_EXPENSE_CATEGORIES.length; // 48
+// Multi format: Candidatura, Cargo, Partido, UF, Municipio, Genero, Raça_cor, Ensino, Ocupacao, Votos, Despesas_Financeiras, Doacoes_Estimadas, Total de gastos, [38 expense categories]
+const MULTI_EXPECTED_COLUMNS = 13 + LEGAL_EXPENSE_CATEGORIES.length; // 51
 
 function normalizeGender(v: string): string {
   const n = v.toLowerCase().trim();
@@ -59,6 +61,22 @@ function normalizeEducation(v: string): string {
   if (n.includes("fundamental") && n.includes("complet")) return "Fundamental completo";
   if (n.includes("fundamental") && n.includes("incomplet")) return "Fundamental incompleto";
   return "Não informado";
+}
+
+function normalizePosition(v: string): string {
+  const n = v.toLowerCase().trim();
+  if (n.includes("dep") && n.includes("est")) return "Deputado Estadual";
+  if (n.includes("dep") && n.includes("fed")) return "Deputado Federal";
+  if (n.includes("vereador")) return "Vereador";
+  if (n.includes("prefeito") && !n.includes("vice")) return "Prefeito";
+  if (n.includes("vice") && n.includes("prefeito")) return "Vice-Prefeito";
+  if (n.includes("governador") && !n.includes("vice")) return "Governador";
+  if (n.includes("vice") && n.includes("governador")) return "Vice-Governador";
+  if (n.includes("senador")) return "Senador";
+  if (n.includes("presidente") && !n.includes("vice")) return "Presidente";
+  if (n.includes("vice") && n.includes("presidente")) return "Vice-Presidente";
+  // Return as-is with title case if no match
+  return v.trim();
 }
 
 function parseNumber(value: string): number {
@@ -112,13 +130,42 @@ function detectSeparator(firstLine: string): string {
   return semicolons > commas ? ";" : ",";
 }
 
-// ── Parse a single CSV row into a candidature insert object ──
+// ── CSV-aware split: handles quoted fields with commas ──
 
-function parseRow(columns: string[], datasetId: string) {
+function splitCSVLine(line: string, separator: string): string[] {
+  if (separator === "\t") return line.split("\t");
+  
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === separator && !inQuotes) {
+      result.push(current);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+// ── Parse a single CSV row (SINGLE mode) ──
+
+function parseRowSingle(columns: string[], datasetId: string) {
   const errors: string[] = [];
 
-  if (columns.length < EXPECTED_COLUMNS) {
-    errors.push(`Colunas insuficientes: ${columns.length}/${EXPECTED_COLUMNS}`);
+  if (columns.length < SINGLE_EXPECTED_COLUMNS) {
+    errors.push(`Colunas insuficientes: ${columns.length}/${SINGLE_EXPECTED_COLUMNS}`);
   }
 
   const name = columns[0]?.trim() || "";
@@ -148,6 +195,61 @@ function parseRow(columns: string[], datasetId: string) {
     errors,
     record: {
       dataset_id: datasetId,
+      name,
+      party,
+      gender,
+      race,
+      education,
+      occupation,
+      votes,
+      financial_expenses: financialExpenses,
+      estimated_donations: estimatedDonations,
+      total_expenses: totalExpenses,
+      cost_per_vote: costPerVote,
+      expenses,
+    },
+  };
+}
+
+// ── Parse a single CSV row (MULTI mode) ──
+// Columns: Candidatura(0), Cargo(1), Partido(2), UF(3), Municipio(4), Genero(5), Raça_cor(6), Ensino(7), Ocupacao(8), Votos(9), Despesas_Financeiras(10), Doacoes_Estimadas(11), Total de gastos(12), [expense categories 13+]
+
+function parseRowMulti(columns: string[]) {
+  const errors: string[] = [];
+
+  const name = columns[0]?.trim() || "";
+  const position = columns[1]?.trim() || "";
+  const party = columns[2]?.trim() || "";
+  const state = columns[3]?.trim().toUpperCase() || "";
+  // columns[4] = Municipio (used as info but not for grouping)
+  const gender = normalizeGender(columns[5] || "");
+  const race = normalizeRace(columns[6] || "");
+  const education = normalizeEducation(columns[7] || "");
+  const occupation = columns[8]?.trim() || "Não informado";
+  const votes = parseNumber(columns[9] || "0");
+  const financialExpenses = parseNumber(columns[10] || "0");
+  const estimatedDonations = parseNumber(columns[11] || "0");
+  // columns[12] = Total de gastos (we recalculate)
+
+  if (!name) errors.push("Nome obrigatório");
+  if (!party) errors.push("Partido obrigatório");
+  if (!position) errors.push("Cargo obrigatório");
+  if (!state) errors.push("UF obrigatória");
+  if (votes < 0) errors.push("Votos negativo");
+
+  const expenses: Record<string, number> = {};
+  for (let i = 0; i < LEGAL_EXPENSE_CATEGORIES.length; i++) {
+    expenses[LEGAL_EXPENSE_CATEGORIES[i]] = parseNumber(columns[13 + i] || "0");
+  }
+
+  const totalExpenses = financialExpenses + estimatedDonations;
+  const costPerVote = votes > 0 ? totalExpenses / votes : 0;
+
+  return {
+    errors,
+    position: normalizePosition(position),
+    state,
+    record: {
       name,
       party,
       gender,
@@ -206,14 +308,13 @@ Deno.serve(async (req) => {
     // Parse multipart form
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
+    const mode = (formData.get("mode") as string) || "single";
     const name = (formData.get("name") as string) || "";
     const year = parseInt((formData.get("year") as string) || "0", 10);
-    const state = (formData.get("state") as string) || "";
-    const position = (formData.get("position") as string) || "";
 
-    if (!file || !name || !year || !state || !position) {
+    if (!file || !name || !year) {
       return new Response(
-        JSON.stringify({ error: "Campos obrigatórios: file, name, year, state, position" }),
+        JSON.stringify({ error: "Campos obrigatórios: file, name, year" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -234,56 +335,72 @@ Deno.serve(async (req) => {
     const hasHeader = firstLine.includes("candidatura") || firstLine.includes("partido");
     const dataLines = hasHeader ? lines.slice(1) : lines;
 
-    // Create dataset
-    const { data: dataset, error: dsError } = await supabase
-      .from("datasets")
-      .insert({ name, year, state, position, user_id: userId })
-      .select("id")
-      .single();
+    if (mode === "multi") {
+      return await handleMultiMode(supabase, dataLines, separator, name, year, userId);
+    } else {
+      // Single mode needs state + position
+      const state = (formData.get("state") as string) || "";
+      const position = (formData.get("position") as string) || "";
+      if (!state || !position) {
+        return new Response(
+          JSON.stringify({ error: "Campos obrigatórios para modo single: state, position" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      return await handleSingleMode(supabase, dataLines, separator, name, year, state, position, userId);
+    }
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ error: "Erro interno", details: (err as Error).message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
 
-    if (dsError || !dataset) {
-      return new Response(
-        JSON.stringify({ error: "Erro ao criar dataset", details: dsError?.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+// ── Single mode handler ──
+
+async function handleSingleMode(
+  supabase: ReturnType<typeof createClient>,
+  dataLines: string[],
+  separator: string,
+  name: string,
+  year: number,
+  state: string,
+  position: string,
+  userId: string
+) {
+  const { data: dataset, error: dsError } = await supabase
+    .from("datasets")
+    .insert({ name, year, state, position, user_id: userId })
+    .select("id")
+    .single();
+
+  if (dsError || !dataset) {
+    return new Response(
+      JSON.stringify({ error: "Erro ao criar dataset", details: dsError?.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  const datasetId = dataset.id;
+  let imported = 0;
+  let errorCount = 0;
+  const BATCH_SIZE = 500;
+  let batch: Record<string, unknown>[] = [];
+
+  for (const line of dataLines) {
+    if (!line.trim()) continue;
+    const columns = splitCSVLine(line, separator);
+    const { errors, record } = parseRowSingle(columns, datasetId);
+
+    if (errors.length > 0) {
+      errorCount++;
+      continue;
     }
 
-    const datasetId = dataset.id;
-    let imported = 0;
-    let errorCount = 0;
-    const BATCH_SIZE = 500;
-    let batch: Record<string, unknown>[] = [];
+    batch.push(record);
 
-    for (const line of dataLines) {
-      if (!line.trim()) continue;
-      const columns = line.split(separator);
-      const { errors, record } = parseRow(columns, datasetId);
-
-      if (errors.length > 0) {
-        errorCount++;
-        continue;
-      }
-
-      batch.push(record);
-
-      if (batch.length >= BATCH_SIZE) {
-        const { error: insertError } = await supabase.from("candidatures").insert(batch);
-        if (insertError) {
-          // Rollback: delete dataset
-          await supabase.from("candidatures").delete().eq("dataset_id", datasetId);
-          await supabase.from("datasets").delete().eq("id", datasetId);
-          return new Response(
-            JSON.stringify({ error: "Erro ao inserir candidaturas", details: insertError.message }),
-            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-        imported += batch.length;
-        batch = [];
-      }
-    }
-
-    // Flush remaining
-    if (batch.length > 0) {
+    if (batch.length >= BATCH_SIZE) {
       const { error: insertError } = await supabase.from("candidatures").insert(batch);
       if (insertError) {
         await supabase.from("candidatures").delete().eq("dataset_id", datasetId);
@@ -294,16 +411,130 @@ Deno.serve(async (req) => {
         );
       }
       imported += batch.length;
+      batch = [];
+    }
+  }
+
+  if (batch.length > 0) {
+    const { error: insertError } = await supabase.from("candidatures").insert(batch);
+    if (insertError) {
+      await supabase.from("candidatures").delete().eq("dataset_id", datasetId);
+      await supabase.from("datasets").delete().eq("id", datasetId);
+      return new Response(
+        JSON.stringify({ error: "Erro ao inserir candidaturas", details: insertError.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    imported += batch.length;
+  }
+
+  return new Response(
+    JSON.stringify({ datasetId, imported, errors: errorCount }),
+    { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
+}
+
+// ── Multi mode handler: groups by Cargo+UF, creates multiple datasets ──
+
+async function handleMultiMode(
+  supabase: ReturnType<typeof createClient>,
+  dataLines: string[],
+  separator: string,
+  namePrefix: string,
+  year: number,
+  userId: string
+) {
+  // Group rows by position+state
+  const groups = new Map<string, { position: string; state: string; records: Record<string, unknown>[] }>();
+  let errorCount = 0;
+
+  for (const line of dataLines) {
+    if (!line.trim()) continue;
+    const columns = splitCSVLine(line, separator);
+    const { errors, position, state, record } = parseRowMulti(columns);
+
+    if (errors.length > 0) {
+      errorCount++;
+      continue;
     }
 
+    const key = `${position}|||${state}`;
+    if (!groups.has(key)) {
+      groups.set(key, { position, state, records: [] });
+    }
+    groups.get(key)!.records.push(record);
+  }
+
+  if (groups.size === 0) {
     return new Response(
-      JSON.stringify({ datasetId, imported, errors: errorCount }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  } catch (err) {
-    return new Response(
-      JSON.stringify({ error: "Erro interno", details: (err as Error).message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ error: "Nenhuma linha válida encontrada" }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
-});
+
+  // Create datasets and insert candidatures
+  const createdDatasets: { datasetId: string; position: string; state: string; imported: number }[] = [];
+  const BATCH_SIZE = 500;
+
+  for (const [, group] of groups) {
+    const datasetName = `${namePrefix} - ${group.position} - ${group.state}`;
+
+    const { data: dataset, error: dsError } = await supabase
+      .from("datasets")
+      .insert({ name: datasetName, year, state: group.state, position: group.position, user_id: userId })
+      .select("id")
+      .single();
+
+    if (dsError || !dataset) {
+      // Rollback all previously created datasets
+      for (const created of createdDatasets) {
+        await supabase.from("candidatures").delete().eq("dataset_id", created.datasetId);
+        await supabase.from("datasets").delete().eq("id", created.datasetId);
+      }
+      return new Response(
+        JSON.stringify({ error: "Erro ao criar dataset", details: dsError?.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const datasetId = dataset.id;
+    let imported = 0;
+
+    // Add dataset_id to each record
+    const recordsWithId = group.records.map((r) => ({ ...r, dataset_id: datasetId }));
+
+    // Insert in batches
+    for (let i = 0; i < recordsWithId.length; i += BATCH_SIZE) {
+      const batch = recordsWithId.slice(i, i + BATCH_SIZE);
+      const { error: insertError } = await supabase.from("candidatures").insert(batch);
+      if (insertError) {
+        // Rollback everything
+        for (const created of createdDatasets) {
+          await supabase.from("candidatures").delete().eq("dataset_id", created.datasetId);
+          await supabase.from("datasets").delete().eq("id", created.datasetId);
+        }
+        await supabase.from("candidatures").delete().eq("dataset_id", datasetId);
+        await supabase.from("datasets").delete().eq("id", datasetId);
+        return new Response(
+          JSON.stringify({ error: "Erro ao inserir candidaturas", details: insertError.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      imported += batch.length;
+    }
+
+    createdDatasets.push({ datasetId, position: group.position, state: group.state, imported });
+  }
+
+  const totalImported = createdDatasets.reduce((sum, d) => sum + d.imported, 0);
+
+  return new Response(
+    JSON.stringify({
+      datasets: createdDatasets,
+      totalDatasets: createdDatasets.length,
+      totalImported,
+      errors: errorCount,
+    }),
+    { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
+}
