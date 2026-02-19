@@ -2,3 +2,6 @@ project_id = "qkxwyicmkuamiftimdxv"
 
 [functions.admin-users]
 verify_jwt = false
+
+[functions.import-csv]
+verify_jwt = false
