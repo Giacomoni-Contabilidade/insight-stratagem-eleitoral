@@ -98,7 +98,7 @@ const CHART_COLORS = [
 ];
 
 export const DatasetComparison: React.FC = () => {
-  const { datasets, loadMultipleDatasetCandidacies, candidaciesLoading } = useData();
+  const { datasets, loadMultipleDatasetCandidacies, candidaciesLoading, filterZeroCandidates } = useData();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [hasExplicitSelection, setHasExplicitSelection] = useState(false);
   const [candidateSearch, setCandidateSearch] = useState('');
@@ -114,7 +114,7 @@ export const DatasetComparison: React.FC = () => {
     }
   }, [effectiveIds.join(','), loadMultipleDatasetCandidacies]);
 
-  const metrics = useMemo(() => selectedDatasets.map(computeMetrics), [selectedDatasets]);
+  const metrics = useMemo(() => selectedDatasets.map(ds => computeMetrics({ ...ds, candidacies: filterZeroCandidates(ds.candidacies || []) })), [selectedDatasets, filterZeroCandidates]);
 
   const toggleDataset = (id: string) => {
     setHasExplicitSelection(true);
@@ -130,7 +130,7 @@ export const DatasetComparison: React.FC = () => {
     const map = new Map<string, { name: string; entries: { dataset: Dataset; candidacy: Candidacy }[] }>();
 
     for (const ds of selectedDatasets) {
-      for (const c of ds.candidacies || []) {
+      for (const c of filterZeroCandidates(ds.candidacies || [])) {
         if (!c.name.toLowerCase().includes(term)) continue;
         const key = c.name.toLowerCase().trim();
         if (!map.has(key)) map.set(key, { name: c.name, entries: [] });

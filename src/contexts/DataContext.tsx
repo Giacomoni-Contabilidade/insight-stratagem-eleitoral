@@ -37,6 +37,11 @@ interface DataContextType {
   setFilters: (filters: Partial<FilterState>) => void;
   resetFilters: () => void;
   getFilteredCandidacies: () => Candidacy[];
+  
+  // Zero filter
+  hideZeroCandidates: boolean;
+  setHideZeroCandidates: (v: boolean) => void;
+  filterZeroCandidates: (candidacies: Candidacy[]) => Candidacy[];
 }
 
 const DEFAULT_FILTERS: FilterState = {
@@ -56,6 +61,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const [viewMode, setViewMode] = useState<'legal' | 'analytical'>('legal');
   const [filters, setFiltersState] = useState<FilterState>(DEFAULT_FILTERS);
+  const [hideZeroCandidates, setHideZeroCandidates] = useState(false);
+
+  const isZeroCandidate = (c: Candidacy) => c.votes === 0 && c.totalExpenses === 0 && c.costPerVote === 0;
+  const filterZeroCandidates = (candidacies: Candidacy[]) =>
+    hideZeroCandidates ? candidacies.filter(c => !isZeroCandidate(c)) : candidacies;
 
   // Reset filters when active dataset changes to prevent stale filters hiding data
   const setActiveDatasetId = (id: string | null) => {
@@ -76,6 +86,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!dataset) return [];
 
     return dataset.candidacies.filter((c) => {
+      if (hideZeroCandidates && isZeroCandidate(c)) return false;
       if (filters.parties.length && !filters.parties.includes(c.party)) return false;
       if (filters.genders.length && !filters.genders.includes(c.gender)) return false;
       if (filters.races.length && !filters.races.includes(c.race)) return false;
@@ -122,6 +133,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setFilters,
     resetFilters,
     getFilteredCandidacies,
+    
+    // Zero filter
+    hideZeroCandidates,
+    setHideZeroCandidates,
+    filterZeroCandidates,
   };
 
   return (
