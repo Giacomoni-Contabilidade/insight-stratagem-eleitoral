@@ -444,9 +444,13 @@ async function handleMultiMode(
   year: number,
   userId: string
 ) {
+  // Positions to skip (they don't run independently)
+  const SKIP_POSITIONS = ["Vice-Governador", "Vice-Prefeito", "Vice-Presidente"];
+
   // Group rows by position+state
   const groups = new Map<string, { position: string; state: string; records: Record<string, unknown>[] }>();
   let errorCount = 0;
+  let skippedVice = 0;
 
   for (const line of dataLines) {
     if (!line.trim()) continue;
@@ -455,6 +459,12 @@ async function handleMultiMode(
 
     if (errors.length > 0) {
       errorCount++;
+      continue;
+    }
+
+    // Skip vice positions — they don't have independent candidacies
+    if (SKIP_POSITIONS.includes(position)) {
+      skippedVice++;
       continue;
     }
 
@@ -534,6 +544,7 @@ async function handleMultiMode(
       totalDatasets: createdDatasets.length,
       totalImported,
       errors: errorCount,
+      skippedVice,
     }),
     { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );
