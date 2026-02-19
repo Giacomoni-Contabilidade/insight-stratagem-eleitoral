@@ -100,10 +100,11 @@ const CHART_COLORS = [
 export const DatasetComparison: React.FC = () => {
   const { datasets, loadMultipleDatasetCandidacies, candidaciesLoading } = useData();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [hasExplicitSelection, setHasExplicitSelection] = useState(false);
   const [candidateSearch, setCandidateSearch] = useState('');
 
-  // Auto-select all if none selected
-  const effectiveIds = selectedIds.length > 0 ? selectedIds : datasets.map((d) => d.id);
+  // Auto-select all only if user hasn't made an explicit selection
+  const effectiveIds = hasExplicitSelection ? selectedIds : datasets.map((d) => d.id);
   const selectedDatasets = datasets.filter((d) => effectiveIds.includes(d.id));
 
   // Load candidacies for all selected datasets
@@ -116,6 +117,7 @@ export const DatasetComparison: React.FC = () => {
   const metrics = useMemo(() => selectedDatasets.map(computeMetrics), [selectedDatasets]);
 
   const toggleDataset = (id: string) => {
+    setHasExplicitSelection(true);
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
@@ -202,6 +204,27 @@ export const DatasetComparison: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="flex gap-2 mb-3">
+            <Button variant="outline" size="sm" onClick={() => {
+              setHasExplicitSelection(true);
+              setSelectedIds(datasets.map(d => d.id));
+            }}>
+              Marcar tudo
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => {
+              setHasExplicitSelection(true);
+              setSelectedIds([]);
+            }}>
+              Desmarcar tudo
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => {
+              setHasExplicitSelection(true);
+              const allIds = datasets.map(d => d.id);
+              setSelectedIds(allIds.filter(id => !effectiveIds.includes(id)));
+            }}>
+              Inverter
+            </Button>
+          </div>
           <div className="flex flex-wrap gap-3">
             {datasets.map((ds) => (
               <label
@@ -225,20 +248,6 @@ export const DatasetComparison: React.FC = () => {
                 </div>
               </label>
             ))}
-          </div>
-          <div className="flex gap-2 mt-3">
-            <Button variant="outline" size="sm" onClick={() => setSelectedIds(datasets.map(d => d.id))}>
-              Marcar tudo
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setSelectedIds([])}>
-              Desmarcar tudo
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => {
-              const allIds = datasets.map(d => d.id);
-              setSelectedIds(allIds.filter(id => !effectiveIds.includes(id)));
-            }}>
-              Inverter
-            </Button>
           </div>
         </CardContent>
       </Card>
