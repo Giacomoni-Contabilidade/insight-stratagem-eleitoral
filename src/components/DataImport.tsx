@@ -468,6 +468,7 @@ const PasteTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
         financialExpensesPct: row.data.financialExpensesPct ?? 0,
         estimatedDonationsPct: row.data.estimatedDonationsPct ?? 0,
         expenses: row.data.expenses ?? ({} as Record<LegalExpenseCategory, number>),
+        elected: false,
       }));
       
       const datasetId = await addDataset({

@@ -1,0 +1,1 @@
+ALTER TABLE public.candidatures ADD COLUMN elected boolean NOT NULL DEFAULT false;

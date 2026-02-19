@@ -77,6 +77,8 @@ export interface Candidacy {
   // Percentage breakdown
   financialExpensesPct: number; // % of total that was paid in money
   estimatedDonationsPct: number; // % of total from non-monetary donations
+  // Election result
+  elected: boolean;
 }
 
 // Dataset metadata
