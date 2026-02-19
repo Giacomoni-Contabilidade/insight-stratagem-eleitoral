@@ -32,8 +32,8 @@ interface DatasetCardProps {
 }
 
 const DatasetCard: React.FC<DatasetCardProps> = ({ dataset, isActive, onSelect, onDelete }) => {
-  const totalVotes = dataset.candidacies.reduce((sum, c) => sum + c.votes, 0);
-  const totalExpenses = dataset.candidacies.reduce((sum, c) => sum + c.totalExpenses, 0);
+  const totalVotes = dataset.totalVotes;
+  const totalExpenses = dataset.totalExpenses;
   
   return (
     <div 
@@ -100,7 +100,7 @@ const DatasetCard: React.FC<DatasetCardProps> = ({ dataset, isActive, onSelect, 
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Users className="w-4 h-4" />
-          <span>{dataset.candidacyCount || dataset.candidacies.length} candidaturas</span>
+          <span>{dataset.candidacyCount} candidaturas</span>
         </div>
       </div>
       
