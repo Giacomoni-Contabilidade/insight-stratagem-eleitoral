@@ -329,7 +329,7 @@ export const CandidacyComparison: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{c.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {c.party} • {formatNumber(c.votes)} votos
+                          {c.party} • {formatNumber(c.votes)} votos{c.elected ? ' • ✓ Eleito' : ''}
                         </p>
                       </div>
                     </div>
@@ -428,6 +428,16 @@ export const CandidacyComparison: React.FC = () => {
                           {selectedCandidacies.map((c) => (
                             <td key={c.id} className="text-right">
                               <Badge variant="outline">{c.party}</Badge>
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="font-medium">Eleito</td>
+                          {selectedCandidacies.map((c) => (
+                            <td key={c.id} className="text-right">
+                              <Badge variant={c.elected ? 'default' : 'secondary'}>
+                                {c.elected ? 'Sim' : 'Não'}
+                              </Badge>
                             </td>
                           ))}
                         </tr>

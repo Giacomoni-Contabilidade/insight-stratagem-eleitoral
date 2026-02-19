@@ -53,6 +53,8 @@ interface GroupStats {
   avgCostPerVote: number;
   medianCostPerVote: number;
   financialPct: number;
+  electedCount: number;
+  electedPct: number;
 }
 
 export const GroupComparison: React.FC = () => {
@@ -77,11 +79,14 @@ export const GroupComparison: React.FC = () => {
     const totalEstimatedDonations = members.reduce((sum, m) => sum + m.estimatedDonations, 0);
     const costPerVotes = members.filter(m => m.votes > 0).map((m) => m.costPerVote);
     const financialPct = totalExpenses > 0 ? totalFinancialExpenses / totalExpenses : 0;
+    const electedCount = members.filter(m => m.elected).length;
     return {
       name, count: members.length, totalVotes, totalExpenses, totalFinancialExpenses,
       totalEstimatedDonations,
       avgCostPerVote: totalVotes > 0 ? totalExpenses / totalVotes : 0,
       medianCostPerVote: calculateMedian(costPerVotes), financialPct,
+      electedCount,
+      electedPct: members.length > 0 ? electedCount / members.length : 0,
     };
   }).sort((a, b) => b.count - a.count), [groups]);
   
@@ -294,6 +299,8 @@ export const GroupComparison: React.FC = () => {
                 <th className="text-right">Doações Estim.</th>
                 <th className="text-right">Custo/Voto (média)</th>
                 <th className="text-right">Custo/Voto (mediana)</th>
+                <th className="text-right">Eleitos</th>
+                <th className="text-right">% Eleitos</th>
               </tr>
             </thead>
             <tbody>
@@ -315,6 +322,8 @@ export const GroupComparison: React.FC = () => {
                   <td className="text-right font-mono">{formatCurrency(group.totalEstimatedDonations)}</td>
                   <td className="text-right font-mono">{formatCurrency(group.avgCostPerVote)}</td>
                   <td className="text-right font-mono">{formatCurrency(group.medianCostPerVote)}</td>
+                  <td className="text-right font-mono">{formatNumber(group.electedCount)}</td>
+                  <td className="text-right font-mono">{formatPercentage(group.electedPct)}</td>
                 </tr>
               ))}
             </tbody>

@@ -48,6 +48,8 @@ interface DatasetMetrics {
   medianCostPerVote: number;
   avgVotes: number;
   avgExpenses: number;
+  electedCount: number;
+  electedPct: number;
 }
 
 const computeMetrics = (ds: Dataset): DatasetMetrics => {
@@ -65,6 +67,8 @@ const computeMetrics = (ds: Dataset): DatasetMetrics => {
       : (cpvs[cpvs.length / 2 - 1] + cpvs[cpvs.length / 2]) / 2;
   const avgCpv = cpvs.length > 0 ? cpvs.reduce((s, v) => s + v, 0) / cpvs.length : 0;
 
+  const electedCount = cands.filter(c => c.elected).length;
+
   return {
     dataset: ds,
     totalCandidacies: n,
@@ -76,6 +80,8 @@ const computeMetrics = (ds: Dataset): DatasetMetrics => {
     medianCostPerVote: median,
     avgVotes: n > 0 ? totalVotes / n : 0,
     avgExpenses: n > 0 ? totalExpenses / n : 0,
+    electedCount,
+    electedPct: n > 0 ? electedCount / n : 0,
   };
 };
 
@@ -242,6 +248,8 @@ export const DatasetComparison: React.FC = () => {
                 <TableHead className="text-right">Doações Estimadas</TableHead>
                 <TableHead className="text-right">Custo/Voto Médio</TableHead>
                 <TableHead className="text-right">Custo/Voto Mediano</TableHead>
+                <TableHead className="text-right">Eleitos</TableHead>
+                <TableHead className="text-right">% Eleitos</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -268,6 +276,8 @@ export const DatasetComparison: React.FC = () => {
                   <TableCell className="text-right">{formatCurrency(m.totalDonations)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(m.avgCostPerVote)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(m.medianCostPerVote)}</TableCell>
+                  <TableCell className="text-right">{formatNumber(m.electedCount)}</TableCell>
+                  <TableCell className="text-right">{(m.electedPct * 100).toFixed(1)}%</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -387,6 +397,7 @@ export const DatasetComparison: React.FC = () => {
                           <TableHead className="text-right">Votos</TableHead>
                           <TableHead className="text-right">Despesa Total</TableHead>
                           <TableHead className="text-right">Custo/Voto</TableHead>
+                          <TableHead className="text-right">Eleito</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -404,6 +415,11 @@ export const DatasetComparison: React.FC = () => {
                             <TableCell className="text-right">{formatNumber(entry.candidacy.votes)}</TableCell>
                             <TableCell className="text-right">{formatCurrency(entry.candidacy.totalExpenses)}</TableCell>
                             <TableCell className="text-right">{formatCurrency(entry.candidacy.costPerVote)}</TableCell>
+                            <TableCell className="text-right">
+                              <Badge variant={entry.candidacy.elected ? 'default' : 'secondary'}>
+                                {entry.candidacy.elected ? 'Sim' : 'Não'}
+                              </Badge>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
