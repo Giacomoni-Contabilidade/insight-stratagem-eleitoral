@@ -61,7 +61,16 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const [viewMode, setViewMode] = useState<'legal' | 'analytical'>('legal');
   const [filters, setFiltersState] = useState<FilterState>(DEFAULT_FILTERS);
-  const [hideZeroCandidates, setHideZeroCandidates] = useState(false);
+  const [hideZeroCandidates, setHideZeroCandidates] = useState(() => {
+    try {
+      return localStorage.getItem('hideZeroCandidates') === 'true';
+    } catch { return false; }
+  });
+
+  const handleSetHideZeroCandidates = (v: boolean) => {
+    setHideZeroCandidates(v);
+    try { localStorage.setItem('hideZeroCandidates', String(v)); } catch {}
+  };
 
   const isZeroCandidate = (c: Candidacy) => c.votes === 0 && c.totalExpenses === 0 && c.costPerVote === 0;
   const filterZeroCandidates = (candidacies: Candidacy[]) =>
@@ -136,7 +145,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     // Zero filter
     hideZeroCandidates,
-    setHideZeroCandidates,
+    setHideZeroCandidates: handleSetHideZeroCandidates,
     filterZeroCandidates,
   };
 
