@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 import { 
   Select,
   SelectContent,
@@ -51,6 +52,7 @@ interface DatasetFormData {
 
 const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
   const [file, setFile] = useState<File | null>(null);
+  const [multiMode, setMultiMode] = useState(false);
   const [formData, setFormData] = useState<DatasetFormData>({
     name: '',
     year: new Date().getFullYear().toString(),
@@ -59,12 +61,14 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
   });
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [result, setResult] = useState<{ totalDatasets?: number; totalImported?: number; imported?: number; errors?: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (selected) {
       setFile(selected);
+      setResult(null);
     }
   };
 
@@ -72,11 +76,8 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
     if (!file) return;
 
     const trimmedName = formData.name.trim();
-    const trimmedState = formData.state.trim();
-    const trimmedPosition = formData.position.trim();
-
-    if (!trimmedName || !trimmedState || !trimmedPosition) {
-      toast.error('Preencha todos os campos obrigatórios');
+    if (!trimmedName) {
+      toast.error('Preencha o nome do dataset');
       return;
     }
 
@@ -88,8 +89,18 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
       return;
     }
 
+    if (!multiMode) {
+      const trimmedState = formData.state.trim();
+      const trimmedPosition = formData.position.trim();
+      if (!trimmedState || !trimmedPosition) {
+        toast.error('Preencha todos os campos obrigatórios');
+        return;
+      }
+    }
+
     setUploading(true);
     setProgress(10);
+    setResult(null);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -102,8 +113,12 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
       body.append('file', file);
       body.append('name', trimmedName);
       body.append('year', formData.year);
-      body.append('state', trimmedState);
-      body.append('position', trimmedPosition);
+      body.append('mode', multiMode ? 'multi' : 'single');
+
+      if (!multiMode) {
+        body.append('state', formData.state.trim());
+        body.append('position', formData.position.trim());
+      }
 
       setProgress(30);
 
@@ -121,15 +136,25 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
 
       setProgress(80);
 
-      const result = await res.json();
+      const resultData = await res.json();
 
       if (!res.ok) {
-        toast.error(result.error || 'Erro ao importar arquivo');
+        toast.error(resultData.error || 'Erro ao importar arquivo');
         return;
       }
 
       setProgress(100);
-      toast.success(`${result.imported} candidaturas importadas com sucesso!${result.errors > 0 ? ` (${result.errors} linhas com erro ignoradas)` : ''}`);
+      setResult(resultData);
+
+      if (multiMode) {
+        toast.success(
+          `${resultData.totalDatasets} datasets criados com ${resultData.totalImported} candidaturas!${resultData.errors > 0 ? ` (${resultData.errors} linhas com erro)` : ''}`
+        );
+      } else {
+        toast.success(
+          `${resultData.imported} candidaturas importadas com sucesso!${resultData.errors > 0 ? ` (${resultData.errors} linhas com erro ignoradas)` : ''}`
+        );
+      }
 
       // Reset
       setFile(null);
@@ -146,6 +171,7 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
 
   const handleReset = () => {
     setFile(null);
+    setResult(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -163,6 +189,19 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
                 Envie um arquivo CSV diretamente — processado no servidor
               </p>
             </div>
+          </div>
+
+          <div className="glass-panel rounded-lg p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <FileSpreadsheet className="w-5 h-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium">Modo multi-dataset</p>
+                <p className="text-xs text-muted-foreground">
+                  CSV com colunas Cargo e UF — cria datasets separados automaticamente
+                </p>
+              </div>
+            </div>
+            <Switch checked={multiMode} onCheckedChange={setMultiMode} />
           </div>
 
           <label
@@ -188,10 +227,14 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-warning mt-0.5" />
               <div className="text-sm text-muted-foreground">
-                <p className="font-medium text-foreground mb-1">Limites</p>
+                <p className="font-medium text-foreground mb-1">
+                  {multiMode ? 'Formato multi-dataset' : 'Formato padrão'}
+                </p>
                 <p className="text-xs">
-                  Arquivos muito grandes podem demorar para processar. 
-                  O arquivo deve seguir a mesma ordem de {COLUMN_ORDER.length} colunas do formato padrão.
+                  {multiMode
+                    ? 'O CSV deve conter as colunas: Candidatura, Cargo, Partido, UF, Municipio, Genero, Raça_cor, Ensino, Ocupacao, Votos, Despesas_Financeiras, Doacoes_Estimadas, Total de gastos, e as 38 categorias de despesa. Os datasets serão agrupados por Cargo + UF.'
+                    : `O arquivo deve seguir a mesma ordem de ${COLUMN_ORDER.length} colunas do formato padrão.`
+                  }
                 </p>
               </div>
             </div>
@@ -200,7 +243,7 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
       ) : (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Configurar dataset</h2>
+            <h2 className="text-lg font-semibold">Configurar {multiMode ? 'importação multi-dataset' : 'dataset'}</h2>
             <Button variant="ghost" size="sm" onClick={handleReset}>
               <X className="w-4 h-4 mr-2" />
               Trocar arquivo
@@ -213,11 +256,42 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
               <p className="font-medium">{file.name}</p>
               <p className="text-muted-foreground text-xs">
                 {(file.size / (1024 * 1024)).toFixed(2)} MB
+                {multiMode && ' • Modo multi-dataset (agrupado por Cargo + UF)'}
               </p>
             </div>
           </div>
 
-          <DatasetConfigForm formData={formData} setFormData={setFormData} />
+          {multiMode ? (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label htmlFor="name">Prefixo do nome dos datasets</Label>
+                <Input
+                  id="name"
+                  placeholder="Ex: Eleições 2024"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="mt-1.5"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Cada dataset será nomeado: "Prefixo - Cargo - UF"
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="year">Ano</Label>
+                <Input
+                  id="year"
+                  type="number"
+                  min="2000"
+                  max={new Date().getFullYear() + 4}
+                  value={formData.year}
+                  onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                  className="mt-1.5"
+                />
+              </div>
+            </div>
+          ) : (
+            <DatasetConfigForm formData={formData} setFormData={setFormData} />
+          )}
 
           {uploading && (
             <div className="space-y-2">
@@ -234,14 +308,18 @@ const FileUploadTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
             </Button>
             <Button
               onClick={handleUpload}
-              disabled={!formData.name || !formData.state || !formData.position || uploading}
+              disabled={
+                !formData.name ||
+                (!multiMode && (!formData.state || !formData.position)) ||
+                uploading
+              }
             >
               {uploading ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <Upload className="w-4 h-4 mr-2" />
               )}
-              {uploading ? 'Importando...' : 'Importar dataset'}
+              {uploading ? 'Importando...' : multiMode ? 'Importar multi-dataset' : 'Importar dataset'}
             </Button>
           </div>
         </div>
