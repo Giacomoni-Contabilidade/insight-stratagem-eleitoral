@@ -236,11 +236,14 @@ export const CandidacyProfile: React.FC = () => {
                   <div>
                     <h2 className="text-xl font-bold">{selectedCandidacy.name}</h2>
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
-                      <span className="chip chip-primary">{selectedCandidacy.party}</span>
-                      <span className="chip bg-muted text-muted-foreground">{selectedCandidacy.gender}</span>
-                      <span className="chip bg-muted text-muted-foreground">{selectedCandidacy.race}</span>
-                      <span className="chip bg-muted text-muted-foreground">{selectedCandidacy.education}</span>
-                    </div>
+                       <span className="chip chip-primary">{selectedCandidacy.party}</span>
+                       <span className={`chip ${selectedCandidacy.elected ? 'bg-green-500/20 text-green-700 dark:text-green-400' : 'bg-muted text-muted-foreground'}`}>
+                         {selectedCandidacy.elected ? '✓ Eleito' : 'Não eleito'}
+                       </span>
+                       <span className="chip bg-muted text-muted-foreground">{selectedCandidacy.gender}</span>
+                       <span className="chip bg-muted text-muted-foreground">{selectedCandidacy.race}</span>
+                       <span className="chip bg-muted text-muted-foreground">{selectedCandidacy.education}</span>
+                     </div>
                     <p className="text-sm text-muted-foreground mt-2">{selectedCandidacy.occupation}</p>
                   </div>
                   
