@@ -18,6 +18,7 @@ interface DataContextType {
   activeDatasetId: string | null;
   setActiveDatasetId: (id: string | null) => void;
   dataLoading: boolean;
+  candidaciesLoading: boolean;
   
   // Actions
   addDataset: (data: Omit<Dataset, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string | null>;
@@ -27,6 +28,7 @@ interface DataContextType {
   deleteAnalyticalGroup: (id: string) => Promise<void>;
   getActiveDataset: () => Dataset | undefined;
   refetch: () => Promise<void>;
+  loadMultipleDatasetCandidacies: (ids: string[]) => Promise<void>;
   
   // UI State
   viewMode: 'legal' | 'analytical';
@@ -101,6 +103,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     activeDatasetId: datasetsHook.activeDatasetId,
     setActiveDatasetId,
     dataLoading: datasetsHook.loading,
+    candidaciesLoading: datasetsHook.candidaciesLoading,
     
     // Actions
     addDataset: datasetsHook.addDataset,
@@ -110,6 +113,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     deleteAnalyticalGroup: datasetsHook.deleteAnalyticalGroup,
     getActiveDataset: datasetsHook.getActiveDataset,
     refetch: datasetsHook.refetch,
+    loadMultipleDatasetCandidacies: datasetsHook.loadMultipleDatasetCandidacies,
     
     // UI State
     viewMode,

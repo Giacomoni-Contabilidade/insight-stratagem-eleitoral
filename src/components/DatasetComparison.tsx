@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { Dataset, Candidacy } from '@/types/campaign';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -91,13 +91,21 @@ const CHART_COLORS = [
 ];
 
 export const DatasetComparison: React.FC = () => {
-  const { datasets } = useData();
+  const { datasets, loadMultipleDatasetCandidacies, candidaciesLoading } = useData();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [candidateSearch, setCandidateSearch] = useState('');
 
   // Auto-select all if none selected
   const effectiveIds = selectedIds.length > 0 ? selectedIds : datasets.map((d) => d.id);
   const selectedDatasets = datasets.filter((d) => effectiveIds.includes(d.id));
+
+  // Load candidacies for all selected datasets
+  useEffect(() => {
+    if (effectiveIds.length > 0) {
+      loadMultipleDatasetCandidacies(effectiveIds);
+    }
+  }, [effectiveIds.join(','), loadMultipleDatasetCandidacies]);
+
   const metrics = useMemo(() => selectedDatasets.map(computeMetrics), [selectedDatasets]);
 
   const toggleDataset = (id: string) => {

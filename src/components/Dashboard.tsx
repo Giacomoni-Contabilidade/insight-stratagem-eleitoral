@@ -71,11 +71,20 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, trend
 
 export const Dashboard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   (props, ref) => {
-  const { getFilteredCandidacies, getActiveDataset, viewMode, analyticalGroups } = useData();
+  const { getFilteredCandidacies, getActiveDataset, viewMode, analyticalGroups, candidaciesLoading } = useData();
   
   const dataset = getActiveDataset();
   const candidacies = getFilteredCandidacies();
   
+  if (candidaciesLoading && dataset && dataset.candidacies.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-muted-foreground text-sm">Carregando candidaturas...</p>
+      </div>
+    );
+  }
+
   if (!dataset || candidacies.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
