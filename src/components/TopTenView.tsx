@@ -232,12 +232,12 @@ const RankingCard: React.FC<{
       <CardContent className="p-0">
         <ScrollArea className={config.limit > 10 ? "h-[450px]" : "h-[280px]"}>
           <div className="p-3 space-y-1">
-            {sortedCandidates.slice(1).map((candidate, index) => (
+            {sortedCandidates.map((candidate, index) => (
               <div 
                 key={candidate.id} 
                 className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors group"
               >
-                <PositionBadge position={index + 2} />
+                <PositionBadge position={index + 1} />
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate group-hover:text-primary transition-colors" title={candidate.name}>
                     {candidate.name}
