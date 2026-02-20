@@ -145,27 +145,6 @@ const RANKING_CONFIGS: RankingConfig[] = [
 ];
 
 const PositionBadge: React.FC<{ position: number }> = ({ position }) => {
-  if (position === 1) {
-    return (
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center shadow-md">
-        <span className="text-sm font-bold text-white">1</span>
-      </div>
-    );
-  }
-  if (position === 2) {
-    return (
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center shadow-md">
-        <span className="text-sm font-bold text-white">2</span>
-      </div>
-    );
-  }
-  if (position === 3) {
-    return (
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center shadow-md">
-        <span className="text-sm font-bold text-white">3</span>
-      </div>
-    );
-  }
   return (
     <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
       <span className="text-sm font-medium text-muted-foreground">{position}</span>
