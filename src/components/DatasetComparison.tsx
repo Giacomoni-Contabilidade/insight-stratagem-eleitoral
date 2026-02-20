@@ -1,20 +1,13 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useData } from '@/contexts/DataContext';
-import { Dataset, Candidacy } from '@/types/campaign';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import React, { useState, useMemo, useEffect } from "react";
+import { useData } from "@/contexts/DataContext";
+import { Dataset, Candidacy } from "@/types/campaign";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   BarChart,
   Bar,
@@ -30,13 +23,12 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   Radar,
-} from 'recharts';
-import { Search, BarChart3, Users, DollarSign, Vote, TrendingUp, UserCheck } from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from "recharts";
+import { Search, BarChart3, Users, DollarSign, Vote, TrendingUp, UserCheck, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const formatCurrency = (v: number) =>
-  v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-const formatNumber = (v: number) => v.toLocaleString('pt-BR');
+const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const formatNumber = (v: number) => v.toLocaleString("pt-BR");
 
 interface DatasetMetrics {
   dataset: Dataset;
@@ -55,20 +47,27 @@ interface DatasetMetrics {
 
 const computeMetrics = (ds: Dataset): DatasetMetrics => {
   const cands = ds.candidacies || [];
-  const n = cands.length;
-  const totalVotes = cands.reduce((s, c) => s + c.votes, 0);
-  const totalExpenses = cands.reduce((s, c) => s + c.totalExpenses, 0);
-  const totalFinancial = cands.reduce((s, c) => s + c.financialExpenses, 0);
-  const totalDonations = cands.reduce((s, c) => s + c.estimatedDonations, 0);
-  const cpvs = cands.map((c) => c.costPerVote).filter((v) => v > 0 && isFinite(v)).sort((a, b) => a - b);
-  const median = cpvs.length === 0
-    ? 0
-    : cpvs.length % 2 === 1
-      ? cpvs[Math.floor(cpvs.length / 2)]
-      : (cpvs[cpvs.length / 2 - 1] + cpvs[cpvs.length / 2]) / 2;
+  const hasCandidacies = cands.length > 0;
+
+  // Use denormalized metadata as fallback when candidacies haven't loaded yet
+  const n = hasCandidacies ? cands.length : (ds.candidacyCount ?? 0);
+  const totalVotes = hasCandidacies ? cands.reduce((s, c) => s + c.votes, 0) : (ds.totalVotes ?? 0);
+  const totalExpenses = hasCandidacies ? cands.reduce((s, c) => s + c.totalExpenses, 0) : (ds.totalExpenses ?? 0);
+  const totalFinancial = hasCandidacies ? cands.reduce((s, c) => s + c.financialExpenses, 0) : 0;
+  const totalDonations = hasCandidacies ? cands.reduce((s, c) => s + c.estimatedDonations, 0) : 0;
+  const cpvs = cands
+    .map((c) => c.costPerVote)
+    .filter((v) => v > 0 && isFinite(v))
+    .sort((a, b) => a - b);
+  const median =
+    cpvs.length === 0
+      ? 0
+      : cpvs.length % 2 === 1
+        ? cpvs[Math.floor(cpvs.length / 2)]
+        : (cpvs[cpvs.length / 2 - 1] + cpvs[cpvs.length / 2]) / 2;
   const avgCpv = cpvs.length > 0 ? cpvs.reduce((s, v) => s + v, 0) / cpvs.length : 0;
 
-  const electedCount = cands.filter(c => c.elected).length;
+  const electedCount = cands.filter((c) => c.elected).length;
 
   return {
     dataset: ds,
@@ -87,21 +86,21 @@ const computeMetrics = (ds: Dataset): DatasetMetrics => {
 };
 
 const CHART_COLORS = [
-  'hsl(var(--primary))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
-  '#8b5cf6',
-  '#f59e0b',
-  '#ef4444',
+  "hsl(var(--primary))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
+  "#8b5cf6",
+  "#f59e0b",
+  "#ef4444",
 ];
 
 export const DatasetComparison: React.FC = () => {
   const { datasets, loadMultipleDatasetCandidacies, candidaciesLoading, filterZeroCandidates } = useData();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [hasExplicitSelection, setHasExplicitSelection] = useState(false);
-  const [candidateSearch, setCandidateSearch] = useState('');
+  const [candidateSearch, setCandidateSearch] = useState("");
 
   // Auto-select all only if user hasn't made an explicit selection
   const effectiveIds = hasExplicitSelection ? selectedIds : datasets.map((d) => d.id);
@@ -112,15 +111,17 @@ export const DatasetComparison: React.FC = () => {
     if (effectiveIds.length > 0) {
       loadMultipleDatasetCandidacies(effectiveIds);
     }
-  }, [effectiveIds.join(','), loadMultipleDatasetCandidacies]);
+  }, [effectiveIds.join(","), loadMultipleDatasetCandidacies]);
 
-  const metrics = useMemo(() => selectedDatasets.map(ds => computeMetrics({ ...ds, candidacies: filterZeroCandidates(ds.candidacies || []) })), [selectedDatasets, filterZeroCandidates]);
+  const metrics = useMemo(
+    () =>
+      selectedDatasets.map((ds) => computeMetrics({ ...ds, candidacies: filterZeroCandidates(ds.candidacies || []) })),
+    [selectedDatasets, filterZeroCandidates],
+  );
 
   const toggleDataset = (id: string) => {
     setHasExplicitSelection(true);
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   // Cross-candidacy search
@@ -144,13 +145,13 @@ export const DatasetComparison: React.FC = () => {
   const barChartData = useMemo(
     () =>
       metrics.map((m, i) => ({
-        name: m.dataset.name.length > 20 ? m.dataset.name.slice(0, 20) + '…' : m.dataset.name,
-        'Total Votos': m.totalVotes,
-        'Total Despesas': m.totalExpenses,
-        'Candidaturas': m.totalCandidacies,
+        name: m.dataset.name.length > 20 ? m.dataset.name.slice(0, 20) + "…" : m.dataset.name,
+        "Total Votos": m.totalVotes,
+        "Total Despesas": m.totalExpenses,
+        Candidaturas: m.totalCandidacies,
         fill: CHART_COLORS[i % CHART_COLORS.length],
       })),
-    [metrics]
+    [metrics],
   );
 
   const radarData = useMemo(() => {
@@ -159,16 +160,35 @@ export const DatasetComparison: React.FC = () => {
     const maxExpenses = Math.max(...metrics.map((m) => m.avgExpenses)) || 1;
     const maxCpv = Math.max(...metrics.map((m) => m.avgCostPerVote)) || 1;
     const maxCands = Math.max(...metrics.map((m) => m.totalCandidacies)) || 1;
-    const maxFinPct = Math.max(
-      ...metrics.map((m) => (m.totalExpenses > 0 ? m.totalFinancial / m.totalExpenses : 0))
-    ) || 1;
+    const maxFinPct =
+      Math.max(...metrics.map((m) => (m.totalExpenses > 0 ? m.totalFinancial / m.totalExpenses : 0))) || 1;
 
     return [
-      { metric: 'Votos Médios', ...Object.fromEntries(metrics.map((m) => [m.dataset.name, (m.avgVotes / maxVotes) * 100])) },
-      { metric: 'Despesa Média', ...Object.fromEntries(metrics.map((m) => [m.dataset.name, (m.avgExpenses / maxExpenses) * 100])) },
-      { metric: 'Custo/Voto', ...Object.fromEntries(metrics.map((m) => [m.dataset.name, (m.avgCostPerVote / maxCpv) * 100])) },
-      { metric: 'Candidaturas', ...Object.fromEntries(metrics.map((m) => [m.dataset.name, (m.totalCandidacies / maxCands) * 100])) },
-      { metric: '% Financeiro', ...Object.fromEntries(metrics.map((m) => [m.dataset.name, ((m.totalExpenses > 0 ? m.totalFinancial / m.totalExpenses : 0) / maxFinPct) * 100])) },
+      {
+        metric: "Votos Médios",
+        ...Object.fromEntries(metrics.map((m) => [m.dataset.name, (m.avgVotes / maxVotes) * 100])),
+      },
+      {
+        metric: "Despesa Média",
+        ...Object.fromEntries(metrics.map((m) => [m.dataset.name, (m.avgExpenses / maxExpenses) * 100])),
+      },
+      {
+        metric: "Custo/Voto",
+        ...Object.fromEntries(metrics.map((m) => [m.dataset.name, (m.avgCostPerVote / maxCpv) * 100])),
+      },
+      {
+        metric: "Candidaturas",
+        ...Object.fromEntries(metrics.map((m) => [m.dataset.name, (m.totalCandidacies / maxCands) * 100])),
+      },
+      {
+        metric: "% Financeiro",
+        ...Object.fromEntries(
+          metrics.map((m) => [
+            m.dataset.name,
+            ((m.totalExpenses > 0 ? m.totalFinancial / m.totalExpenses : 0) / maxFinPct) * 100,
+          ]),
+        ),
+      },
     ];
   }, [metrics]);
 
@@ -178,8 +198,8 @@ export const DatasetComparison: React.FC = () => {
         <BarChart3 className="w-16 h-16 text-muted-foreground/40" />
         <h2 className="text-xl font-semibold text-foreground">Comparação entre Datasets</h2>
         <p className="text-muted-foreground max-w-md">
-          Você precisa ter pelo menos <strong>2 datasets</strong> importados para usar esta funcionalidade.
-          Atualmente você possui {datasets.length} dataset{datasets.length !== 1 ? 's' : ''}.
+          Você precisa ter pelo menos <strong>2 datasets</strong> importados para usar esta funcionalidade. Atualmente
+          você possui {datasets.length} dataset{datasets.length !== 1 ? "s" : ""}.
         </p>
       </div>
     );
@@ -205,23 +225,35 @@ export const DatasetComparison: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="flex gap-2 mb-3">
-            <Button variant="outline" size="sm" onClick={() => {
-              setHasExplicitSelection(true);
-              setSelectedIds(datasets.map(d => d.id));
-            }}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setHasExplicitSelection(true);
+                setSelectedIds(datasets.map((d) => d.id));
+              }}
+            >
               Marcar tudo
             </Button>
-            <Button variant="outline" size="sm" onClick={() => {
-              setHasExplicitSelection(true);
-              setSelectedIds([]);
-            }}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setHasExplicitSelection(true);
+                setSelectedIds([]);
+              }}
+            >
               Desmarcar tudo
             </Button>
-            <Button variant="outline" size="sm" onClick={() => {
-              setHasExplicitSelection(true);
-              const allIds = datasets.map(d => d.id);
-              setSelectedIds(allIds.filter(id => !effectiveIds.includes(id)));
-            }}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setHasExplicitSelection(true);
+                const allIds = datasets.map((d) => d.id);
+                setSelectedIds(allIds.filter((id) => !effectiveIds.includes(id)));
+              }}
+            >
               Inverter
             </Button>
           </div>
@@ -230,20 +262,17 @@ export const DatasetComparison: React.FC = () => {
               <label
                 key={ds.id}
                 className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all',
+                  "flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all",
                   effectiveIds.includes(ds.id)
-                    ? 'bg-primary/10 border-primary text-foreground'
-                    : 'bg-muted/30 border-border text-muted-foreground hover:bg-muted/50'
+                    ? "bg-primary/10 border-primary text-foreground"
+                    : "bg-muted/30 border-border text-muted-foreground hover:bg-muted/50",
                 )}
               >
-                <Checkbox
-                  checked={effectiveIds.includes(ds.id)}
-                  onCheckedChange={() => toggleDataset(ds.id)}
-                />
+                <Checkbox checked={effectiveIds.includes(ds.id)} onCheckedChange={() => toggleDataset(ds.id)} />
                 <div className="flex flex-col">
                   <span className="font-medium text-sm">{ds.name}</span>
                   <span className="text-xs opacity-70">
-                    {ds.year} · {ds.state} · {ds.candidacies?.length || 0} candidaturas
+                    {ds.year} · {ds.state} · {ds.candidacyCount ?? ds.candidacies?.length ?? 0} candidaturas
                   </span>
                 </div>
               </label>
@@ -258,6 +287,12 @@ export const DatasetComparison: React.FC = () => {
           <CardTitle className="text-base flex items-center gap-2">
             <TrendingUp className="w-4 h-4" />
             Métricas Agregadas
+            {candidaciesLoading && (
+              <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Carregando detalhes...
+              </span>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
@@ -328,9 +363,9 @@ export const DatasetComparison: React.FC = () => {
                 <Tooltip
                   formatter={(value: number) => formatCurrency(value)}
                   contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
                   }}
                 />
                 <Bar dataKey="Total Despesas" radius={[6, 6, 0, 0]}>
@@ -408,7 +443,7 @@ export const DatasetComparison: React.FC = () => {
                     <CardTitle className="text-sm flex items-center gap-2">
                       {group.name}
                       <Badge variant="secondary" className="text-xs">
-                        {group.entries.length} dataset{group.entries.length > 1 ? 's' : ''}
+                        {group.entries.length} dataset{group.entries.length > 1 ? "s" : ""}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
@@ -437,11 +472,13 @@ export const DatasetComparison: React.FC = () => {
                               <Badge variant="outline">{entry.candidacy.party}</Badge>
                             </TableCell>
                             <TableCell className="text-right">{formatNumber(entry.candidacy.votes)}</TableCell>
-                            <TableCell className="text-right">{formatCurrency(entry.candidacy.totalExpenses)}</TableCell>
+                            <TableCell className="text-right">
+                              {formatCurrency(entry.candidacy.totalExpenses)}
+                            </TableCell>
                             <TableCell className="text-right">{formatCurrency(entry.candidacy.costPerVote)}</TableCell>
                             <TableCell className="text-right">
-                              <Badge variant={entry.candidacy.elected ? 'default' : 'secondary'}>
-                                {entry.candidacy.elected ? 'Sim' : 'Não'}
+                              <Badge variant={entry.candidacy.elected ? "default" : "secondary"}>
+                                {entry.candidacy.elected ? "Sim" : "Não"}
                               </Badge>
                             </TableCell>
                           </TableRow>
