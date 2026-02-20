@@ -226,23 +226,6 @@ const RankingCard: React.FC<{
             </div>
           </div>
         </div>
-        
-        {/* Top candidate highlight */}
-        {topCandidate && (
-          <div className="mt-4 p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-bold text-yellow-300 shrink-0">1º</span>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">{topCandidate.name}</p>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-white/70 truncate">{topCandidate.party}</p>
-                  {topCandidate.elected && <span className="text-xs bg-white/20 rounded px-1">Eleito</span>}
-                </div>
-              </div>
-              <span className="font-mono font-bold text-sm whitespace-nowrap ml-2">{formatValue(topCandidate)}</span>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Ranking list */}
