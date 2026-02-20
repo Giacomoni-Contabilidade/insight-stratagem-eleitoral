@@ -1,78 +1,80 @@
 
+# Corrigir calculo de gastos totais: usar soma das categorias como fallback
 
-## Upload de CSV direto para o banco via Edge Function
+## Problema identificado
 
-### Problema atual
-O fluxo atual exige colar dados no navegador, que faz parse em memória e insere via SDK do cliente. Para datasets grandes (1GB+), isso trava o browser e excede limites de request.
+O CSV importado tem as colunas "Despesas Financeiras" e "Doações Estimadas" zeradas para 8.352 candidaturas (29% dos dados), mesmo quando as 38 categorias de despesa detalhadas possuem valores reais. Como o sistema calcula `totalExpenses = financialExpenses + estimatedDonations`, essas candidaturas aparecem com R$ 0,00 de gastos e custo/voto = 0.
 
-### Solucao proposta
-Criar uma edge function `import-csv` que:
-1. Recebe o CSV via upload (multipart/form-data) junto com metadados (nome, ano, estado, cargo)
-2. Faz parse do CSV linha a linha no servidor (Deno)
-3. Insere em lotes de 500 registros diretamente no banco usando service_role key (bypassa RLS)
-4. Retorna progresso e resultado final
+Exemplo: **Dani Portela (PSOL/PE)** tem R$ 459.612 em categorias detalhadas, mas aparece com gastos totais = R$ 0,00.
 
-### Fluxo do usuario
+## Solucao
+
+Adicionar um fallback: quando `financialExpenses + estimatedDonations = 0` mas a soma das categorias e maior que zero, usar a soma das categorias como `totalExpenses`.
+
+## Alteracoes
+
+### 1. Edge Function `import-csv/index.ts`
+
+Nas funcoes `parseRowSingle` e `parseRowMulti`, apos calcular as categorias de despesa:
 
 ```text
-+------------------+     POST multipart      +------------------+
-|   Browser        | ----------------------> |  Edge Function   |
-|   (arquivo CSV)  |                         |  import-csv      |
-+------------------+                         +--------+---------+
-                                                      |
-                                              Parse CSV em stream
-                                              Insert batches de 500
-                                                      |
-                                              +-------v--------+
-                                              |   Database     |
-                                              |   datasets +   |
-                                              |   candidatures |
-                                              +----------------+
+// Atual:
+const totalExpenses = financialExpenses + estimatedDonations;
+
+// Novo:
+const categoryTotal = Object.values(expenses).reduce((sum, v) => sum + v, 0);
+const totalExpenses = (financialExpenses + estimatedDonations) > 0
+  ? financialExpenses + estimatedDonations
+  : categoryTotal;
 ```
 
-### Mudancas necessarias
+Isso garante que importacoes futuras calculem corretamente.
 
-#### 1. Nova Edge Function: `supabase/functions/import-csv/index.ts`
-- Aceita POST com `multipart/form-data`
-- Campos: `file` (CSV), `name`, `year`, `state`, `position`
-- Valida autenticacao via token JWT no header Authorization
-- Faz parse do CSV (separador tab ou virgula, com deteccao automatica)
-- Reutiliza a logica de normalizacao (gender, race, education, parseNumber) do `dataParser.ts`, reescrita em Deno
-- Cria o dataset com `user_id` do usuario autenticado
-- Insere candidaturas em batches de 500
-- Em caso de erro, faz rollback (deleta dataset incompleto)
-- Retorna JSON com `{ datasetId, imported: number, errors: number }`
+### 2. Parser local `src/lib/dataParser.ts`
 
-#### 2. Atualizar `supabase/config.toml`
-- Adicionar configuracao `[functions.import-csv]` com `verify_jwt = false` (validacao manual no codigo)
+Aplicar a mesma logica de fallback na funcao `parseSpreadsheetData` para manter consistencia com o metodo de copia/cola.
 
-#### 3. Atualizar UI: `src/components/DataImport.tsx`
-- Adicionar aba/opcao "Upload de arquivo CSV" alem do paste atual
-- Input de arquivo (`<input type="file" accept=".csv,.tsv,.txt">`)
-- Ao selecionar arquivo, pula direto para a tela de "Configurar dataset" (nome, ano, estado, cargo)
-- No submit, envia o arquivo via `fetch` para a edge function com o token do usuario
-- Mostra barra de progresso (ou spinner) durante o upload
-- Limite maximo de arquivo no frontend: avisar que arquivos muito grandes podem demorar
+### 3. Corrigir dados existentes no banco
 
-#### 4. Limite de tamanho
-- Edge functions tem limite de ~100MB por request no plano Business
-- Para arquivos maiores que ~100MB, sera necessario dividir o CSV antes do upload
-- O frontend avisara o usuario sobre essa limitacao
+Executar uma migracao SQL que recalcula `total_expenses` e `cost_per_vote` para todas as candidaturas afetadas:
 
-### Detalhes tecnicos
+```sql
+UPDATE candidatures
+SET
+  total_expenses = (
+    SELECT COALESCE(SUM(value::numeric), 0)
+    FROM jsonb_each_text(expenses)
+  ),
+  cost_per_vote = CASE
+    WHEN votes > 0 THEN (
+      SELECT COALESCE(SUM(value::numeric), 0)
+      FROM jsonb_each_text(expenses)
+    ) / votes
+    ELSE 0
+  END
+WHERE total_expenses = 0
+  AND (
+    SELECT COALESCE(SUM(value::numeric), 0)
+    FROM jsonb_each_text(expenses)
+  ) > 0;
+```
 
-**Parse no servidor (Deno):**
-- Leitura do body como texto completo (para arquivos ate ~100MB)
-- Split por linhas, deteccao de header, parse de cada coluna
-- Mesma logica de normalizacao do `dataParser.ts` portada para Deno
+Tambem atualizar os metadados dos datasets afetados (campo `total_expenses`).
 
-**Insercao em lotes:**
-- Cria o dataset primeiro
-- Insere candidaturas em chunks de 500 com `supabase.from('candidatures').insert(batch)`
-- Usa service_role key para bypass de RLS (mais rapido e evita problemas de permissao durante batch)
-- Valida que o usuario esta autenticado antes de prosseguir
+### 4. Atualizar metadados dos datasets
 
-**Tratamento de erros:**
-- Se qualquer batch falhar, deleta o dataset (rollback)
-- Retorna contagem de linhas importadas vs linhas com erro
+```sql
+UPDATE datasets d
+SET total_expenses = (
+  SELECT COALESCE(SUM(c.total_expenses), 0)
+  FROM candidatures c
+  WHERE c.dataset_id = d.id
+);
+```
 
+## Secao tecnica
+
+- **Arquivos modificados**: `supabase/functions/import-csv/index.ts`, `src/lib/dataParser.ts`
+- **Migracao SQL**: 2 queries UPDATE para corrigir dados historicos
+- **Impacto**: 8.352 candidaturas terao seus gastos corrigidos imediatamente; importacoes futuras usarao o fallback automaticamente
+- **Risco**: Nenhum - o fallback so atua quando as colunas resumo sao zero, preservando dados corretos
