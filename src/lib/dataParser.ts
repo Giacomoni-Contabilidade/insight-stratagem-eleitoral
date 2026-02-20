@@ -151,9 +151,8 @@ export const parseSpreadsheetData = (rawText: string): ParsedRow[] => {
     });
     
     // Calculate computed fields
-    // Use the greater of (financial + donations) vs sum of categories
-    // This handles cases where summary columns are incomplete
-    const totalExpenses = Math.max(financialExpenses + estimatedDonations, calculatedCategoryTotal);
+    // Total expenses = sum of all 38 expense categories
+    const totalExpenses = calculatedCategoryTotal;
     const costPerVote = votes > 0 ? totalExpenses / votes : 0;
     
     // Calculate percentage breakdown
