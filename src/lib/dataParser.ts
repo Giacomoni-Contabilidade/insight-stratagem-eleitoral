@@ -152,7 +152,10 @@ export const parseSpreadsheetData = (rawText: string): ParsedRow[] => {
     
     // Calculate computed fields
     // Total expenses = financial (cash) + estimated donations (non-monetary)
-    const totalExpenses = financialExpenses + estimatedDonations;
+    // Fallback: if both are zero but categories have values, use category total
+    const totalExpenses = (financialExpenses + estimatedDonations) > 0
+      ? financialExpenses + estimatedDonations
+      : calculatedCategoryTotal;
     const costPerVote = votes > 0 ? totalExpenses / votes : 0;
     
     // Calculate percentage breakdown
