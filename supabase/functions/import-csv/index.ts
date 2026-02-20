@@ -189,9 +189,7 @@ function parseRowSingle(columns: string[], datasetId: string) {
   }
 
   const categoryTotal = Object.values(expenses).reduce((sum, v) => sum + v, 0);
-  const totalExpenses = (financialExpenses + estimatedDonations) > 0
-    ? financialExpenses + estimatedDonations
-    : categoryTotal;
+  const totalExpenses = Math.max(financialExpenses + estimatedDonations, categoryTotal);
   const costPerVote = votes > 0 ? totalExpenses / votes : 0;
 
   return {
@@ -246,9 +244,7 @@ function parseRowMulti(columns: string[]) {
   }
 
   const categoryTotal = Object.values(expenses).reduce((sum, v) => sum + v, 0);
-  const totalExpenses = (financialExpenses + estimatedDonations) > 0
-    ? financialExpenses + estimatedDonations
-    : categoryTotal;
+  const totalExpenses = Math.max(financialExpenses + estimatedDonations, categoryTotal);
   const costPerVote = votes > 0 ? totalExpenses / votes : 0;
 
   // Last column: Eleito (boolean)
