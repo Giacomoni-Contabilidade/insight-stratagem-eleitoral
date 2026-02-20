@@ -151,8 +151,8 @@ export const parseSpreadsheetData = (rawText: string): ParsedRow[] => {
     });
     
     // Calculate computed fields
-    // Total expenses = sum of 38 expense categories + Despesas Financeiras
-    const totalExpenses = calculatedCategoryTotal + financialExpenses;
+    // Total expenses = sum of 38 expense categories (já inclui Encargos financeiros)
+    const totalExpenses = calculatedCategoryTotal;
     const costPerVote = votes > 0 ? totalExpenses / votes : 0;
     
     // Calculate percentage breakdown
