@@ -245,7 +245,10 @@ function parseRowMulti(columns: string[]) {
     expenses[LEGAL_EXPENSE_CATEGORIES[i]] = parseNumber(columns[13 + i] || "0");
   }
 
-  const totalExpenses = financialExpenses + estimatedDonations;
+  const categoryTotal = Object.values(expenses).reduce((sum, v) => sum + v, 0);
+  const totalExpenses = (financialExpenses + estimatedDonations) > 0
+    ? financialExpenses + estimatedDonations
+    : categoryTotal;
   const costPerVote = votes > 0 ? totalExpenses / votes : 0;
 
   // Last column: Eleito (boolean)
