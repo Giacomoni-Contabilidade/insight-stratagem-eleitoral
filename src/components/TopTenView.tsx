@@ -22,7 +22,7 @@ import {
   Trophy,
   Medal,
   Award,
-  Crown,
+  
   Sparkles,
   CheckCircle2,
   XCircle,
@@ -148,7 +148,7 @@ const PositionBadge: React.FC<{ position: number }> = ({ position }) => {
   if (position === 1) {
     return (
       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-lg shadow-amber-200">
-        <Crown className="w-4 h-4 text-white" />
+        <span className="text-sm font-bold text-white">1</span>
       </div>
     );
   }
@@ -252,7 +252,7 @@ const RankingCard: React.FC<{
         {topCandidate && (
           <div className="mt-4 p-3 rounded-xl bg-white/10 backdrop-blur-sm">
             <div className="flex items-center gap-3">
-              <Crown className="w-5 h-5 text-yellow-300 shrink-0" />
+              <span className="text-sm font-bold text-yellow-300 shrink-0">1º</span>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{topCandidate.name}</p>
                 <div className="flex items-center gap-2">
