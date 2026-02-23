@@ -94,6 +94,7 @@ export interface Dataset {
   totalExpenses: number;
   createdAt: Date;
   updatedAt: Date;
+  importBatchId?: string;
 }
 
 // Analytical grouping structure
