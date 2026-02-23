@@ -1,80 +1,47 @@
 
-# Corrigir calculo de gastos totais: usar soma das categorias como fallback
 
-## Problema identificado
+# Rastreamento de Lote de Importacao (Import Batch)
 
-O CSV importado tem as colunas "Despesas Financeiras" e "Doações Estimadas" zeradas para 8.352 candidaturas (29% dos dados), mesmo quando as 38 categorias de despesa detalhadas possuem valores reais. Como o sistema calcula `totalExpenses = financialExpenses + estimatedDonations`, essas candidaturas aparecem com R$ 0,00 de gastos e custo/voto = 0.
+## Objetivo
+Permitir identificar quais datasets foram importados a partir de um mesmo arquivo, adicionando um campo `import_batch_id` que agrupa datasets do mesmo lote.
 
-Exemplo: **Dani Portela (PSOL/PE)** tem R$ 459.612 em categorias detalhadas, mas aparece com gastos totais = R$ 0,00.
+## Mudancas
 
-## Solucao
+### 1. Banco de dados
+- Adicionar coluna `import_batch_id` (uuid, nullable) na tabela `datasets`
+  - Nullable porque datasets antigos nao terao esse campo, e datasets criados via copia/cola tambem nao precisam dele
 
-Adicionar um fallback: quando `financialExpenses + estimatedDonations = 0` mas a soma das categorias e maior que zero, usar a soma das categorias como `totalExpenses`.
+### 2. Edge Function `import-csv`
+- Gerar um UUID no inicio do processamento do arquivo
+- Passar esse `import_batch_id` ao criar cada dataset (tanto no modo single quanto no multi-dataset)
 
-## Alteracoes
+### 3. Frontend - `DatasetManager.tsx`
+- Agrupar visualmente datasets que compartilham o mesmo `import_batch_id`
+- Exibir um indicador sutil (ex: badge ou label) mostrando quantos datasets fazem parte do mesmo lote
 
-### 1. Edge Function `import-csv/index.ts`
+### 4. Tipos e hooks
+- Atualizar o tipo `Dataset` em `src/types/campaign.ts` para incluir `importBatchId?: string`
+- Atualizar `useDatasets.ts` para mapear o novo campo do banco
 
-Nas funcoes `parseRowSingle` e `parseRowMulti`, apos calcular as categorias de despesa:
+---
 
-```text
-// Atual:
-const totalExpenses = financialExpenses + estimatedDonations;
+## Detalhes Tecnicos
 
-// Novo:
-const categoryTotal = Object.values(expenses).reduce((sum, v) => sum + v, 0);
-const totalExpenses = (financialExpenses + estimatedDonations) > 0
-  ? financialExpenses + estimatedDonations
-  : categoryTotal;
-```
-
-Isso garante que importacoes futuras calculem corretamente.
-
-### 2. Parser local `src/lib/dataParser.ts`
-
-Aplicar a mesma logica de fallback na funcao `parseSpreadsheetData` para manter consistencia com o metodo de copia/cola.
-
-### 3. Corrigir dados existentes no banco
-
-Executar uma migracao SQL que recalcula `total_expenses` e `cost_per_vote` para todas as candidaturas afetadas:
-
+### Migracao SQL
 ```sql
-UPDATE candidatures
-SET
-  total_expenses = (
-    SELECT COALESCE(SUM(value::numeric), 0)
-    FROM jsonb_each_text(expenses)
-  ),
-  cost_per_vote = CASE
-    WHEN votes > 0 THEN (
-      SELECT COALESCE(SUM(value::numeric), 0)
-      FROM jsonb_each_text(expenses)
-    ) / votes
-    ELSE 0
-  END
-WHERE total_expenses = 0
-  AND (
-    SELECT COALESCE(SUM(value::numeric), 0)
-    FROM jsonb_each_text(expenses)
-  ) > 0;
+ALTER TABLE public.datasets
+ADD COLUMN import_batch_id uuid DEFAULT NULL;
 ```
 
-Tambem atualizar os metadados dos datasets afetados (campo `total_expenses`).
+### Edge Function (import-csv)
+- No inicio do handler, gerar `const batchId = crypto.randomUUID()`
+- Incluir `import_batch_id: batchId` em todos os INSERTs de datasets
 
-### 4. Atualizar metadados dos datasets
+### DatasetManager
+- Agrupar datasets por `import_batch_id` quando nao nulo
+- Datasets sem `import_batch_id` aparecem individualmente
+- Cada grupo exibe o numero de datasets do lote como badge no card
 
-```sql
-UPDATE datasets d
-SET total_expenses = (
-  SELECT COALESCE(SUM(c.total_expenses), 0)
-  FROM candidatures c
-  WHERE c.dataset_id = d.id
-);
-```
+### Paste Tab (DataImport.tsx)
+- Nao gera `import_batch_id` (importacao avulsa, sem arquivo)
 
-## Secao tecnica
-
-- **Arquivos modificados**: `supabase/functions/import-csv/index.ts`, `src/lib/dataParser.ts`
-- **Migracao SQL**: 2 queries UPDATE para corrigir dados historicos
-- **Impacto**: 8.352 candidaturas terao seus gastos corrigidos imediatamente; importacoes futuras usarao o fallback automaticamente
-- **Risco**: Nenhum - o fallback so atua quando as colunas resumo sao zero, preservando dados corretos
