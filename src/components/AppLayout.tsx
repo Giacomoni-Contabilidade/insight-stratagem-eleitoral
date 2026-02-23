@@ -12,6 +12,7 @@ import { TopTenView } from '@/components/TopTenView';
 import { ReportGenerator } from '@/components/reports';
 import { UserManagement } from '@/components/UserManagement';
 import { DatasetComparison } from '@/components/DatasetComparison';
+import { DataSpreadsheet } from '@/components/DataSpreadsheet';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -31,6 +32,7 @@ import {
   BarChart3,
   GitCompareArrows,
   Trophy,
+  Table2,
   ChevronLeft,
   ChevronRight,
   FileDown,
@@ -40,7 +42,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 
-type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten' | 'reports' | 'dataset-comparison' | 'users';
+type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten' | 'reports' | 'dataset-comparison' | 'users' | 'spreadsheet';
 
 interface NavItem {
   id: View;
@@ -65,6 +67,7 @@ const getNavSections = (isAdmin: boolean): NavSection[] => [
       { id: 'profile', label: 'Perfil', icon: <User className="w-5 h-5" />, description: 'Individual' },
       { id: 'dataset-comparison', label: 'Datasets', icon: <Database className="w-5 h-5" />, description: 'Comparar datasets' },
       { id: 'reports', label: 'Relatórios', icon: <FileDown className="w-5 h-5" />, description: 'Exportar PDF' },
+      { id: 'spreadsheet', label: 'Planilha', icon: <Table2 className="w-5 h-5" />, description: 'Visualizar dados' },
     ],
   },
   {
@@ -131,6 +134,8 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
         return <DatasetComparison />;
       case 'reports':
         return <ReportGenerator />;
+      case 'spreadsheet':
+        return <DataSpreadsheet />;
       case 'users':
         return <UserManagement />;
       default:
