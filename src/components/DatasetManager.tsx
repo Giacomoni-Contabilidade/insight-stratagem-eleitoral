@@ -3,6 +3,7 @@ import { useData } from '@/contexts/DataContext';
 import { Dataset } from '@/types/campaign';
 import { formatCurrency, formatNumber } from '@/lib/dataParser';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { 
   Database, 
   Trash2, 
@@ -10,7 +11,8 @@ import {
   Calendar,
   MapPin,
   Briefcase,
-  ChevronRight
+  ChevronRight,
+  Package
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -29,9 +31,10 @@ interface DatasetCardProps {
   isActive: boolean;
   onSelect: () => void;
   onDelete: () => void;
+  batchSize?: number;
 }
 
-const DatasetCard: React.FC<DatasetCardProps> = ({ dataset, isActive, onSelect, onDelete }) => {
+const DatasetCard: React.FC<DatasetCardProps> = ({ dataset, isActive, onSelect, onDelete, batchSize }) => {
   const totalVotes = dataset.totalVotes;
   const totalExpenses = dataset.totalExpenses;
   
@@ -50,7 +53,15 @@ const DatasetCard: React.FC<DatasetCardProps> = ({ dataset, isActive, onSelect, 
             <Database className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
           </div>
           <div>
-            <h3 className="font-semibold">{dataset.name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold">{dataset.name}</h3>
+              {batchSize && batchSize > 1 && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                  <Package className="w-3 h-3 mr-1" />
+                  {batchSize}
+                </Badge>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">
               Criado em {new Date(dataset.createdAt).toLocaleDateString('pt-BR')}
             </p>
@@ -139,6 +150,29 @@ export const DatasetManager: React.FC = () => {
       </div>
     );
   }
+
+  // Count batch sizes
+  const batchCounts = new Map<string, number>();
+  for (const ds of datasets) {
+    if (ds.importBatchId) {
+      batchCounts.set(ds.importBatchId, (batchCounts.get(ds.importBatchId) || 0) + 1);
+    }
+  }
+
+  // Group datasets: batched ones together, individual ones standalone
+  const batches = new Map<string, Dataset[]>();
+  const individual: Dataset[] = [];
+
+  for (const ds of datasets) {
+    if (ds.importBatchId && batchCounts.get(ds.importBatchId)! > 1) {
+      if (!batches.has(ds.importBatchId)) {
+        batches.set(ds.importBatchId, []);
+      }
+      batches.get(ds.importBatchId)!.push(ds);
+    } else {
+      individual.push(ds);
+    }
+  }
   
   return (
     <div className="space-y-6 animate-fade-in">
@@ -148,18 +182,43 @@ export const DatasetManager: React.FC = () => {
           Gerencie seus conjuntos de dados eleitorais
         </p>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {datasets.map((dataset) => (
-          <DatasetCard
-            key={dataset.id}
-            dataset={dataset}
-            isActive={dataset.id === activeDatasetId}
-            onSelect={() => setActiveDatasetId(dataset.id)}
-            onDelete={() => deleteDataset(dataset.id)}
-          />
-        ))}
-      </div>
+
+      {/* Batched datasets */}
+      {Array.from(batches.entries()).map(([batchId, batchDatasets]) => (
+        <div key={batchId} className="space-y-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Package className="w-4 h-4" />
+            <span>Lote de importação — {batchDatasets.length} datasets</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {batchDatasets.map((dataset) => (
+              <DatasetCard
+                key={dataset.id}
+                dataset={dataset}
+                isActive={dataset.id === activeDatasetId}
+                onSelect={() => setActiveDatasetId(dataset.id)}
+                onDelete={() => deleteDataset(dataset.id)}
+                batchSize={batchDatasets.length}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* Individual datasets */}
+      {individual.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {individual.map((dataset) => (
+            <DatasetCard
+              key={dataset.id}
+              dataset={dataset}
+              isActive={dataset.id === activeDatasetId}
+              onSelect={() => setActiveDatasetId(dataset.id)}
+              onDelete={() => deleteDataset(dataset.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

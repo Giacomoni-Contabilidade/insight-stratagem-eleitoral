@@ -342,8 +342,11 @@ Deno.serve(async (req) => {
     const hasHeader = firstLine.includes("candidatura") || firstLine.includes("partido");
     const dataLines = hasHeader ? lines.slice(1) : lines;
 
+    // Generate a batch ID to group datasets from the same file
+    const batchId = crypto.randomUUID();
+
     if (mode === "multi") {
-      return await handleMultiMode(supabase, dataLines, separator, name, year, userId);
+      return await handleMultiMode(supabase, dataLines, separator, name, year, userId, batchId);
     } else {
       // Single mode needs state + position
       const state = (formData.get("state") as string) || "";
@@ -354,7 +357,7 @@ Deno.serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      return await handleSingleMode(supabase, dataLines, separator, name, year, state, position, userId);
+      return await handleSingleMode(supabase, dataLines, separator, name, year, state, position, userId, batchId);
     }
   } catch (err) {
     return new Response(
@@ -374,11 +377,12 @@ async function handleSingleMode(
   year: number,
   state: string,
   position: string,
-  userId: string
+  userId: string,
+  batchId: string
 ) {
   const { data: dataset, error: dsError } = await supabase
     .from("datasets")
-    .insert({ name, year, state, position, user_id: userId })
+    .insert({ name, year, state, position, user_id: userId, import_batch_id: batchId })
     .select("id")
     .single();
 
@@ -449,7 +453,8 @@ async function handleMultiMode(
   separator: string,
   namePrefix: string,
   year: number,
-  userId: string
+  userId: string,
+  batchId: string
 ) {
   // Positions to skip (they don't run independently)
   const SKIP_POSITIONS = ["Vice-Governador", "Vice-Prefeito", "Vice-Presidente"];
@@ -498,7 +503,7 @@ async function handleMultiMode(
 
     const { data: dataset, error: dsError } = await supabase
       .from("datasets")
-      .insert({ name: datasetName, year, state: group.state, position: group.position, user_id: userId })
+      .insert({ name: datasetName, year, state: group.state, position: group.position, user_id: userId, import_batch_id: batchId })
       .select("id")
       .single();
 

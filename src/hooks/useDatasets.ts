@@ -40,6 +40,7 @@ interface DatabaseDataset {
   candidacy_count: number;
   total_votes: number;
   total_expenses: number;
+  import_batch_id: string | null;
 }
 
 interface DatabaseCandidature {
@@ -259,6 +260,7 @@ export const useDatasets = (authUser?: User | null, authIsAuthenticated?: boolea
         candidacyCount: d.candidacy_count,
         totalVotes: d.total_votes,
         totalExpenses: Number(d.total_expenses),
+        importBatchId: d.import_batch_id ?? undefined,
       }));
 
       setDatasets(transformedDatasets);

@@ -143,6 +143,7 @@ export type Database = {
           candidacy_count: number
           created_at: string
           id: string
+          import_batch_id: string | null
           name: string
           position: string
           state: string
@@ -156,6 +157,7 @@ export type Database = {
           candidacy_count?: number
           created_at?: string
           id?: string
+          import_batch_id?: string | null
           name: string
           position: string
           state: string
@@ -169,6 +171,7 @@ export type Database = {
           candidacy_count?: number
           created_at?: string
           id?: string
+          import_batch_id?: string | null
           name?: string
           position?: string
           state?: string

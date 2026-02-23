@@ -1,0 +1,1 @@
+ALTER TABLE public.datasets ADD COLUMN import_batch_id uuid DEFAULT NULL;
