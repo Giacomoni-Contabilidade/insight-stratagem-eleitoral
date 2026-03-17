@@ -1,0 +1,1 @@
+UPDATE datasets SET candidacy_count = 1000, total_votes = 14158617, total_expenses = 297118481.05 WHERE id = '5ed04834-2ee9-4a23-847e-5613f6fba231'
