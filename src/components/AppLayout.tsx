@@ -13,6 +13,7 @@ import { ReportGenerator } from '@/components/reports';
 import { UserManagement } from '@/components/UserManagement';
 import { DatasetComparison } from '@/components/DatasetComparison';
 import { DataSpreadsheet } from '@/components/DataSpreadsheet';
+import { MunicipalityMapView } from '@/components/MunicipalityMapView';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -33,6 +34,7 @@ import {
   GitCompareArrows,
   Trophy,
   Table2,
+  MapPinned,
   ChevronLeft,
   ChevronRight,
   FileDown,
@@ -43,7 +45,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 
-type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten' | 'reports' | 'dataset-comparison' | 'users' | 'spreadsheet';
+type View = 'dashboard' | 'import' | 'comparison' | 'profile' | 'groups' | 'datasets' | 'candidacy-comparison' | 'top-ten' | 'reports' | 'dataset-comparison' | 'users' | 'spreadsheet' | 'municipality-map';
 
 interface NavItem {
   id: View;
@@ -69,6 +71,7 @@ const getNavSections = (isAdmin: boolean): NavSection[] => [
       { id: 'dataset-comparison', label: 'Datasets', icon: <Database className="w-5 h-5" />, description: 'Comparar datasets' },
       { id: 'reports', label: 'Relatórios', icon: <FileDown className="w-5 h-5" />, description: 'Exportar PDF' },
       { id: 'spreadsheet', label: 'Planilha', icon: <Table2 className="w-5 h-5" />, description: 'Visualizar dados' },
+      { id: 'municipality-map', label: 'Mapa SP', icon: <MapPinned className="w-5 h-5" />, description: 'CSV por município' },
     ],
   },
   {
@@ -108,6 +111,7 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
   
   const activeDataset = getActiveDataset();
   const navSections = getNavSections(isAdmin);
+  const isMunicipalityMapView = currentView === 'municipality-map';
   
   const renderContent = () => {
     if (dataLoading) {
@@ -143,6 +147,8 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
         return <DataSpreadsheet />;
       case 'users':
         return <UserManagement />;
+      case 'municipality-map':
+        return <MunicipalityMapView />;
       default:
         return <Dashboard />;
     }
@@ -285,95 +291,103 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
         {/* Top Bar */}
         <header className="h-20 flex items-center justify-between px-8 border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
           <div className="flex items-center gap-5">
-            {/* Year Toggle */}
-            <div className="flex items-center gap-1.5 bg-muted/50 rounded-xl p-1 shadow-inner">
-              <Calendar className="w-4 h-4 text-muted-foreground ml-2" />
-              {(availableYears.length > 0 ? availableYears : [2024]).map((year) => (
-                <button
-                  key={year}
-                  onClick={() => setSelectedYear(year)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200",
-                    selectedYear === year
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  {year}
-                </button>
-              ))}
-            </div>
-
-            {/* Dataset Selector */}
-            {filteredDatasets.length > 0 && (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Database className="w-4 h-4" />
-                  <span className="font-medium">Dataset:</span>
+            {!isMunicipalityMapView && (
+              <>
+                {/* Year Toggle */}
+                <div className="flex items-center gap-1.5 bg-muted/50 rounded-xl p-1 shadow-inner">
+                  <Calendar className="w-4 h-4 text-muted-foreground ml-2" />
+                  {(availableYears.length > 0 ? availableYears : [2024]).map((year) => (
+                    <button
+                      key={year}
+                      onClick={() => setSelectedYear(year)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200",
+                        selectedYear === year
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      {year}
+                    </button>
+                  ))}
                 </div>
-                <Select 
-                  value={activeDatasetId || ''} 
-                  onValueChange={(v) => setActiveDatasetId(v)}
-                >
-                  <SelectTrigger className="w-72 h-11 bg-background border-border/50 shadow-sm">
-                    <SelectValue placeholder="Selecione um dataset" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filteredDatasets.map((ds) => (
-                      <SelectItem key={ds.id} value={ds.id}>
-                        <div className="flex flex-col items-start">
-                          <span className="font-medium">{ds.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {ds.candidacyCount.toLocaleString('pt-BR')} candidaturas
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+
+                {/* Dataset Selector */}
+                {filteredDatasets.length > 0 && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Database className="w-4 h-4" />
+                      <span className="font-medium">Dataset:</span>
+                    </div>
+                    <Select 
+                      value={activeDatasetId || ''} 
+                      onValueChange={(v) => setActiveDatasetId(v)}
+                    >
+                      <SelectTrigger className="w-72 h-11 bg-background border-border/50 shadow-sm">
+                        <SelectValue placeholder="Selecione um dataset" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredDatasets.map((ds) => (
+                          <SelectItem key={ds.id} value={ds.id}>
+                            <div className="flex flex-col items-start">
+                              <span className="font-medium">{ds.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {ds.candidacyCount.toLocaleString('pt-BR')} candidaturas
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </>
             )}
           </div>
           
           <div className="flex items-center gap-4">
-            {/* Zero candidates filter */}
-            <div className="flex items-center gap-2">
-              <Switch
-                id="hide-zero"
-                checked={hideZeroCandidates}
-                onCheckedChange={setHideZeroCandidates}
-              />
-              <Label htmlFor="hide-zero" className="text-sm text-muted-foreground cursor-pointer whitespace-nowrap">
-                Ocultar zerados
-              </Label>
-            </div>
-            
-            {/* View Mode Toggle */}
-            {activeDataset && (
-              <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1.5 shadow-inner">
-                <button
-                  onClick={() => setViewMode('legal')}
-                  className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                    viewMode === 'legal' 
-                      ? 'bg-card text-foreground shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  Categorias Legais
-                </button>
-                <button
-                  onClick={() => setViewMode('analytical')}
-                  className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                    viewMode === 'analytical' 
-                      ? 'bg-card text-foreground shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  Grupos Analíticos
-                </button>
-              </div>
+            {!isMunicipalityMapView && (
+              <>
+                {/* Zero candidates filter */}
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="hide-zero"
+                    checked={hideZeroCandidates}
+                    onCheckedChange={setHideZeroCandidates}
+                  />
+                  <Label htmlFor="hide-zero" className="text-sm text-muted-foreground cursor-pointer whitespace-nowrap">
+                    Ocultar zerados
+                  </Label>
+                </div>
+                
+                {/* View Mode Toggle */}
+                {activeDataset && (
+                  <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1.5 shadow-inner">
+                    <button
+                      onClick={() => setViewMode('legal')}
+                      className={cn(
+                        "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                        viewMode === 'legal' 
+                          ? 'bg-card text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      Categorias Legais
+                    </button>
+                    <button
+                      onClick={() => setViewMode('analytical')}
+                      className={cn(
+                        "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                        viewMode === 'analytical' 
+                          ? 'bg-card text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      Grupos Analíticos
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </header>

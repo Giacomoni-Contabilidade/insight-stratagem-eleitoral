@@ -1,0 +1,2586 @@
+{
+  "source": "IBGE - Relação da População dos Municípios enviada ao TCU em 2023 (baseada no Censo Demográfico 2022 e malha territorial 2023)",
+  "reference_date": "2022-08-01",
+  "municipalities": {
+    "3500105": {
+      "name": "Adamantina",
+      "population": 34687
+    },
+    "3500204": {
+      "name": "Adolfo",
+      "population": 4351
+    },
+    "3500303": {
+      "name": "Aguaí",
+      "population": 32072
+    },
+    "3500402": {
+      "name": "Águas da Prata",
+      "population": 7369
+    },
+    "3500501": {
+      "name": "Águas de Lindóia",
+      "population": 17930
+    },
+    "3500550": {
+      "name": "Águas de Santa Bárbara",
+      "population": 7177
+    },
+    "3500600": {
+      "name": "Águas de São Pedro",
+      "population": 2780
+    },
+    "3500709": {
+      "name": "Agudos",
+      "population": 37680
+    },
+    "3500758": {
+      "name": "Alambari",
+      "population": 6141
+    },
+    "3500808": {
+      "name": "Alfredo Marcondes",
+      "population": 4445
+    },
+    "3500907": {
+      "name": "Altair",
+      "population": 3451
+    },
+    "3501004": {
+      "name": "Altinópolis",
+      "population": 16818
+    },
+    "3501103": {
+      "name": "Alto Alegre",
+      "population": 3841
+    },
+    "3501152": {
+      "name": "Alumínio",
+      "population": 17301
+    },
+    "3501202": {
+      "name": "Álvares Florence",
+      "population": 3915
+    },
+    "3501301": {
+      "name": "Álvares Machado",
+      "population": 27255
+    },
+    "3501400": {
+      "name": "Álvaro de Carvalho",
+      "population": 4808
+    },
+    "3501509": {
+      "name": "Alvinlândia",
+      "population": 2885
+    },
+    "3501608": {
+      "name": "Americana",
+      "population": 237240
+    },
+    "3501707": {
+      "name": "Américo Brasiliense",
+      "population": 33019
+    },
+    "3501806": {
+      "name": "Américo de Campos",
+      "population": 5870
+    },
+    "3501905": {
+      "name": "Amparo",
+      "population": 68008
+    },
+    "3502002": {
+      "name": "Analândia",
+      "population": 4589
+    },
+    "3502101": {
+      "name": "Andradina",
+      "population": 59783
+    },
+    "3502200": {
+      "name": "Angatuba",
+      "population": 24022
+    },
+    "3502309": {
+      "name": "Anhembi",
+      "population": 5674
+    },
+    "3502408": {
+      "name": "Anhumas",
+      "population": 4023
+    },
+    "3502507": {
+      "name": "Aparecida",
+      "population": 32569
+    },
+    "3502606": {
+      "name": "Aparecida d'Oeste",
+      "population": 4086
+    },
+    "3502705": {
+      "name": "Apiaí",
+      "population": 24585
+    },
+    "3502754": {
+      "name": "Araçariguama",
+      "population": 21522
+    },
+    "3502804": {
+      "name": "Araçatuba",
+      "population": 200124
+    },
+    "3502903": {
+      "name": "Araçoiaba da Serra",
+      "population": 32443
+    },
+    "3503000": {
+      "name": "Aramina",
+      "population": 5420
+    },
+    "3503109": {
+      "name": "Arandu",
+      "population": 6885
+    },
+    "3503158": {
+      "name": "Arapeí",
+      "population": 2330
+    },
+    "3503208": {
+      "name": "Araraquara",
+      "population": 242228
+    },
+    "3503307": {
+      "name": "Araras",
+      "population": 130866
+    },
+    "3503356": {
+      "name": "Arco-Íris",
+      "population": 2044
+    },
+    "3503406": {
+      "name": "Arealva",
+      "population": 8130
+    },
+    "3503505": {
+      "name": "Areias",
+      "population": 3577
+    },
+    "3503604": {
+      "name": "Areiópolis",
+      "population": 10130
+    },
+    "3503703": {
+      "name": "Ariranha",
+      "population": 7602
+    },
+    "3503802": {
+      "name": "Artur Nogueira",
+      "population": 51456
+    },
+    "3503901": {
+      "name": "Arujá",
+      "population": 86678
+    },
+    "3503950": {
+      "name": "Aspásia",
+      "population": 1842
+    },
+    "3504008": {
+      "name": "Assis",
+      "population": 101409
+    },
+    "3504107": {
+      "name": "Atibaia",
+      "population": 158647
+    },
+    "3504206": {
+      "name": "Auriflama",
+      "population": 13692
+    },
+    "3504305": {
+      "name": "Avaí",
+      "population": 4483
+    },
+    "3504404": {
+      "name": "Avanhandava",
+      "population": 11263
+    },
+    "3504503": {
+      "name": "Avaré",
+      "population": 92805
+    },
+    "3504602": {
+      "name": "Bady Bassitt",
+      "population": 27260
+    },
+    "3504701": {
+      "name": "Balbinos",
+      "population": 3887
+    },
+    "3504800": {
+      "name": "Bálsamo",
+      "population": 9596
+    },
+    "3504909": {
+      "name": "Bananal",
+      "population": 9969
+    },
+    "3505005": {
+      "name": "Barão de Antonina",
+      "population": 3531
+    },
+    "3505104": {
+      "name": "Barbosa",
+      "population": 5640
+    },
+    "3505203": {
+      "name": "Bariri",
+      "population": 31595
+    },
+    "3505302": {
+      "name": "Barra Bonita",
+      "population": 34346
+    },
+    "3505351": {
+      "name": "Barra do Chapéu",
+      "population": 5179
+    },
+    "3505401": {
+      "name": "Barra do Turvo",
+      "population": 6876
+    },
+    "3505500": {
+      "name": "Barretos",
+      "population": 122485
+    },
+    "3505609": {
+      "name": "Barrinha",
+      "population": 32092
+    },
+    "3505708": {
+      "name": "Barueri",
+      "population": 316473
+    },
+    "3505807": {
+      "name": "Bastos",
+      "population": 21503
+    },
+    "3505906": {
+      "name": "Batatais",
+      "population": 58402
+    },
+    "3506003": {
+      "name": "Bauru",
+      "population": 379146
+    },
+    "3506102": {
+      "name": "Bebedouro",
+      "population": 76373
+    },
+    "3506201": {
+      "name": "Bento de Abreu",
+      "population": 2606
+    },
+    "3506300": {
+      "name": "Bernardino de Campos",
+      "population": 11607
+    },
+    "3506359": {
+      "name": "Bertioga",
+      "population": 64188
+    },
+    "3506409": {
+      "name": "Bilac",
+      "population": 7319
+    },
+    "3506508": {
+      "name": "Birigui",
+      "population": 118979
+    },
+    "3506607": {
+      "name": "Biritiba Mirim",
+      "population": 29683
+    },
+    "3506706": {
+      "name": "Boa Esperança do Sul",
+      "population": 12978
+    },
+    "3506805": {
+      "name": "Bocaina",
+      "population": 11259
+    },
+    "3506904": {
+      "name": "Bofete",
+      "population": 10460
+    },
+    "3507001": {
+      "name": "Boituva",
+      "population": 61081
+    },
+    "3507100": {
+      "name": "Bom Jesus dos Perdões",
+      "population": 22006
+    },
+    "3507159": {
+      "name": "Bom Sucesso de Itararé",
+      "population": 3555
+    },
+    "3507209": {
+      "name": "Borá",
+      "population": 907
+    },
+    "3507308": {
+      "name": "Boracéia",
+      "population": 4715
+    },
+    "3507407": {
+      "name": "Borborema",
+      "population": 14226
+    },
+    "3507456": {
+      "name": "Borebi",
+      "population": 2713
+    },
+    "3507506": {
+      "name": "Botucatu",
+      "population": 145155
+    },
+    "3507605": {
+      "name": "Bragança Paulista",
+      "population": 176811
+    },
+    "3507704": {
+      "name": "Braúna",
+      "population": 5356
+    },
+    "3507753": {
+      "name": "Brejo Alegre",
+      "population": 2565
+    },
+    "3507803": {
+      "name": "Brodowski",
+      "population": 25201
+    },
+    "3507902": {
+      "name": "Brotas",
+      "population": 23898
+    },
+    "3508009": {
+      "name": "Buri",
+      "population": 20250
+    },
+    "3508108": {
+      "name": "Buritama",
+      "population": 17210
+    },
+    "3508207": {
+      "name": "Buritizal",
+      "population": 4356
+    },
+    "3508306": {
+      "name": "Cabrália Paulista",
+      "population": 4299
+    },
+    "3508405": {
+      "name": "Cabreúva",
+      "population": 47011
+    },
+    "3508504": {
+      "name": "Caçapava",
+      "population": 96202
+    },
+    "3508603": {
+      "name": "Cachoeira Paulista",
+      "population": 31564
+    },
+    "3508702": {
+      "name": "Caconde",
+      "population": 17101
+    },
+    "3508801": {
+      "name": "Cafelândia",
+      "population": 16654
+    },
+    "3508900": {
+      "name": "Caiabu",
+      "population": 3712
+    },
+    "3509007": {
+      "name": "Caieiras",
+      "population": 95032
+    },
+    "3509106": {
+      "name": "Caiuá",
+      "population": 5466
+    },
+    "3509205": {
+      "name": "Cajamar",
+      "population": 92689
+    },
+    "3509254": {
+      "name": "Cajati",
+      "population": 28515
+    },
+    "3509304": {
+      "name": "Cajobi",
+      "population": 9133
+    },
+    "3509403": {
+      "name": "Cajuru",
+      "population": 23830
+    },
+    "3509452": {
+      "name": "Campina do Monte Alegre",
+      "population": 5954
+    },
+    "3509502": {
+      "name": "Campinas",
+      "population": 1139047
+    },
+    "3509601": {
+      "name": "Campo Limpo Paulista",
+      "population": 77632
+    },
+    "3509700": {
+      "name": "Campos do Jordão",
+      "population": 46974
+    },
+    "3509809": {
+      "name": "Campos Novos Paulista",
+      "population": 4888
+    },
+    "3509908": {
+      "name": "Cananéia",
+      "population": 12289
+    },
+    "3509957": {
+      "name": "Canas",
+      "population": 4931
+    },
+    "3510005": {
+      "name": "Cândido Mota",
+      "population": 29449
+    },
+    "3510104": {
+      "name": "Cândido Rodrigues",
+      "population": 2889
+    },
+    "3510153": {
+      "name": "Canitar",
+      "population": 6283
+    },
+    "3510203": {
+      "name": "Capão Bonito",
+      "population": 46337
+    },
+    "3510302": {
+      "name": "Capela do Alto",
+      "population": 22866
+    },
+    "3510401": {
+      "name": "Capivari",
+      "population": 50068
+    },
+    "3510500": {
+      "name": "Caraguatatuba",
+      "population": 134873
+    },
+    "3510609": {
+      "name": "Carapicuíba",
+      "population": 386984
+    },
+    "3510708": {
+      "name": "Cardoso",
+      "population": 11345
+    },
+    "3510807": {
+      "name": "Casa Branca",
+      "population": 28083
+    },
+    "3510906": {
+      "name": "Cássia dos Coqueiros",
+      "population": 2799
+    },
+    "3511003": {
+      "name": "Castilho",
+      "population": 19977
+    },
+    "3511102": {
+      "name": "Catanduva",
+      "population": 115791
+    },
+    "3511201": {
+      "name": "Catiguá",
+      "population": 7003
+    },
+    "3511300": {
+      "name": "Cedral",
+      "population": 12618
+    },
+    "3511409": {
+      "name": "Cerqueira César",
+      "population": 21469
+    },
+    "3511508": {
+      "name": "Cerquilho",
+      "population": 44695
+    },
+    "3511607": {
+      "name": "Cesário Lange",
+      "population": 19048
+    },
+    "3511706": {
+      "name": "Charqueada",
+      "population": 15535
+    },
+    "3511904": {
+      "name": "Clementina",
+      "population": 6982
+    },
+    "3512001": {
+      "name": "Colina",
+      "population": 18486
+    },
+    "3512100": {
+      "name": "Colômbia",
+      "population": 6629
+    },
+    "3512209": {
+      "name": "Conchal",
+      "population": 28101
+    },
+    "3512308": {
+      "name": "Conchas",
+      "population": 15232
+    },
+    "3512407": {
+      "name": "Cordeirópolis",
+      "population": 24514
+    },
+    "3512506": {
+      "name": "Coroados",
+      "population": 5400
+    },
+    "3512605": {
+      "name": "Coronel Macedo",
+      "population": 4280
+    },
+    "3512704": {
+      "name": "Corumbataí",
+      "population": 4195
+    },
+    "3512803": {
+      "name": "Cosmópolis",
+      "population": 59773
+    },
+    "3512902": {
+      "name": "Cosmorama",
+      "population": 8719
+    },
+    "3513009": {
+      "name": "Cotia",
+      "population": 274413
+    },
+    "3513108": {
+      "name": "Cravinhos",
+      "population": 33281
+    },
+    "3513207": {
+      "name": "Cristais Paulista",
+      "population": 9272
+    },
+    "3513306": {
+      "name": "Cruzália",
+      "population": 2108
+    },
+    "3513405": {
+      "name": "Cruzeiro",
+      "population": 74961
+    },
+    "3513504": {
+      "name": "Cubatão",
+      "population": 112476
+    },
+    "3513603": {
+      "name": "Cunha",
+      "population": 22110
+    },
+    "3513702": {
+      "name": "Descalvado",
+      "population": 31756
+    },
+    "3513801": {
+      "name": "Diadema",
+      "population": 393237
+    },
+    "3513850": {
+      "name": "Dirce Reis",
+      "population": 1620
+    },
+    "3513900": {
+      "name": "Divinolândia",
+      "population": 11158
+    },
+    "3514007": {
+      "name": "Dobrada",
+      "population": 8759
+    },
+    "3514106": {
+      "name": "Dois Córregos",
+      "population": 24510
+    },
+    "3514205": {
+      "name": "Dolcinópolis",
+      "population": 2207
+    },
+    "3514304": {
+      "name": "Dourado",
+      "population": 8096
+    },
+    "3514403": {
+      "name": "Dracena",
+      "population": 45474
+    },
+    "3514502": {
+      "name": "Duartina",
+      "population": 12328
+    },
+    "3514601": {
+      "name": "Dumont",
+      "population": 9471
+    },
+    "3514700": {
+      "name": "Echaporã",
+      "population": 6205
+    },
+    "3514809": {
+      "name": "Eldorado",
+      "population": 13069
+    },
+    "3514908": {
+      "name": "Elias Fausto",
+      "population": 17699
+    },
+    "3514924": {
+      "name": "Elisiário",
+      "population": 3138
+    },
+    "3514957": {
+      "name": "Embaúba",
+      "population": 2323
+    },
+    "3515004": {
+      "name": "Embu das Artes",
+      "population": 250691
+    },
+    "3515103": {
+      "name": "Embu-Guaçu",
+      "population": 66970
+    },
+    "3515129": {
+      "name": "Emilianópolis",
+      "population": 3014
+    },
+    "3515152": {
+      "name": "Engenheiro Coelho",
+      "population": 19566
+    },
+    "3515186": {
+      "name": "Espírito Santo do Pinhal",
+      "population": 39816
+    },
+    "3515194": {
+      "name": "Espírito Santo do Turvo",
+      "population": 4157
+    },
+    "3515202": {
+      "name": "Estrela d'Oeste",
+      "population": 9417
+    },
+    "3515301": {
+      "name": "Estrela do Norte",
+      "population": 2703
+    },
+    "3515350": {
+      "name": "Euclides da Cunha Paulista",
+      "population": 7924
+    },
+    "3515400": {
+      "name": "Fartura",
+      "population": 16641
+    },
+    "3515509": {
+      "name": "Fernandópolis",
+      "population": 71186
+    },
+    "3515608": {
+      "name": "Fernando Prestes",
+      "population": 5942
+    },
+    "3515657": {
+      "name": "Fernão",
+      "population": 1656
+    },
+    "3515707": {
+      "name": "Ferraz de Vasconcelos",
+      "population": 179198
+    },
+    "3515806": {
+      "name": "Flora Rica",
+      "population": 1487
+    },
+    "3515905": {
+      "name": "Floreal",
+      "population": 2733
+    },
+    "3516002": {
+      "name": "Flórida Paulista",
+      "population": 12958
+    },
+    "3516101": {
+      "name": "Florínea",
+      "population": 3851
+    },
+    "3516200": {
+      "name": "Franca",
+      "population": 352536
+    },
+    "3516309": {
+      "name": "Francisco Morato",
+      "population": 165139
+    },
+    "3516408": {
+      "name": "Franco da Rocha",
+      "population": 144849
+    },
+    "3516507": {
+      "name": "Gabriel Monteiro",
+      "population": 2763
+    },
+    "3516606": {
+      "name": "Gália",
+      "population": 6380
+    },
+    "3516705": {
+      "name": "Garça",
+      "population": 42110
+    },
+    "3516804": {
+      "name": "Gastão Vidigal",
+      "population": 3252
+    },
+    "3516853": {
+      "name": "Gavião Peixoto",
+      "population": 4702
+    },
+    "3516903": {
+      "name": "General Salgado",
+      "population": 10312
+    },
+    "3517000": {
+      "name": "Getulina",
+      "population": 10232
+    },
+    "3517109": {
+      "name": "Glicério",
+      "population": 4138
+    },
+    "3517208": {
+      "name": "Guaiçara",
+      "population": 11239
+    },
+    "3517307": {
+      "name": "Guaimbê",
+      "population": 5512
+    },
+    "3517406": {
+      "name": "Guaíra",
+      "population": 39279
+    },
+    "3517505": {
+      "name": "Guapiaçu",
+      "population": 21711
+    },
+    "3517604": {
+      "name": "Guapiara",
+      "population": 17071
+    },
+    "3517703": {
+      "name": "Guará",
+      "population": 18606
+    },
+    "3517802": {
+      "name": "Guaraçaí",
+      "population": 7441
+    },
+    "3517901": {
+      "name": "Guaraci",
+      "population": 10350
+    },
+    "3518008": {
+      "name": "Guarani d'Oeste",
+      "population": 1968
+    },
+    "3518107": {
+      "name": "Guarantã",
+      "population": 6427
+    },
+    "3518206": {
+      "name": "Guararapes",
+      "population": 31043
+    },
+    "3518305": {
+      "name": "Guararema",
+      "population": 31236
+    },
+    "3518404": {
+      "name": "Guaratinguetá",
+      "population": 118044
+    },
+    "3518503": {
+      "name": "Guareí",
+      "population": 15013
+    },
+    "3518602": {
+      "name": "Guariba",
+      "population": 37498
+    },
+    "3518701": {
+      "name": "Guarujá",
+      "population": 287634
+    },
+    "3518800": {
+      "name": "Guarulhos",
+      "population": 1291771
+    },
+    "3518859": {
+      "name": "Guatapará",
+      "population": 7320
+    },
+    "3518909": {
+      "name": "Guzolândia",
+      "population": 4246
+    },
+    "3519006": {
+      "name": "Herculândia",
+      "population": 9125
+    },
+    "3519055": {
+      "name": "Holambra",
+      "population": 15094
+    },
+    "3519071": {
+      "name": "Hortolândia",
+      "population": 236641
+    },
+    "3519105": {
+      "name": "Iacanga",
+      "population": 10437
+    },
+    "3519204": {
+      "name": "Iacri",
+      "population": 6131
+    },
+    "3519253": {
+      "name": "Iaras",
+      "population": 8010
+    },
+    "3519303": {
+      "name": "Ibaté",
+      "population": 32178
+    },
+    "3519402": {
+      "name": "Ibirá",
+      "population": 11690
+    },
+    "3519501": {
+      "name": "Ibirarema",
+      "population": 6385
+    },
+    "3519600": {
+      "name": "Ibitinga",
+      "population": 60033
+    },
+    "3519709": {
+      "name": "Ibiúna",
+      "population": 75605
+    },
+    "3519808": {
+      "name": "Icém",
+      "population": 7819
+    },
+    "3519907": {
+      "name": "Iepê",
+      "population": 7619
+    },
+    "3520004": {
+      "name": "Igaraçu do Tietê",
+      "population": 23106
+    },
+    "3520103": {
+      "name": "Igarapava",
+      "population": 26212
+    },
+    "3520202": {
+      "name": "Igaratá",
+      "population": 10605
+    },
+    "3520301": {
+      "name": "Iguape",
+      "population": 29115
+    },
+    "3520400": {
+      "name": "Ilhabela",
+      "population": 34934
+    },
+    "3520426": {
+      "name": "Ilha Comprida",
+      "population": 13419
+    },
+    "3520442": {
+      "name": "Ilha Solteira",
+      "population": 25549
+    },
+    "3520509": {
+      "name": "Indaiatuba",
+      "population": 255748
+    },
+    "3520608": {
+      "name": "Indiana",
+      "population": 5090
+    },
+    "3520707": {
+      "name": "Indiaporã",
+      "population": 4035
+    },
+    "3520806": {
+      "name": "Inúbia Paulista",
+      "population": 3615
+    },
+    "3520905": {
+      "name": "Ipaussu",
+      "population": 13712
+    },
+    "3521002": {
+      "name": "Iperó",
+      "population": 36459
+    },
+    "3521101": {
+      "name": "Ipeúna",
+      "population": 6831
+    },
+    "3521150": {
+      "name": "Ipiguá",
+      "population": 6761
+    },
+    "3521200": {
+      "name": "Iporanga",
+      "population": 4046
+    },
+    "3521309": {
+      "name": "Ipuã",
+      "population": 14454
+    },
+    "3521408": {
+      "name": "Iracemápolis",
+      "population": 21967
+    },
+    "3521507": {
+      "name": "Irapuã",
+      "population": 6867
+    },
+    "3521606": {
+      "name": "Irapuru",
+      "population": 7085
+    },
+    "3521705": {
+      "name": "Itaberá",
+      "population": 17983
+    },
+    "3521804": {
+      "name": "Itaí",
+      "population": 25180
+    },
+    "3521903": {
+      "name": "Itajobi",
+      "population": 16989
+    },
+    "3522000": {
+      "name": "Itaju",
+      "population": 3618
+    },
+    "3522109": {
+      "name": "Itanhaém",
+      "population": 112476
+    },
+    "3522158": {
+      "name": "Itaoca",
+      "population": 3422
+    },
+    "3522208": {
+      "name": "Itapecerica da Serra",
+      "population": 158522
+    },
+    "3522307": {
+      "name": "Itapetininga",
+      "population": 157790
+    },
+    "3522406": {
+      "name": "Itapeva",
+      "population": 89728
+    },
+    "3522505": {
+      "name": "Itapevi",
+      "population": 232297
+    },
+    "3522604": {
+      "name": "Itapira",
+      "population": 72022
+    },
+    "3522653": {
+      "name": "Itapirapuã Paulista",
+      "population": 4306
+    },
+    "3522703": {
+      "name": "Itápolis",
+      "population": 39493
+    },
+    "3522802": {
+      "name": "Itaporanga",
+      "population": 14085
+    },
+    "3522901": {
+      "name": "Itapuí",
+      "population": 13659
+    },
+    "3523008": {
+      "name": "Itapura",
+      "population": 3979
+    },
+    "3523107": {
+      "name": "Itaquaquecetuba",
+      "population": 369275
+    },
+    "3523206": {
+      "name": "Itararé",
+      "population": 44438
+    },
+    "3523305": {
+      "name": "Itariri",
+      "population": 15528
+    },
+    "3523404": {
+      "name": "Itatiba",
+      "population": 121590
+    },
+    "3523503": {
+      "name": "Itatinga",
+      "population": 19070
+    },
+    "3523602": {
+      "name": "Itirapina",
+      "population": 16148
+    },
+    "3523701": {
+      "name": "Itirapuã",
+      "population": 5779
+    },
+    "3523800": {
+      "name": "Itobi",
+      "population": 8046
+    },
+    "3523909": {
+      "name": "Itu",
+      "population": 168240
+    },
+    "3524006": {
+      "name": "Itupeva",
+      "population": 70616
+    },
+    "3524105": {
+      "name": "Ituverava",
+      "population": 37571
+    },
+    "3524204": {
+      "name": "Jaborandi",
+      "population": 6221
+    },
+    "3524303": {
+      "name": "Jaboticabal",
+      "population": 71821
+    },
+    "3524402": {
+      "name": "Jacareí",
+      "population": 240275
+    },
+    "3524501": {
+      "name": "Jaci",
+      "population": 7613
+    },
+    "3524600": {
+      "name": "Jacupiranga",
+      "population": 16097
+    },
+    "3524709": {
+      "name": "Jaguariúna",
+      "population": 59347
+    },
+    "3524808": {
+      "name": "Jales",
+      "population": 48776
+    },
+    "3524907": {
+      "name": "Jambeiro",
+      "population": 6397
+    },
+    "3525003": {
+      "name": "Jandira",
+      "population": 118045
+    },
+    "3525102": {
+      "name": "Jardinópolis",
+      "population": 45282
+    },
+    "3525201": {
+      "name": "Jarinu",
+      "population": 37535
+    },
+    "3525300": {
+      "name": "Jaú",
+      "population": 133497
+    },
+    "3525409": {
+      "name": "Jeriquara",
+      "population": 3863
+    },
+    "3525508": {
+      "name": "Joanópolis",
+      "population": 12815
+    },
+    "3525607": {
+      "name": "João Ramalho",
+      "population": 4371
+    },
+    "3525706": {
+      "name": "José Bonifácio",
+      "population": 36633
+    },
+    "3525805": {
+      "name": "Júlio Mesquita",
+      "population": 4254
+    },
+    "3525854": {
+      "name": "Jumirim",
+      "population": 3056
+    },
+    "3525904": {
+      "name": "Jundiaí",
+      "population": 443221
+    },
+    "3526001": {
+      "name": "Junqueirópolis",
+      "population": 20448
+    },
+    "3526100": {
+      "name": "Juquiá",
+      "population": 17154
+    },
+    "3526209": {
+      "name": "Juquitiba",
+      "population": 27404
+    },
+    "3526308": {
+      "name": "Lagoinha",
+      "population": 5083
+    },
+    "3526407": {
+      "name": "Laranjal Paulista",
+      "population": 26261
+    },
+    "3526506": {
+      "name": "Lavínia",
+      "population": 9689
+    },
+    "3526605": {
+      "name": "Lavrinhas",
+      "population": 7171
+    },
+    "3526704": {
+      "name": "Leme",
+      "population": 98161
+    },
+    "3526803": {
+      "name": "Lençóis Paulista",
+      "population": 66505
+    },
+    "3526902": {
+      "name": "Limeira",
+      "population": 291869
+    },
+    "3527009": {
+      "name": "Lindóia",
+      "population": 7014
+    },
+    "3527108": {
+      "name": "Lins",
+      "population": 74779
+    },
+    "3527207": {
+      "name": "Lorena",
+      "population": 84855
+    },
+    "3527256": {
+      "name": "Lourdes",
+      "population": 1950
+    },
+    "3527306": {
+      "name": "Louveira",
+      "population": 51847
+    },
+    "3527405": {
+      "name": "Lucélia",
+      "population": 20061
+    },
+    "3527504": {
+      "name": "Lucianópolis",
+      "population": 2372
+    },
+    "3527603": {
+      "name": "Luís Antônio",
+      "population": 12265
+    },
+    "3527702": {
+      "name": "Luiziânia",
+      "population": 4701
+    },
+    "3527801": {
+      "name": "Lupércio",
+      "population": 3981
+    },
+    "3527900": {
+      "name": "Lutécia",
+      "population": 2661
+    },
+    "3528007": {
+      "name": "Macatuba",
+      "population": 16829
+    },
+    "3528106": {
+      "name": "Macaubal",
+      "population": 7481
+    },
+    "3528205": {
+      "name": "Macedônia",
+      "population": 3963
+    },
+    "3528304": {
+      "name": "Magda",
+      "population": 3165
+    },
+    "3528403": {
+      "name": "Mairinque",
+      "population": 50027
+    },
+    "3528502": {
+      "name": "Mairiporã",
+      "population": 93853
+    },
+    "3528601": {
+      "name": "Manduri",
+      "population": 9871
+    },
+    "3528700": {
+      "name": "Marabá Paulista",
+      "population": 4573
+    },
+    "3528809": {
+      "name": "Maracaí",
+      "population": 12673
+    },
+    "3528858": {
+      "name": "Marapoama",
+      "population": 3292
+    },
+    "3528908": {
+      "name": "Mariápolis",
+      "population": 3513
+    },
+    "3529005": {
+      "name": "Marília",
+      "population": 237627
+    },
+    "3529104": {
+      "name": "Marinópolis",
+      "population": 1860
+    },
+    "3529203": {
+      "name": "Martinópolis",
+      "population": 24881
+    },
+    "3529302": {
+      "name": "Matão",
+      "population": 79033
+    },
+    "3529401": {
+      "name": "Mauá",
+      "population": 418261
+    },
+    "3529500": {
+      "name": "Mendonça",
+      "population": 6159
+    },
+    "3529609": {
+      "name": "Meridiano",
+      "population": 4572
+    },
+    "3529658": {
+      "name": "Mesópolis",
+      "population": 1952
+    },
+    "3529708": {
+      "name": "Miguelópolis",
+      "population": 19441
+    },
+    "3529807": {
+      "name": "Mineiros do Tietê",
+      "population": 11230
+    },
+    "3529906": {
+      "name": "Miracatu",
+      "population": 18553
+    },
+    "3530003": {
+      "name": "Mira Estrela",
+      "population": 3126
+    },
+    "3530102": {
+      "name": "Mirandópolis",
+      "population": 27983
+    },
+    "3530201": {
+      "name": "Mirante do Paranapanema",
+      "population": 15917
+    },
+    "3530300": {
+      "name": "Mirassol",
+      "population": 63337
+    },
+    "3530409": {
+      "name": "Mirassolândia",
+      "population": 4669
+    },
+    "3530508": {
+      "name": "Mococa",
+      "population": 67681
+    },
+    "3530607": {
+      "name": "Mogi das Cruzes",
+      "population": 451505
+    },
+    "3530706": {
+      "name": "Mogi Guaçu",
+      "population": 153658
+    },
+    "3530805": {
+      "name": "Mogi Mirim",
+      "population": 92558
+    },
+    "3530904": {
+      "name": "Mombuca",
+      "population": 3722
+    },
+    "3531001": {
+      "name": "Monções",
+      "population": 1937
+    },
+    "3531100": {
+      "name": "Mongaguá",
+      "population": 61951
+    },
+    "3531209": {
+      "name": "Monte Alegre do Sul",
+      "population": 8627
+    },
+    "3531308": {
+      "name": "Monte Alto",
+      "population": 47574
+    },
+    "3531407": {
+      "name": "Monte Aprazível",
+      "population": 22280
+    },
+    "3531506": {
+      "name": "Monte Azul Paulista",
+      "population": 18151
+    },
+    "3531605": {
+      "name": "Monte Castelo",
+      "population": 4222
+    },
+    "3531704": {
+      "name": "Monteiro Lobato",
+      "population": 4138
+    },
+    "3531803": {
+      "name": "Monte Mor",
+      "population": 64662
+    },
+    "3531902": {
+      "name": "Morro Agudo",
+      "population": 27933
+    },
+    "3532009": {
+      "name": "Morungaba",
+      "population": 13720
+    },
+    "3532058": {
+      "name": "Motuca",
+      "population": 4034
+    },
+    "3532108": {
+      "name": "Murutinga do Sul",
+      "population": 3737
+    },
+    "3532157": {
+      "name": "Nantes",
+      "population": 2660
+    },
+    "3532207": {
+      "name": "Narandiba",
+      "population": 5713
+    },
+    "3532306": {
+      "name": "Natividade da Serra",
+      "population": 6999
+    },
+    "3532405": {
+      "name": "Nazaré Paulista",
+      "population": 18217
+    },
+    "3532504": {
+      "name": "Neves Paulista",
+      "population": 9699
+    },
+    "3532603": {
+      "name": "Nhandeara",
+      "population": 9852
+    },
+    "3532702": {
+      "name": "Nipoã",
+      "population": 4750
+    },
+    "3532801": {
+      "name": "Nova Aliança",
+      "population": 6693
+    },
+    "3532827": {
+      "name": "Nova Campina",
+      "population": 8497
+    },
+    "3532843": {
+      "name": "Nova Canaã Paulista",
+      "population": 2032
+    },
+    "3532868": {
+      "name": "Nova Castilho",
+      "population": 1062
+    },
+    "3532900": {
+      "name": "Nova Europa",
+      "population": 9311
+    },
+    "3533007": {
+      "name": "Nova Granada",
+      "population": 19419
+    },
+    "3533106": {
+      "name": "Nova Guataporanga",
+      "population": 2156
+    },
+    "3533205": {
+      "name": "Nova Independência",
+      "population": 4609
+    },
+    "3533254": {
+      "name": "Novais",
+      "population": 4412
+    },
+    "3533304": {
+      "name": "Nova Luzitânia",
+      "population": 2837
+    },
+    "3533403": {
+      "name": "Nova Odessa",
+      "population": 62019
+    },
+    "3533502": {
+      "name": "Novo Horizonte",
+      "population": 38324
+    },
+    "3533601": {
+      "name": "Nuporanga",
+      "population": 7391
+    },
+    "3533700": {
+      "name": "Ocauçu",
+      "population": 4331
+    },
+    "3533809": {
+      "name": "Óleo",
+      "population": 2512
+    },
+    "3533908": {
+      "name": "Olímpia",
+      "population": 55074
+    },
+    "3534005": {
+      "name": "Onda Verde",
+      "population": 4771
+    },
+    "3534104": {
+      "name": "Oriente",
+      "population": 6085
+    },
+    "3534203": {
+      "name": "Orindiúva",
+      "population": 6024
+    },
+    "3534302": {
+      "name": "Orlândia",
+      "population": 38319
+    },
+    "3534401": {
+      "name": "Osasco",
+      "population": 728615
+    },
+    "3534500": {
+      "name": "Oscar Bressane",
+      "population": 2470
+    },
+    "3534609": {
+      "name": "Osvaldo Cruz",
+      "population": 31272
+    },
+    "3534708": {
+      "name": "Ourinhos",
+      "population": 103970
+    },
+    "3534757": {
+      "name": "Ouroeste",
+      "population": 10294
+    },
+    "3534807": {
+      "name": "Ouro Verde",
+      "population": 7779
+    },
+    "3534906": {
+      "name": "Pacaembu",
+      "population": 14877
+    },
+    "3535002": {
+      "name": "Palestina",
+      "population": 11476
+    },
+    "3535101": {
+      "name": "Palmares Paulista",
+      "population": 9650
+    },
+    "3535200": {
+      "name": "Palmeira d'Oeste",
+      "population": 8903
+    },
+    "3535309": {
+      "name": "Palmital",
+      "population": 19594
+    },
+    "3535408": {
+      "name": "Panorama",
+      "population": 14964
+    },
+    "3535507": {
+      "name": "Paraguaçu Paulista",
+      "population": 41120
+    },
+    "3535606": {
+      "name": "Paraibuna",
+      "population": 17667
+    },
+    "3535705": {
+      "name": "Paraíso",
+      "population": 6099
+    },
+    "3535804": {
+      "name": "Paranapanema",
+      "population": 19395
+    },
+    "3535903": {
+      "name": "Paranapuã",
+      "population": 4031
+    },
+    "3536000": {
+      "name": "Parapuã",
+      "population": 10580
+    },
+    "3536109": {
+      "name": "Pardinho",
+      "population": 7153
+    },
+    "3536208": {
+      "name": "Pariquera-Açu",
+      "population": 19233
+    },
+    "3536257": {
+      "name": "Parisi",
+      "population": 2892
+    },
+    "3536307": {
+      "name": "Patrocínio Paulista",
+      "population": 14512
+    },
+    "3536406": {
+      "name": "Paulicéia",
+      "population": 7955
+    },
+    "3536505": {
+      "name": "Paulínia",
+      "population": 110537
+    },
+    "3536570": {
+      "name": "Paulistânia",
+      "population": 2090
+    },
+    "3536604": {
+      "name": "Paulo de Faria",
+      "population": 7400
+    },
+    "3536703": {
+      "name": "Pederneiras",
+      "population": 44827
+    },
+    "3536802": {
+      "name": "Pedra Bela",
+      "population": 6557
+    },
+    "3536901": {
+      "name": "Pedranópolis",
+      "population": 2787
+    },
+    "3537008": {
+      "name": "Pedregulho",
+      "population": 15525
+    },
+    "3537107": {
+      "name": "Pedreira",
+      "population": 43112
+    },
+    "3537156": {
+      "name": "Pedrinhas Paulista",
+      "population": 2804
+    },
+    "3537206": {
+      "name": "Pedro de Toledo",
+      "population": 11281
+    },
+    "3537305": {
+      "name": "Penápolis",
+      "population": 61679
+    },
+    "3537404": {
+      "name": "Pereira Barreto",
+      "population": 24095
+    },
+    "3537503": {
+      "name": "Pereiras",
+      "population": 8737
+    },
+    "3537602": {
+      "name": "Peruíbe",
+      "population": 68352
+    },
+    "3537701": {
+      "name": "Piacatu",
+      "population": 5519
+    },
+    "3537800": {
+      "name": "Piedade",
+      "population": 52970
+    },
+    "3537909": {
+      "name": "Pilar do Sul",
+      "population": 27619
+    },
+    "3538006": {
+      "name": "Pindamonhangaba",
+      "population": 165428
+    },
+    "3538105": {
+      "name": "Pindorama",
+      "population": 14542
+    },
+    "3538204": {
+      "name": "Pinhalzinho",
+      "population": 15224
+    },
+    "3538303": {
+      "name": "Piquerobi",
+      "population": 3264
+    },
+    "3538501": {
+      "name": "Piquete",
+      "population": 12490
+    },
+    "3538600": {
+      "name": "Piracaia",
+      "population": 26029
+    },
+    "3538709": {
+      "name": "Piracicaba",
+      "population": 423323
+    },
+    "3538808": {
+      "name": "Piraju",
+      "population": 29436
+    },
+    "3538907": {
+      "name": "Pirajuí",
+      "population": 22431
+    },
+    "3539004": {
+      "name": "Pirangi",
+      "population": 10885
+    },
+    "3539103": {
+      "name": "Pirapora do Bom Jesus",
+      "population": 18370
+    },
+    "3539202": {
+      "name": "Pirapozinho",
+      "population": 25348
+    },
+    "3539301": {
+      "name": "Pirassununga",
+      "population": 73545
+    },
+    "3539400": {
+      "name": "Piratininga",
+      "population": 15108
+    },
+    "3539509": {
+      "name": "Pitangueiras",
+      "population": 33674
+    },
+    "3539608": {
+      "name": "Planalto",
+      "population": 4389
+    },
+    "3539707": {
+      "name": "Platina",
+      "population": 3025
+    },
+    "3539806": {
+      "name": "Poá",
+      "population": 103765
+    },
+    "3539905": {
+      "name": "Poloni",
+      "population": 5592
+    },
+    "3540002": {
+      "name": "Pompéia",
+      "population": 20196
+    },
+    "3540101": {
+      "name": "Pongaí",
+      "population": 3395
+    },
+    "3540200": {
+      "name": "Pontal",
+      "population": 37607
+    },
+    "3540259": {
+      "name": "Pontalinda",
+      "population": 4127
+    },
+    "3540309": {
+      "name": "Pontes Gestal",
+      "population": 2387
+    },
+    "3540408": {
+      "name": "Populina",
+      "population": 4127
+    },
+    "3540507": {
+      "name": "Porangaba",
+      "population": 10451
+    },
+    "3540606": {
+      "name": "Porto Feliz",
+      "population": 56497
+    },
+    "3540705": {
+      "name": "Porto Ferreira",
+      "population": 52649
+    },
+    "3540754": {
+      "name": "Potim",
+      "population": 20392
+    },
+    "3540804": {
+      "name": "Potirendaba",
+      "population": 18496
+    },
+    "3540853": {
+      "name": "Pracinha",
+      "population": 2578
+    },
+    "3540903": {
+      "name": "Pradópolis",
+      "population": 17078
+    },
+    "3541000": {
+      "name": "Praia Grande",
+      "population": 349935
+    },
+    "3541059": {
+      "name": "Pratânia",
+      "population": 5126
+    },
+    "3541109": {
+      "name": "Presidente Alves",
+      "population": 3804
+    },
+    "3541208": {
+      "name": "Presidente Bernardes",
+      "population": 14490
+    },
+    "3541307": {
+      "name": "Presidente Epitácio",
+      "population": 39505
+    },
+    "3541406": {
+      "name": "Presidente Prudente",
+      "population": 225668
+    },
+    "3541505": {
+      "name": "Presidente Venceslau",
+      "population": 35201
+    },
+    "3541604": {
+      "name": "Promissão",
+      "population": 35131
+    },
+    "3541653": {
+      "name": "Quadra",
+      "population": 3405
+    },
+    "3541703": {
+      "name": "Quatá",
+      "population": 13163
+    },
+    "3541802": {
+      "name": "Queiroz",
+      "population": 3265
+    },
+    "3541901": {
+      "name": "Queluz",
+      "population": 9159
+    },
+    "3542008": {
+      "name": "Quintana",
+      "population": 7038
+    },
+    "3542107": {
+      "name": "Rafard",
+      "population": 8965
+    },
+    "3542206": {
+      "name": "Rancharia",
+      "population": 28588
+    },
+    "3542305": {
+      "name": "Redenção da Serra",
+      "population": 4494
+    },
+    "3542404": {
+      "name": "Regente Feijó",
+      "population": 20145
+    },
+    "3542503": {
+      "name": "Reginópolis",
+      "population": 7662
+    },
+    "3542602": {
+      "name": "Registro",
+      "population": 59947
+    },
+    "3542701": {
+      "name": "Restinga",
+      "population": 6404
+    },
+    "3542800": {
+      "name": "Ribeira",
+      "population": 3132
+    },
+    "3542909": {
+      "name": "Ribeirão Bonito",
+      "population": 10989
+    },
+    "3543006": {
+      "name": "Ribeirão Branco",
+      "population": 18627
+    },
+    "3543105": {
+      "name": "Ribeirão Corrente",
+      "population": 4608
+    },
+    "3543204": {
+      "name": "Ribeirão do Sul",
+      "population": 4677
+    },
+    "3543238": {
+      "name": "Ribeirão dos Índios",
+      "population": 2025
+    },
+    "3543253": {
+      "name": "Ribeirão Grande",
+      "population": 7450
+    },
+    "3543303": {
+      "name": "Ribeirão Pires",
+      "population": 115559
+    },
+    "3543402": {
+      "name": "Ribeirão Preto",
+      "population": 698642
+    },
+    "3543501": {
+      "name": "Riversul",
+      "population": 5599
+    },
+    "3543600": {
+      "name": "Rifaina",
+      "population": 4049
+    },
+    "3543709": {
+      "name": "Rincão",
+      "population": 9098
+    },
+    "3543808": {
+      "name": "Rinópolis",
+      "population": 9259
+    },
+    "3543907": {
+      "name": "Rio Claro",
+      "population": 201418
+    },
+    "3544004": {
+      "name": "Rio das Pedras",
+      "population": 31328
+    },
+    "3544103": {
+      "name": "Rio Grande da Serra",
+      "population": 44170
+    },
+    "3544202": {
+      "name": "Riolândia",
+      "population": 10309
+    },
+    "3544251": {
+      "name": "Rosana",
+      "population": 17440
+    },
+    "3544301": {
+      "name": "Roseira",
+      "population": 10832
+    },
+    "3544400": {
+      "name": "Rubiácea",
+      "population": 2700
+    },
+    "3544509": {
+      "name": "Rubinéia",
+      "population": 3833
+    },
+    "3544608": {
+      "name": "Sabino",
+      "population": 5112
+    },
+    "3544707": {
+      "name": "Sagres",
+      "population": 2474
+    },
+    "3544806": {
+      "name": "Sales",
+      "population": 6437
+    },
+    "3544905": {
+      "name": "Sales Oliveira",
+      "population": 11411
+    },
+    "3545001": {
+      "name": "Salesópolis",
+      "population": 15202
+    },
+    "3545100": {
+      "name": "Salmourão",
+      "population": 4808
+    },
+    "3545159": {
+      "name": "Saltinho",
+      "population": 8161
+    },
+    "3545209": {
+      "name": "Salto",
+      "population": 134319
+    },
+    "3545308": {
+      "name": "Salto de Pirapora",
+      "population": 43748
+    },
+    "3545407": {
+      "name": "Salto Grande",
+      "population": 9050
+    },
+    "3545506": {
+      "name": "Sandovalina",
+      "population": 3645
+    },
+    "3545605": {
+      "name": "Santa Adélia",
+      "population": 14018
+    },
+    "3545704": {
+      "name": "Santa Albertina",
+      "population": 6393
+    },
+    "3545803": {
+      "name": "Santa Bárbara d'Oeste",
+      "population": 183347
+    },
+    "3546009": {
+      "name": "Santa Branca",
+      "population": 13975
+    },
+    "3546108": {
+      "name": "Santa Clara d'Oeste",
+      "population": 2598
+    },
+    "3546207": {
+      "name": "Santa Cruz da Conceição",
+      "population": 4277
+    },
+    "3546256": {
+      "name": "Santa Cruz da Esperança",
+      "population": 2116
+    },
+    "3546306": {
+      "name": "Santa Cruz das Palmeiras",
+      "population": 28864
+    },
+    "3546405": {
+      "name": "Santa Cruz do Rio Pardo",
+      "population": 46442
+    },
+    "3546504": {
+      "name": "Santa Ernestina",
+      "population": 6118
+    },
+    "3546603": {
+      "name": "Santa Fé do Sul",
+      "population": 34794
+    },
+    "3546702": {
+      "name": "Santa Gertrudes",
+      "population": 23611
+    },
+    "3546801": {
+      "name": "Santa Isabel",
+      "population": 53174
+    },
+    "3546900": {
+      "name": "Santa Lúcia",
+      "population": 7149
+    },
+    "3547007": {
+      "name": "Santa Maria da Serra",
+      "population": 5243
+    },
+    "3547106": {
+      "name": "Santa Mercedes",
+      "population": 2956
+    },
+    "3547205": {
+      "name": "Santana da Ponte Pensa",
+      "population": 1670
+    },
+    "3547304": {
+      "name": "Santana de Parnaíba",
+      "population": 154105
+    },
+    "3547403": {
+      "name": "Santa Rita d'Oeste",
+      "population": 2733
+    },
+    "3547502": {
+      "name": "Santa Rita do Passa Quatro",
+      "population": 24833
+    },
+    "3547601": {
+      "name": "Santa Rosa de Viterbo",
+      "population": 23411
+    },
+    "3547650": {
+      "name": "Santa Salete",
+      "population": 1645
+    },
+    "3547700": {
+      "name": "Santo Anastácio",
+      "population": 17963
+    },
+    "3547809": {
+      "name": "Santo André",
+      "population": 748919
+    },
+    "3547908": {
+      "name": "Santo Antônio da Alegria",
+      "population": 6775
+    },
+    "3548005": {
+      "name": "Santo Antônio de Posse",
+      "population": 23244
+    },
+    "3548054": {
+      "name": "Santo Antônio do Aracanguá",
+      "population": 8379
+    },
+    "3548104": {
+      "name": "Santo Antônio do Jardim",
+      "population": 6126
+    },
+    "3548203": {
+      "name": "Santo Antônio do Pinhal",
+      "population": 7133
+    },
+    "3548302": {
+      "name": "Santo Expedito",
+      "population": 3000
+    },
+    "3548401": {
+      "name": "Santópolis do Aguapeí",
+      "population": 3899
+    },
+    "3548500": {
+      "name": "Santos",
+      "population": 418608
+    },
+    "3548609": {
+      "name": "São Bento do Sapucaí",
+      "population": 11674
+    },
+    "3548708": {
+      "name": "São Bernardo do Campo",
+      "population": 810729
+    },
+    "3548807": {
+      "name": "São Caetano do Sul",
+      "population": 165655
+    },
+    "3548906": {
+      "name": "São Carlos",
+      "population": 254857
+    },
+    "3549003": {
+      "name": "São Francisco",
+      "population": 2602
+    },
+    "3549102": {
+      "name": "São João da Boa Vista",
+      "population": 92547
+    },
+    "3549201": {
+      "name": "São João das Duas Pontes",
+      "population": 2580
+    },
+    "3549250": {
+      "name": "São João de Iracema",
+      "population": 1846
+    },
+    "3549300": {
+      "name": "São João do Pau d'Alho",
+      "population": 2242
+    },
+    "3549409": {
+      "name": "São Joaquim da Barra",
+      "population": 48558
+    },
+    "3549508": {
+      "name": "São José da Bela Vista",
+      "population": 7626
+    },
+    "3549607": {
+      "name": "São José do Barreiro",
+      "population": 3853
+    },
+    "3549706": {
+      "name": "São José do Rio Pardo",
+      "population": 52205
+    },
+    "3549805": {
+      "name": "São José do Rio Preto",
+      "population": 480393
+    },
+    "3549904": {
+      "name": "São José dos Campos",
+      "population": 697054
+    },
+    "3549953": {
+      "name": "São Lourenço da Serra",
+      "population": 16067
+    },
+    "3550001": {
+      "name": "São Luiz do Paraitinga",
+      "population": 10337
+    },
+    "3550100": {
+      "name": "São Manuel",
+      "population": 37289
+    },
+    "3550209": {
+      "name": "São Miguel Arcanjo",
+      "population": 32039
+    },
+    "3550308": {
+      "name": "São Paulo",
+      "population": 11451999
+    },
+    "3550407": {
+      "name": "São Pedro",
+      "population": 38256
+    },
+    "3550506": {
+      "name": "São Pedro do Turvo",
+      "population": 7217
+    },
+    "3550605": {
+      "name": "São Roque",
+      "population": 79484
+    },
+    "3550704": {
+      "name": "São Sebastião",
+      "population": 81595
+    },
+    "3550803": {
+      "name": "São Sebastião da Grama",
+      "population": 10441
+    },
+    "3550902": {
+      "name": "São Simão",
+      "population": 13442
+    },
+    "3551009": {
+      "name": "São Vicente",
+      "population": 329911
+    },
+    "3551108": {
+      "name": "Sarapuí",
+      "population": 10369
+    },
+    "3551207": {
+      "name": "Sarutaiá",
+      "population": 3704
+    },
+    "3551306": {
+      "name": "Sebastianópolis do Sul",
+      "population": 3130
+    },
+    "3551405": {
+      "name": "Serra Azul",
+      "population": 12746
+    },
+    "3551504": {
+      "name": "Serrana",
+      "population": 43909
+    },
+    "3551603": {
+      "name": "Serra Negra",
+      "population": 29894
+    },
+    "3551702": {
+      "name": "Sertãozinho",
+      "population": 126887
+    },
+    "3551801": {
+      "name": "Sete Barras",
+      "population": 12730
+    },
+    "3551900": {
+      "name": "Severínia",
+      "population": 14576
+    },
+    "3552007": {
+      "name": "Silveiras",
+      "population": 6186
+    },
+    "3552106": {
+      "name": "Socorro",
+      "population": 40122
+    },
+    "3552205": {
+      "name": "Sorocaba",
+      "population": 723682
+    },
+    "3552304": {
+      "name": "Sud Mennucci",
+      "population": 7355
+    },
+    "3552403": {
+      "name": "Sumaré",
+      "population": 279545
+    },
+    "3552502": {
+      "name": "Suzano",
+      "population": 307429
+    },
+    "3552551": {
+      "name": "Suzanápolis",
+      "population": 3408
+    },
+    "3552601": {
+      "name": "Tabapuã",
+      "population": 11323
+    },
+    "3552700": {
+      "name": "Tabatinga",
+      "population": 14769
+    },
+    "3552809": {
+      "name": "Taboão da Serra",
+      "population": 273542
+    },
+    "3552908": {
+      "name": "Taciba",
+      "population": 6260
+    },
+    "3553005": {
+      "name": "Taguaí",
+      "population": 12669
+    },
+    "3553104": {
+      "name": "Taiaçu",
+      "population": 5677
+    },
+    "3553203": {
+      "name": "Taiúva",
+      "population": 6548
+    },
+    "3553302": {
+      "name": "Tambaú",
+      "population": 21435
+    },
+    "3553401": {
+      "name": "Tanabi",
+      "population": 25265
+    },
+    "3553500": {
+      "name": "Tapiraí",
+      "population": 7996
+    },
+    "3553609": {
+      "name": "Tapiratiba",
+      "population": 11816
+    },
+    "3553658": {
+      "name": "Taquaral",
+      "population": 2619
+    },
+    "3553708": {
+      "name": "Taquaritinga",
+      "population": 52260
+    },
+    "3553807": {
+      "name": "Taquarituba",
+      "population": 24350
+    },
+    "3553856": {
+      "name": "Taquarivaí",
+      "population": 6876
+    },
+    "3553906": {
+      "name": "Tarabai",
+      "population": 6536
+    },
+    "3553955": {
+      "name": "Tarumã",
+      "population": 14882
+    },
+    "3554003": {
+      "name": "Tatuí",
+      "population": 123942
+    },
+    "3554102": {
+      "name": "Taubaté",
+      "population": 310739
+    },
+    "3554201": {
+      "name": "Tejupá",
+      "population": 4127
+    },
+    "3554300": {
+      "name": "Teodoro Sampaio",
+      "population": 22173
+    },
+    "3554409": {
+      "name": "Terra Roxa",
+      "population": 7904
+    },
+    "3554508": {
+      "name": "Tietê",
+      "population": 37663
+    },
+    "3554607": {
+      "name": "Timburi",
+      "population": 2464
+    },
+    "3554656": {
+      "name": "Torre de Pedra",
+      "population": 2046
+    },
+    "3554706": {
+      "name": "Torrinha",
+      "population": 9335
+    },
+    "3554755": {
+      "name": "Trabiju",
+      "population": 1682
+    },
+    "3554805": {
+      "name": "Tremembé",
+      "population": 51173
+    },
+    "3554904": {
+      "name": "Três Fronteiras",
+      "population": 6804
+    },
+    "3554953": {
+      "name": "Tuiuti",
+      "population": 6778
+    },
+    "3555000": {
+      "name": "Tupã",
+      "population": 63928
+    },
+    "3555109": {
+      "name": "Tupi Paulista",
+      "population": 15854
+    },
+    "3555208": {
+      "name": "Turiúba",
+      "population": 1818
+    },
+    "3555307": {
+      "name": "Turmalina",
+      "population": 1669
+    },
+    "3555356": {
+      "name": "Ubarana",
+      "population": 5365
+    },
+    "3555406": {
+      "name": "Ubatuba",
+      "population": 92981
+    },
+    "3555505": {
+      "name": "Ubirajara",
+      "population": 5132
+    },
+    "3555604": {
+      "name": "Uchoa",
+      "population": 10394
+    },
+    "3555703": {
+      "name": "União Paulista",
+      "population": 1603
+    },
+    "3555802": {
+      "name": "Urânia",
+      "population": 8833
+    },
+    "3555901": {
+      "name": "Uru",
+      "population": 1387
+    },
+    "3556008": {
+      "name": "Urupês",
+      "population": 13744
+    },
+    "3556107": {
+      "name": "Valentim Gentil",
+      "population": 14098
+    },
+    "3556206": {
+      "name": "Valinhos",
+      "population": 126373
+    },
+    "3556305": {
+      "name": "Valparaíso",
+      "population": 24241
+    },
+    "3556354": {
+      "name": "Vargem",
+      "population": 10512
+    },
+    "3556404": {
+      "name": "Vargem Grande do Sul",
+      "population": 40133
+    },
+    "3556453": {
+      "name": "Vargem Grande Paulista",
+      "population": 50415
+    },
+    "3556503": {
+      "name": "Várzea Paulista",
+      "population": 115771
+    },
+    "3556602": {
+      "name": "Vera Cruz",
+      "population": 10176
+    },
+    "3556701": {
+      "name": "Vinhedo",
+      "population": 76540
+    },
+    "3556800": {
+      "name": "Viradouro",
+      "population": 17414
+    },
+    "3556909": {
+      "name": "Vista Alegre do Alto",
+      "population": 8109
+    },
+    "3556958": {
+      "name": "Vitória Brasil",
+      "population": 1794
+    },
+    "3557006": {
+      "name": "Votorantim",
+      "population": 127923
+    },
+    "3557105": {
+      "name": "Votuporanga",
+      "population": 96634
+    },
+    "3557154": {
+      "name": "Zacarias",
+      "population": 2692
+    },
+    "3557204": {
+      "name": "Chavantes",
+      "population": 12211
+    },
+    "3557303": {
+      "name": "Estiva Gerbi",
+      "population": 11295
+    }
+  }
+}

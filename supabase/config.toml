@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.import-dataset]
 verify_jwt = false
+
+[functions.import-ibge-populations]
+verify_jwt = false
