@@ -89,6 +89,7 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
   
   const {
     datasets,
+    filteredDatasets,
     activeDatasetId,
     setActiveDatasetId,
     viewMode,
@@ -100,6 +101,9 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
     getActiveDataset,
     hideZeroCandidates,
     setHideZeroCandidates,
+    selectedYear,
+    setSelectedYear,
+    availableYears,
   } = useData();
   
   const activeDataset = getActiveDataset();
