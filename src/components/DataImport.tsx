@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { parseSpreadsheetData, validateParsedData } from '@/lib/dataParser';
 import { useData } from '@/contexts/DataContext';
 import { Candidacy, ParsedRow, COLUMN_ORDER, type LegalExpenseCategory } from '@/types/campaign';
