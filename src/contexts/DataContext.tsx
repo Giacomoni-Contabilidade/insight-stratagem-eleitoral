@@ -77,6 +77,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { isAdmin, roleLoading } = useUserRole(auth.user);
   const datasetsHook = useDatasets(auth.user, auth.isAuthenticated);
   
+  const [selectedYear, setSelectedYearState] = useState<number>(getStoredYear);
   const [viewMode, setViewMode] = useState<'legal' | 'analytical'>('legal');
   const [filters, setFiltersState] = useState<FilterState>(DEFAULT_FILTERS);
   const [hideZeroCandidates, setHideZeroCandidates] = useState(() => {
@@ -84,6 +85,20 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return localStorage.getItem('hideZeroCandidates') === 'true';
     } catch { return false; }
   });
+
+  const setSelectedYear = (year: number) => {
+    setSelectedYearState(year);
+    try { localStorage.setItem('selectedElectionYear', String(year)); } catch {}
+    // Reset active dataset when year changes
+    datasetsHook.setActiveDatasetId(null);
+    setFiltersState(DEFAULT_FILTERS);
+  };
+
+  // Datasets filtered by selected year
+  const filteredDatasets = datasetsHook.datasets.filter(d => d.year === selectedYear);
+
+  // Available years from actual data
+  const availableYears = [...new Set(datasetsHook.datasets.map(d => d.year))].sort();
 
   const handleSetHideZeroCandidates = (v: boolean) => {
     setHideZeroCandidates(v);
