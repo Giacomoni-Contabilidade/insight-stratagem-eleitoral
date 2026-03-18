@@ -111,10 +111,11 @@ interface CandidatureInput {
 }
 
 interface ImportRequest {
-  name: string;
-  year: number;
-  state: string;
-  position: string;
+  dataset_id?: string; // If provided, appends to existing dataset
+  name?: string;
+  year?: number;
+  state?: string;
+  position?: string;
   candidaturas: CandidatureInput[];
 }
 
