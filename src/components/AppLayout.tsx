@@ -284,8 +284,28 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
       >
         {/* Top Bar */}
         <header className="h-20 flex items-center justify-between px-8 border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
-          <div className="flex items-center gap-6">
-            {datasets.length > 0 && (
+          <div className="flex items-center gap-5">
+            {/* Year Toggle */}
+            <div className="flex items-center gap-1.5 bg-muted/50 rounded-xl p-1 shadow-inner">
+              <Calendar className="w-4 h-4 text-muted-foreground ml-2" />
+              {(availableYears.length > 0 ? availableYears : [2024]).map((year) => (
+                <button
+                  key={year}
+                  onClick={() => setSelectedYear(year)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200",
+                    selectedYear === year
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {year}
+                </button>
+              ))}
+            </div>
+
+            {/* Dataset Selector */}
+            {filteredDatasets.length > 0 && (
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Database className="w-4 h-4" />
@@ -299,12 +319,12 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
                     <SelectValue placeholder="Selecione um dataset" />
                   </SelectTrigger>
                   <SelectContent>
-                    {datasets.map((ds) => (
+                    {filteredDatasets.map((ds) => (
                       <SelectItem key={ds.id} value={ds.id}>
                         <div className="flex flex-col items-start">
                           <span className="font-medium">{ds.name}</span>
                           <span className="text-xs text-muted-foreground">
-                            {ds.candidacyCount} candidaturas
+                            {ds.candidacyCount.toLocaleString('pt-BR')} candidaturas
                           </span>
                         </div>
                       </SelectItem>
