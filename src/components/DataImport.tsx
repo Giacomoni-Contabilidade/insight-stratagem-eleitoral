@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { Clock } from 'lucide-react';
+import { Clock, Copy } from 'lucide-react';
 
 // ── Token Timer Component ──
 const TokenTimer: React.FC = () => {
