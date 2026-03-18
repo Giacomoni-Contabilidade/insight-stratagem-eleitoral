@@ -150,8 +150,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     isAdmin,
     signOut: auth.signOut,
     
+    // Year filter
+    selectedYear,
+    setSelectedYear,
+    availableYears,
+    
     // Data
     datasets: datasetsHook.datasets,
+    filteredDatasets,
     analyticalGroups: datasetsHook.analyticalGroups,
     activeDatasetId: datasetsHook.activeDatasetId,
     setActiveDatasetId,
