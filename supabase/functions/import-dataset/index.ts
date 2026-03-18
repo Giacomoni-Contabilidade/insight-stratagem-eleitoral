@@ -111,10 +111,11 @@ interface CandidatureInput {
 }
 
 interface ImportRequest {
-  name: string;
-  year: number;
-  state: string;
-  position: string;
+  dataset_id?: string; // If provided, appends to existing dataset
+  name?: string;
+  year?: number;
+  state?: string;
+  position?: string;
   candidaturas: CandidatureInput[];
 }
 
@@ -238,13 +239,6 @@ Deno.serve(async (req) => {
     // Parse JSON body
     const body: ImportRequest = await req.json();
 
-    if (!body.name || !body.year || !body.state || !body.position) {
-      return new Response(
-        JSON.stringify({ error: "Campos obrigatórios: name, year, state, position" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     if (!body.candidaturas || !Array.isArray(body.candidaturas) || body.candidaturas.length === 0) {
       return new Response(
         JSON.stringify({ error: "Array 'candidaturas' é obrigatório e não pode ser vazio" }),
@@ -269,27 +263,60 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Create dataset
-    const { data: dataset, error: dsError } = await supabase
-      .from("datasets")
-      .insert({
-        name: body.name.trim(),
-        year: body.year,
-        state: body.state.trim().toUpperCase(),
-        position: body.position.trim(),
-        user_id: userId,
-      })
-      .select("id")
-      .single();
+    let datasetId: string;
+    let isAppend = false;
 
-    if (dsError || !dataset) {
-      return new Response(
-        JSON.stringify({ error: "Erro ao criar dataset", details: dsError?.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (body.dataset_id) {
+      // Append mode: verify dataset exists and belongs to user
+      const { data: existing, error: fetchError } = await supabase
+        .from("datasets")
+        .select("id, user_id")
+        .eq("id", body.dataset_id)
+        .single();
+
+      if (fetchError || !existing) {
+        return new Response(
+          JSON.stringify({ error: "Dataset não encontrado" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (existing.user_id !== userId) {
+        return new Response(
+          JSON.stringify({ error: "Sem permissão para este dataset" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      datasetId = existing.id;
+      isAppend = true;
+    } else {
+      // Create mode: require name, year, state, position
+      if (!body.name || !body.year || !body.state || !body.position) {
+        return new Response(
+          JSON.stringify({ error: "Campos obrigatórios para novo dataset: name, year, state, position" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const { data: dataset, error: dsError } = await supabase
+        .from("datasets")
+        .insert({
+          name: body.name.trim(),
+          year: body.year,
+          state: body.state.trim().toUpperCase(),
+          position: body.position.trim(),
+          user_id: userId,
+        })
+        .select("id")
+        .single();
+
+      if (dsError || !dataset) {
+        return new Response(
+          JSON.stringify({ error: "Erro ao criar dataset", details: dsError?.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      datasetId = dataset.id;
     }
-
-    const datasetId = dataset.id;
 
     // Process and insert candidatures in batches
     const records = body.candidaturas.map(c => processCandidature(c, datasetId));
@@ -300,9 +327,11 @@ Deno.serve(async (req) => {
       const batch = records.slice(i, i + BATCH_SIZE);
       const { error: insertError } = await supabase.from("candidatures").insert(batch);
       if (insertError) {
-        // Rollback
+        // Rollback: remove inserted candidatures; if new dataset, remove it too
         await supabase.from("candidatures").delete().eq("dataset_id", datasetId);
-        await supabase.from("datasets").delete().eq("id", datasetId);
+        if (!isAppend) {
+          await supabase.from("datasets").delete().eq("id", datasetId);
+        }
         return new Response(
           JSON.stringify({ error: "Erro ao inserir candidaturas", details: insertError.message }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -311,17 +340,24 @@ Deno.serve(async (req) => {
       imported += batch.length;
     }
 
-    // Update dataset metadata
-    const totalVotes = records.reduce((s, r) => s + r.votes, 0);
-    const totalExpenses = records.reduce((s, r) => s + r.total_expenses, 0);
+    // Update dataset metadata (recalculate from all candidatures)
+    const { data: allCandidatures } = await supabase
+      .from("candidatures")
+      .select("votes, total_expenses")
+      .eq("dataset_id", datasetId);
+
+    const totalVotes = (allCandidatures || []).reduce((s, r) => s + (Number(r.votes) || 0), 0);
+    const totalExpenses = (allCandidatures || []).reduce((s, r) => s + (Number(r.total_expenses) || 0), 0);
+    const candidacyCount = (allCandidatures || []).length;
+
     await supabase.from("datasets").update({
-      candidacy_count: imported,
+      candidacy_count: candidacyCount,
       total_votes: totalVotes,
       total_expenses: totalExpenses,
     }).eq("id", datasetId);
 
     return new Response(
-      JSON.stringify({ datasetId, imported, totalVotes, totalExpenses }),
+      JSON.stringify({ datasetId, imported, candidacyCount, totalVotes, totalExpenses, appended: isAppend }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
