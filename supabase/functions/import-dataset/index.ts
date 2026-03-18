@@ -368,8 +368,14 @@ Deno.serve(async (req) => {
       total_expenses: totalExpenses,
     }).eq("id", datasetId);
 
+    await supabase.from("datasets").update({
+      candidacy_count: candidacyCount,
+      total_votes: finalVotes,
+      total_expenses: finalExpenses,
+    }).eq("id", datasetId);
+
     return new Response(
-      JSON.stringify({ datasetId, imported, candidacyCount, totalVotes, totalExpenses, appended: isAppend }),
+      JSON.stringify({ datasetId, imported, candidacyCount, totalVotes: finalVotes, totalExpenses: finalExpenses, appended: isAppend }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
