@@ -439,6 +439,20 @@ async function handleSingleMode(
     imported += batch.length;
   }
 
+  // Compute and store dataset metadata from in-memory records
+  const allRecords = dataLines
+    .filter(l => l.trim())
+    .map(l => parseRowSingle(splitCSVLine(l, separator), datasetId))
+    .filter(r => r.errors.length === 0)
+    .map(r => r.record);
+  const totalVotes = allRecords.reduce((s, r) => s + (Number(r.votes) || 0), 0);
+  const totalExpenses = allRecords.reduce((s, r) => s + (Number(r.total_expenses) || 0), 0);
+  await supabase.from("datasets").update({
+    candidacy_count: imported,
+    total_votes: totalVotes,
+    total_expenses: totalExpenses,
+  }).eq("id", datasetId);
+
   return new Response(
     JSON.stringify({ datasetId, imported, errors: errorCount }),
     { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
