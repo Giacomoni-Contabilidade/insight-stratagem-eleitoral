@@ -396,7 +396,7 @@ async function handleSingleMode(
   const datasetId = dataset.id;
   let imported = 0;
   let errorCount = 0;
-  const BATCH_SIZE = 500;
+  const BATCH_SIZE = 2000;
   let batch: Record<string, unknown>[] = [];
 
   for (const line of dataLines) {
