@@ -396,7 +396,7 @@ async function handleSingleMode(
   const datasetId = dataset.id;
   let imported = 0;
   let errorCount = 0;
-  const BATCH_SIZE = 500;
+  const BATCH_SIZE = 2000;
   let batch: Record<string, unknown>[] = [];
 
   for (const line of dataLines) {
@@ -496,7 +496,7 @@ async function handleMultiMode(
 
   // Create datasets and insert candidatures
   const createdDatasets: { datasetId: string; position: string; state: string; imported: number }[] = [];
-  const BATCH_SIZE = 500;
+  const BATCH_SIZE = 2000;
 
   for (const [, group] of groups) {
     const datasetName = `${namePrefix} - ${group.position} - ${group.state}`;
