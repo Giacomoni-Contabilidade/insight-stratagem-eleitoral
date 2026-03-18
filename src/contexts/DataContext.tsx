@@ -12,8 +12,14 @@ interface DataContextType {
   isAdmin: boolean;
   signOut: () => Promise<void>;
   
+  // Year filter
+  selectedYear: number;
+  setSelectedYear: (year: number) => void;
+  availableYears: number[];
+  
   // Data
   datasets: Dataset[];
+  filteredDatasets: Dataset[];
   analyticalGroups: AnalyticalGroup[];
   activeDatasetId: string | null;
   setActiveDatasetId: (id: string | null) => void;
