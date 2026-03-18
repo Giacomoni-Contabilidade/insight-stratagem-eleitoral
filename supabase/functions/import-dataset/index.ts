@@ -320,7 +320,7 @@ Deno.serve(async (req) => {
 
     // Process and insert candidatures in batches
     const records = body.candidaturas.map(c => processCandidature(c, datasetId));
-    const BATCH_SIZE = 500;
+    const BATCH_SIZE = 2000;
     let imported = 0;
 
     for (let i = 0; i < records.length; i += BATCH_SIZE) {

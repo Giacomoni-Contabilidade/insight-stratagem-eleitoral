@@ -496,7 +496,7 @@ async function handleMultiMode(
 
   // Create datasets and insert candidatures
   const createdDatasets: { datasetId: string; position: string; state: string; imported: number }[] = [];
-  const BATCH_SIZE = 500;
+  const BATCH_SIZE = 2000;
 
   for (const [, group] of groups) {
     const datasetName = `${namePrefix} - ${group.position} - ${group.state}`;
