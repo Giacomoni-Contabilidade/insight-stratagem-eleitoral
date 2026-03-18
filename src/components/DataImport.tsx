@@ -59,12 +59,23 @@ const TokenTimer: React.FC = () => {
 
   const isLow = timeLeft === 'Expirado' || (timeLeft && parseInt(timeLeft) === 0 && timeLeft.startsWith('00:0'));
 
+  const handleCopy = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      await navigator.clipboard.writeText(session.access_token);
+      toast.success('Token copiado!');
+    }
+  };
+
   return (
     <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono ${
       isLow ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground'
     }`}>
       <Clock className="w-3 h-3" />
       <span>Token: {timeLeft}</span>
+      <button onClick={handleCopy} className="ml-1 hover:text-foreground transition-colors" title="Copiar token">
+        <Copy className="w-3 h-3" />
+      </button>
     </div>
   );
 };
