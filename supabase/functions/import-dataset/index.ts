@@ -340,15 +340,27 @@ Deno.serve(async (req) => {
       imported += batch.length;
     }
 
-    // Update dataset metadata (recalculate from all candidatures)
-    const { data: allCandidatures } = await supabase
-      .from("candidatures")
-      .select("votes, total_expenses")
-      .eq("dataset_id", datasetId);
+    // Update dataset metadata from in-memory records (avoids 1000-row query limit)
+    const totalVotes = records.reduce((s, r) => s + (Number(r.votes) || 0), 0);
+    const totalExpenses = records.reduce((s, r) => s + (Number(r.total_expenses) || 0), 0);
 
-    const totalVotes = (allCandidatures || []).reduce((s, r) => s + (Number(r.votes) || 0), 0);
-    const totalExpenses = (allCandidatures || []).reduce((s, r) => s + (Number(r.total_expenses) || 0), 0);
-    const candidacyCount = (allCandidatures || []).length;
+    // If appending, we need to add existing metadata
+    let finalVotes = totalVotes;
+    let finalExpenses = totalExpenses;
+    let candidacyCount = records.length;
+
+    if (isAppend) {
+      const { data: existingDs } = await supabase
+        .from("datasets")
+        .select("total_votes, total_expenses, candidacy_count")
+        .eq("id", datasetId)
+        .single();
+      if (existingDs) {
+        finalVotes += Number(existingDs.total_votes) || 0;
+        finalExpenses += Number(existingDs.total_expenses) || 0;
+        candidacyCount += Number(existingDs.candidacy_count) || 0;
+      }
+    }
 
     await supabase.from("datasets").update({
       candidacy_count: candidacyCount,
