@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { parseSpreadsheetData, validateParsedData } from '@/lib/dataParser';
 import { useData } from '@/contexts/DataContext';
 import { Candidacy, ParsedRow, COLUMN_ORDER, type LegalExpenseCategory } from '@/types/campaign';
@@ -27,6 +27,47 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Clock } from 'lucide-react';
+
+// ── Token Timer Component ──
+const TokenTimer: React.FC = () => {
+  const [timeLeft, setTimeLeft] = useState<string | null>(null);
+
+  useEffect(() => {
+    const updateTimer = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setTimeLeft(null);
+        return;
+      }
+      const expiresAt = session.expires_at; // unix seconds
+      if (!expiresAt) { setTimeLeft(null); return; }
+      const now = Math.floor(Date.now() / 1000);
+      const diff = expiresAt - now;
+      if (diff <= 0) { setTimeLeft('Expirado'); return; }
+      const h = Math.floor(diff / 3600);
+      const m = Math.floor((diff % 3600) / 60);
+      const s = diff % 60;
+      setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+    };
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!timeLeft) return null;
+
+  const isLow = timeLeft === 'Expirado' || (timeLeft && parseInt(timeLeft) === 0 && timeLeft.startsWith('00:0'));
+
+  return (
+    <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono ${
+      isLow ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground'
+    }`}>
+      <Clock className="w-3 h-3" />
+      <span>Token: {timeLeft}</span>
+    </div>
+  );
+};
 
 const BRAZILIAN_STATES = [
   'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 
@@ -690,6 +731,9 @@ const PasteTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
 export const DataImport: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
   return (
     <div className="space-y-6 animate-fade-in">
+      <div className="flex justify-end">
+        <TokenTimer />
+      </div>
       <Tabs defaultValue="file" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="file" className="flex items-center gap-2">
