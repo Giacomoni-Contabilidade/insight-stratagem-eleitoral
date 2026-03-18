@@ -731,6 +731,9 @@ const PasteTab: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
 export const DataImport: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
   return (
     <div className="space-y-6 animate-fade-in">
+      <div className="flex justify-end">
+        <TokenTimer />
+      </div>
       <Tabs defaultValue="file" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="file" className="flex items-center gap-2">
