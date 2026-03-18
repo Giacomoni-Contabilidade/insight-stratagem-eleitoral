@@ -137,7 +137,7 @@ const DatasetCard: React.FC<DatasetCardProps> = ({ dataset, isActive, onSelect, 
 };
 
 export const DatasetManager: React.FC = () => {
-  const { datasets, activeDatasetId, setActiveDatasetId, deleteDataset } = useData();
+  const { filteredDatasets: datasets, activeDatasetId, setActiveDatasetId, deleteDataset } = useData();
   
   if (datasets.length === 0) {
     return (

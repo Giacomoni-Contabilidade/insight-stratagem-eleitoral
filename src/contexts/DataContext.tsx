@@ -12,8 +12,14 @@ interface DataContextType {
   isAdmin: boolean;
   signOut: () => Promise<void>;
   
+  // Year filter
+  selectedYear: number;
+  setSelectedYear: (year: number) => void;
+  availableYears: number[];
+  
   // Data
   datasets: Dataset[];
+  filteredDatasets: Dataset[];
   analyticalGroups: AnalyticalGroup[];
   activeDatasetId: string | null;
   setActiveDatasetId: (id: string | null) => void;
@@ -52,6 +58,17 @@ const DEFAULT_FILTERS: FilterState = {
   occupations: [],
 };
 
+// Election years in Brazil (even years)
+const ELECTION_YEARS = [2022, 2024, 2026, 2028, 2030];
+
+const getStoredYear = (): number => {
+  try {
+    const stored = localStorage.getItem('selectedElectionYear');
+    if (stored) return parseInt(stored, 10);
+  } catch {}
+  return 2024;
+};
+
 // Force clean HMR rebuild
 const DataContext = createContext<DataContextType | null>(null);
 
@@ -60,6 +77,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { isAdmin, roleLoading } = useUserRole(auth.user);
   const datasetsHook = useDatasets(auth.user, auth.isAuthenticated);
   
+  const [selectedYear, setSelectedYearState] = useState<number>(getStoredYear);
   const [viewMode, setViewMode] = useState<'legal' | 'analytical'>('legal');
   const [filters, setFiltersState] = useState<FilterState>(DEFAULT_FILTERS);
   const [hideZeroCandidates, setHideZeroCandidates] = useState(() => {
@@ -67,6 +85,20 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return localStorage.getItem('hideZeroCandidates') === 'true';
     } catch { return false; }
   });
+
+  const setSelectedYear = (year: number) => {
+    setSelectedYearState(year);
+    try { localStorage.setItem('selectedElectionYear', String(year)); } catch {}
+    // Reset active dataset when year changes
+    datasetsHook.setActiveDatasetId(null);
+    setFiltersState(DEFAULT_FILTERS);
+  };
+
+  // Datasets filtered by selected year
+  const filteredDatasets = datasetsHook.datasets.filter(d => d.year === selectedYear);
+
+  // Available years from actual data
+  const availableYears = [...new Set(datasetsHook.datasets.map(d => d.year))].sort();
 
   const handleSetHideZeroCandidates = (v: boolean) => {
     setHideZeroCandidates(v);
@@ -118,8 +150,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     isAdmin,
     signOut: auth.signOut,
     
+    // Year filter
+    selectedYear,
+    setSelectedYear,
+    availableYears,
+    
     // Data
     datasets: datasetsHook.datasets,
+    filteredDatasets,
     analyticalGroups: datasetsHook.analyticalGroups,
     activeDatasetId: datasetsHook.activeDatasetId,
     setActiveDatasetId,

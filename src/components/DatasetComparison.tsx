@@ -97,7 +97,7 @@ const CHART_COLORS = [
 ];
 
 export const DatasetComparison: React.FC = () => {
-  const { datasets, loadMultipleDatasetCandidacies, candidaciesLoading, filterZeroCandidates } = useData();
+  const { filteredDatasets: datasets, loadMultipleDatasetCandidacies, candidaciesLoading, filterZeroCandidates } = useData();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [hasExplicitSelection, setHasExplicitSelection] = useState(false);
   const [candidateSearch, setCandidateSearch] = useState("");
