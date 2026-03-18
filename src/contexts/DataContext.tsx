@@ -58,6 +58,17 @@ const DEFAULT_FILTERS: FilterState = {
   occupations: [],
 };
 
+// Election years in Brazil (even years)
+const ELECTION_YEARS = [2022, 2024, 2026, 2028, 2030];
+
+const getStoredYear = (): number => {
+  try {
+    const stored = localStorage.getItem('selectedElectionYear');
+    if (stored) return parseInt(stored, 10);
+  } catch {}
+  return 2024;
+};
+
 // Force clean HMR rebuild
 const DataContext = createContext<DataContextType | null>(null);
 
