@@ -18,6 +18,7 @@ describe("municipalityVotes", () => {
     expect(parsed.candidateOptions).toEqual(["ERIKA HILTON", "GUILHERME BOULOS"]);
     expect(parsed.candidateVotes["ERIKA HILTON"][normalizeMunicipalityName("SÃO PAULO")]).toBe(100);
     expect(parsed.candidateVotes["GUILHERME BOULOS"][normalizeMunicipalityName("Aparecida d'Oeste")]).toBe(12);
+    expect(parsed.states).toEqual([]);
   });
 
   it("parses long csv files", () => {
@@ -32,8 +33,22 @@ describe("municipalityVotes", () => {
 
     expect(parsed.format).toBe("long");
     expect(parsed.candidateOptions).toEqual(["ERIKA HILTON", "SÂMIA BOMFIM"]);
-    expect(parsed.candidateVotes["ERIKA HILTON"][normalizeMunicipalityName("São Paulo")]).toBe(125);
-    expect(parsed.candidateVotes["SÂMIA BOMFIM"][normalizeMunicipalityName("Campinas")]).toBe(80);
+    expect(parsed.states).toEqual(["SP"]);
+    expect(parsed.candidateVotesByState.SP["ERIKA HILTON"][normalizeMunicipalityName("São Paulo")]).toBe(125);
+    expect(parsed.candidateVotesByState.SP["SÂMIA BOMFIM"][normalizeMunicipalityName("Campinas")]).toBe(80);
+  });
+
+  it("infers state from pivot file name when possible", () => {
+    const csv = [
+      "Municipio,ERIKA HILTON",
+      "SÃO PAULO,100",
+    ].join("\n");
+
+    const parsed = parseMunicipalityVotesCsv(csv, "sp_2022_mapa.csv");
+
+    expect(parsed.inferredState).toBe("SP");
+    expect(parsed.states).toEqual(["SP"]);
+    expect(parsed.candidateVotesByState.SP["ERIKA HILTON"][normalizeMunicipalityName("São Paulo")]).toBe(100);
   });
 
   it("normalizes municipality names with accents and punctuation", () => {

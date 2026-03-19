@@ -71,7 +71,7 @@ const getNavSections = (isAdmin: boolean): NavSection[] => [
       { id: 'dataset-comparison', label: 'Datasets', icon: <Database className="w-5 h-5" />, description: 'Comparar datasets' },
       { id: 'reports', label: 'Relatórios', icon: <FileDown className="w-5 h-5" />, description: 'Exportar PDF' },
       { id: 'spreadsheet', label: 'Planilha', icon: <Table2 className="w-5 h-5" />, description: 'Visualizar dados' },
-      { id: 'municipality-map', label: 'Mapa SP', icon: <MapPinned className="w-5 h-5" />, description: 'CSV por município' },
+      { id: 'municipality-map', label: 'Mapa municipal', icon: <MapPinned className="w-5 h-5" />, description: 'CSV por município' },
     ],
   },
   {
@@ -289,8 +289,15 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
         )}
       >
         {/* Top Bar */}
-        <header className="h-20 flex items-center justify-between px-8 border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
-          <div className="flex items-center gap-5">
+        <header
+          className={cn(
+            "border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40 px-8",
+            isMunicipalityMapView
+              ? "min-h-[88px] py-3 flex items-center"
+              : "h-20 flex items-center justify-between",
+          )}
+        >
+          <div className={cn("flex items-center gap-5", isMunicipalityMapView && "w-full")}>
             {!isMunicipalityMapView && (
               <>
                 {/* Year Toggle */}
@@ -343,9 +350,12 @@ const AppLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
                 )}
               </>
             )}
+            {isMunicipalityMapView && (
+              <div id="municipality-map-topbar-slot" className="w-full" />
+            )}
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className={cn("flex items-center gap-4", isMunicipalityMapView && "hidden")}>
             {!isMunicipalityMapView && (
               <>
                 {/* Zero candidates filter */}

@@ -15,13 +15,13 @@ export const useUserRole = (user: User | null) => {
 
     const fetchRole = async () => {
       try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id);
+        const { data, error } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin',
+        });
 
         if (error) throw error;
-        setIsAdmin(data?.some(r => r.role === 'admin') ?? false);
+        setIsAdmin(Boolean(data));
       } catch (err) {
         console.error('Error fetching role:', err);
         setIsAdmin(false);

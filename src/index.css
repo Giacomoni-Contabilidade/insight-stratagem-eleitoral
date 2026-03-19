@@ -275,6 +275,23 @@
 }
 
 @layer utilities {
+  .municipality-map-shell {
+    isolation: isolate;
+  }
+
+  .municipality-map-shell .leaflet-pane,
+  .municipality-map-shell .leaflet-control,
+  .municipality-map-shell .leaflet-top,
+  .municipality-map-shell .leaflet-bottom,
+  .municipality-map-shell .leaflet-tooltip,
+  .municipality-map-shell .leaflet-popup {
+    z-index: 1 !important;
+  }
+
+  .municipality-map-shell .leaflet-control-container {
+    z-index: 2;
+  }
+
   .text-gradient {
     background: var(--gradient-primary);
     -webkit-background-clip: text;

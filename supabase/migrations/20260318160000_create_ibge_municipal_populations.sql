@@ -20,6 +20,11 @@ CREATE TABLE public.ibge_municipal_populations (
 
 ALTER TABLE public.ibge_municipal_populations ENABLE ROW LEVEL SECURITY;
 
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT USAGE ON SCHEMA public TO service_role;
+GRANT SELECT, INSERT, UPDATE ON public.ibge_municipal_populations TO authenticated;
+GRANT ALL ON public.ibge_municipal_populations TO service_role;
+
 CREATE POLICY "Authenticated users can view IBGE municipal populations"
     ON public.ibge_municipal_populations
     FOR SELECT

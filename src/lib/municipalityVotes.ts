@@ -3,9 +3,43 @@ export interface MunicipalityVotesDataset {
   format: "pivot" | "long";
   candidateOptions: string[];
   candidateVotes: Record<string, Record<string, number>>;
+  candidateVotesByState: Record<string, Record<string, Record<string, number>>>;
   municipalityNames: string[];
+  municipalityNamesByState: Record<string, string[]>;
+  states: string[];
+  inferredState: string | null;
   totalRows: number;
 }
+
+const BRAZILIAN_STATES = [
+  "AC",
+  "AL",
+  "AM",
+  "AP",
+  "BA",
+  "CE",
+  "DF",
+  "ES",
+  "GO",
+  "MA",
+  "MG",
+  "MS",
+  "MT",
+  "PA",
+  "PB",
+  "PE",
+  "PI",
+  "PR",
+  "RJ",
+  "RN",
+  "RO",
+  "RR",
+  "RS",
+  "SC",
+  "SE",
+  "SP",
+  "TO",
+] as const;
 
 const parseNumber = (value: string): number => {
   const trimmed = value.trim();
@@ -80,9 +114,22 @@ export const normalizeMunicipalityName = (value: string): string => {
     .trim();
 };
 
+const normalizeStateCode = (value: string | undefined): string | null => {
+  const normalized = (value || "").trim().toUpperCase();
+  return BRAZILIAN_STATES.includes(normalized as (typeof BRAZILIAN_STATES)[number]) ? normalized : null;
+};
+
+const inferStateFromFileName = (fileName: string): string | null => {
+  const normalizedName = fileName.toUpperCase().replace(/[^A-Z]/g, " ");
+  const tokens = normalizedName.split(/\s+/).filter(Boolean);
+  const matchedStates = [...new Set(tokens.filter((token) => normalizeStateCode(token)))];
+  return matchedStates.length === 1 ? matchedStates[0] : null;
+};
+
 const parsePivotDataset = (rows: string[][], fileName: string): MunicipalityVotesDataset => {
   const [header, ...body] = rows;
   const candidateOptions = header.slice(1).map((value) => value.trim()).filter(Boolean);
+  const inferredState = inferStateFromFileName(fileName);
 
   if (candidateOptions.length === 0) {
     throw new Error("O CSV pivotado precisa ter pelo menos uma coluna de candidatura.");
@@ -93,6 +140,15 @@ const parsePivotDataset = (rows: string[][], fileName: string): MunicipalityVote
   );
 
   const municipalityNames: string[] = [];
+  const municipalityNamesByState: Record<string, string[]> = inferredState ? { [inferredState]: [] } : {};
+  const candidateVotesByState: Record<string, Record<string, Record<string, number>>> = inferredState
+    ? Object.fromEntries([
+        [
+          inferredState,
+          Object.fromEntries(candidateOptions.map((candidate) => [candidate, {} as Record<string, number>])),
+        ],
+      ])
+    : {};
 
   body.forEach((row) => {
     const municipality = row[0]?.trim();
@@ -100,10 +156,16 @@ const parsePivotDataset = (rows: string[][], fileName: string): MunicipalityVote
 
     municipalityNames.push(municipality);
     const normalizedMunicipality = normalizeMunicipalityName(municipality);
+    if (inferredState) {
+      municipalityNamesByState[inferredState].push(municipality);
+    }
 
     candidateOptions.forEach((candidate, candidateIndex) => {
       const voteValue = parseNumber(row[candidateIndex + 1] || "0");
       candidateVotes[candidate][normalizedMunicipality] = voteValue;
+      if (inferredState) {
+        candidateVotesByState[inferredState][candidate][normalizedMunicipality] = voteValue;
+      }
     });
   });
 
@@ -113,6 +175,10 @@ const parsePivotDataset = (rows: string[][], fileName: string): MunicipalityVote
     candidateOptions,
     candidateVotes,
     municipalityNames,
+    candidateVotesByState,
+    municipalityNamesByState,
+    states: inferredState ? [inferredState] : [],
+    inferredState,
     totalRows: body.length,
   };
 };
@@ -124,21 +190,27 @@ const parseLongDataset = (rows: string[][], fileName: string): MunicipalityVotes
   const candidacyIndex = headerIndex.candidatura;
   const municipalityIndex = headerIndex.municipio;
   const votesIndex = headerIndex.votos;
+  const stateIndex = headerIndex.uf;
 
-  if (candidacyIndex === undefined || municipalityIndex === undefined || votesIndex === undefined) {
-    throw new Error("O CSV longo precisa das colunas Candidatura, Municipio e Votos.");
+  if (candidacyIndex === undefined || municipalityIndex === undefined || votesIndex === undefined || stateIndex === undefined) {
+    throw new Error("O CSV longo precisa das colunas Candidatura, UF, Municipio e Votos.");
   }
 
   const candidateVotes: Record<string, Record<string, number>> = {};
+  const candidateVotesByState: Record<string, Record<string, Record<string, number>>> = {};
   const municipalityNames = new Set<string>();
+  const municipalityNamesByState = new Map<string, Set<string>>();
+  const states = new Set<string>();
 
   body.forEach((row) => {
     const candidate = row[candidacyIndex]?.trim();
     const municipality = row[municipalityIndex]?.trim();
+    const state = normalizeStateCode(row[stateIndex]);
 
-    if (!candidate || !municipality) return;
+    if (!candidate || !municipality || !state) return;
 
     municipalityNames.add(municipality);
+    states.add(state);
     const normalizedMunicipality = normalizeMunicipalityName(municipality);
     const votes = parseNumber(row[votesIndex] || "0");
 
@@ -146,8 +218,22 @@ const parseLongDataset = (rows: string[][], fileName: string): MunicipalityVotes
       candidateVotes[candidate] = {};
     }
 
-    candidateVotes[candidate][normalizedMunicipality] =
-      (candidateVotes[candidate][normalizedMunicipality] || 0) + votes;
+    candidateVotes[candidate][`${state}:${normalizedMunicipality}`] =
+      (candidateVotes[candidate][`${state}:${normalizedMunicipality}`] || 0) + votes;
+
+    if (!candidateVotesByState[state]) {
+      candidateVotesByState[state] = {};
+    }
+    if (!candidateVotesByState[state][candidate]) {
+      candidateVotesByState[state][candidate] = {};
+    }
+    candidateVotesByState[state][candidate][normalizedMunicipality] =
+      (candidateVotesByState[state][candidate][normalizedMunicipality] || 0) + votes;
+
+    if (!municipalityNamesByState.has(state)) {
+      municipalityNamesByState.set(state, new Set<string>());
+    }
+    municipalityNamesByState.get(state)?.add(municipality);
   });
 
   return {
@@ -155,7 +241,13 @@ const parseLongDataset = (rows: string[][], fileName: string): MunicipalityVotes
     format: "long",
     candidateOptions: Object.keys(candidateVotes),
     candidateVotes,
+    candidateVotesByState,
     municipalityNames: [...municipalityNames],
+    municipalityNamesByState: Object.fromEntries(
+      [...municipalityNamesByState.entries()].map(([state, names]) => [state, [...names]])
+    ),
+    states: [...states],
+    inferredState: states.size === 1 ? [...states][0] : inferStateFromFileName(fileName),
     totalRows: body.length,
   };
 };

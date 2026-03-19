@@ -183,6 +183,201 @@ export type Database = {
         }
         Relationships: []
       }
+      municipality_map_import_hashes: {
+        Row: {
+          analysis_created_at: string | null
+          candidate_names: string[]
+          created_at: string
+          file_hash: string
+          gemini_analysis: string | null
+          gemini_batch_completed_at: string | null
+          gemini_candidate_scope: string[]
+          gemini_batch_error: string | null
+          gemini_batch_name: string | null
+          gemini_batch_requested_at: string | null
+          gemini_batch_status: string | null
+          gemini_batch_updated_at: string | null
+          gemini_input_mode: string
+          gemini_model: string | null
+          gemini_prompt: string | null
+          id: string
+        }
+        Insert: {
+          analysis_created_at?: string | null
+          candidate_names?: string[]
+          created_at?: string
+          file_hash: string
+          gemini_analysis?: string | null
+          gemini_batch_completed_at?: string | null
+          gemini_candidate_scope?: string[]
+          gemini_batch_error?: string | null
+          gemini_batch_name?: string | null
+          gemini_batch_requested_at?: string | null
+          gemini_batch_status?: string | null
+          gemini_batch_updated_at?: string | null
+          gemini_input_mode?: string
+          gemini_model?: string | null
+          gemini_prompt?: string | null
+          id?: string
+        }
+        Update: {
+          analysis_created_at?: string | null
+          candidate_names?: string[]
+          created_at?: string
+          file_hash?: string
+          gemini_analysis?: string | null
+          gemini_batch_completed_at?: string | null
+          gemini_candidate_scope?: string[]
+          gemini_batch_error?: string | null
+          gemini_batch_name?: string | null
+          gemini_batch_requested_at?: string | null
+          gemini_batch_status?: string | null
+          gemini_batch_updated_at?: string | null
+          gemini_input_mode?: string
+          gemini_model?: string | null
+          gemini_prompt?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      municipality_map_import_chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          file_hash: string
+          id: string
+          model: string | null
+          role: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          file_hash: string
+          id?: string
+          model?: string | null
+          role: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          file_hash?: string
+          id?: string
+          model?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "municipality_map_import_chat_messages_file_hash_fkey"
+            columns: ["file_hash"]
+            isOneToOne: false
+            referencedRelation: "municipality_map_import_hashes"
+            referencedColumns: ["file_hash"]
+          },
+        ]
+      }
+      municipality_map_ai_chats: {
+        Row: {
+          analysis_created_at: string | null
+          candidate_scope: string[]
+          created_at: string
+          file_hash: string
+          gemini_analysis: string | null
+          gemini_batch_completed_at: string | null
+          gemini_batch_error: string | null
+          gemini_batch_name: string | null
+          gemini_batch_requested_at: string | null
+          gemini_batch_status: string | null
+          gemini_batch_updated_at: string | null
+          gemini_input_mode: string
+          gemini_model: string | null
+          gemini_prompt: string | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          analysis_created_at?: string | null
+          candidate_scope?: string[]
+          created_at?: string
+          file_hash: string
+          gemini_analysis?: string | null
+          gemini_batch_completed_at?: string | null
+          gemini_batch_error?: string | null
+          gemini_batch_name?: string | null
+          gemini_batch_requested_at?: string | null
+          gemini_batch_status?: string | null
+          gemini_batch_updated_at?: string | null
+          gemini_input_mode?: string
+          gemini_model?: string | null
+          gemini_prompt?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          analysis_created_at?: string | null
+          candidate_scope?: string[]
+          created_at?: string
+          file_hash?: string
+          gemini_analysis?: string | null
+          gemini_batch_completed_at?: string | null
+          gemini_batch_error?: string | null
+          gemini_batch_name?: string | null
+          gemini_batch_requested_at?: string | null
+          gemini_batch_status?: string | null
+          gemini_batch_updated_at?: string | null
+          gemini_input_mode?: string
+          gemini_model?: string | null
+          gemini_prompt?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "municipality_map_ai_chats_file_hash_fkey"
+            columns: ["file_hash"]
+            isOneToOne: false
+            referencedRelation: "municipality_map_import_hashes"
+            referencedColumns: ["file_hash"]
+          },
+        ]
+      }
+      municipality_map_ai_chat_messages: {
+        Row: {
+          chat_id: string
+          content: string
+          created_at: string
+          id: string
+          model: string | null
+          role: string
+        }
+        Insert: {
+          chat_id: string
+          content: string
+          created_at?: string
+          id?: string
+          model?: string | null
+          role: string
+        }
+        Update: {
+          chat_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          model?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "municipality_map_ai_chat_messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "municipality_map_ai_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string

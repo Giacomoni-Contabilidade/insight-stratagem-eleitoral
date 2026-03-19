@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import postgres from "npm:postgres@3.4.7";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -82,32 +83,22 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (authHeader?.startsWith("Bearer ")) {
+      const supabaseAuth = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: authHeader } } }
+      );
+
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+      if (claimsError || !claimsData?.claims?.sub) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
-
-    const supabaseAuth = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims?.sub) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
 
     const body = (await req.json()) as PopulationImportRequest;
     if (!body.records || !Array.isArray(body.records) || body.records.length === 0) {
@@ -119,15 +110,49 @@ Deno.serve(async (req) => {
 
     const normalizedRecords = body.records.map((record, index) => normalizeRecord(record, index));
 
-    const { error: upsertError } = await supabase
-      .from("ibge_municipal_populations")
-      .upsert(normalizedRecords, { onConflict: "codigo_ibge,reference_year" });
+    const sql = postgres(Deno.env.get("SUPABASE_DB_URL")!, {
+      prepare: false,
+      max: 1,
+      ssl: "require",
+    });
 
-    if (upsertError) {
+    try {
+      for (const record of normalizedRecords) {
+        await sql`
+          insert into public.ibge_municipal_populations (
+            codigo_ibge,
+            uf,
+            municipality_name,
+            reference_year,
+            reference_date,
+            population,
+            source
+          ) values (
+            ${record.codigo_ibge},
+            ${record.uf},
+            ${record.municipality_name},
+            ${record.reference_year},
+            ${record.reference_date},
+            ${record.population},
+            ${record.source}
+          )
+          on conflict (codigo_ibge, reference_year)
+          do update set
+            uf = excluded.uf,
+            municipality_name = excluded.municipality_name,
+            reference_date = excluded.reference_date,
+            population = excluded.population,
+            source = excluded.source,
+            updated_at = now()
+        `;
+      }
+    } catch (upsertError) {
       return new Response(
-        JSON.stringify({ error: "Erro ao importar populações do IBGE", details: upsertError.message }),
+        JSON.stringify({ error: "Erro ao importar populações do IBGE", details: (upsertError as Error).message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    } finally {
+      await sql.end({ timeout: 5 });
     }
 
     return new Response(

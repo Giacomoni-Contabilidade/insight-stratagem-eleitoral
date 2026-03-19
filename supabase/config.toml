@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.import-ibge-populations]
 verify_jwt = false
+
+[functions.analyze-municipality-map-csv]
+verify_jwt = false
