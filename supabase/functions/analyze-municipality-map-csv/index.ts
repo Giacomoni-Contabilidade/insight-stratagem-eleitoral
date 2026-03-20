@@ -367,6 +367,14 @@ const loadConversation = async (
   return (data as ChatMessageRow[]) || [];
 };
 
+const streamSseMessage = (
+  controller: ReadableStreamDefaultController<Uint8Array>,
+  encoder: TextEncoder,
+  payload: Record<string, unknown>,
+) => {
+  controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
+};
+
 const syncBatchRow = async (
   supabase: ReturnType<typeof createClient>,
   geminiApiKey: string,
@@ -755,17 +763,78 @@ Deno.serve(async (req) => {
       });
     }
 
-    const analysis = await runGeminiText(
-      geminiApiKey,
-      selectedModel,
-      buildAnalysisPrompt(
-        selectedInputMode,
-        selectedInputMode === "csv" ? csvText! : null,
-        selectedInputMode === "dossier" ? dossierText!.trim() : null,
-        normalizedCandidateNames,
-        selectedPrompt,
-      ),
+    const analysisPrompt = buildAnalysisPrompt(
+      selectedInputMode,
+      selectedInputMode === "csv" ? csvText! : null,
+      selectedInputMode === "dossier" ? dossierText!.trim() : null,
+      normalizedCandidateNames,
+      selectedPrompt,
     );
+
+    if (stream) {
+      const encoder = new TextEncoder();
+
+      const responseStream = new ReadableStream({
+        async start(controller) {
+          let analysis = "";
+
+          try {
+            streamSseMessage(controller, encoder, { type: "start", model: selectedModel });
+
+            analysis = await streamGeminiText(
+              geminiApiKey,
+              selectedModel,
+              analysisPrompt,
+              (chunk) => {
+                streamSseMessage(controller, encoder, { type: "chunk", delta: chunk });
+              },
+            );
+
+            if (!analysis) {
+              throw new Error("O Gemini não retornou texto de análise para esse CSV.");
+            }
+
+            const now = new Date().toISOString();
+
+            await upsertHashRow(supabase, {
+              id: chatId,
+              file_hash: hash,
+              title: existingRow?.title || "Novo chat",
+              candidate_scope: normalizedCandidateNames,
+              gemini_analysis: analysis,
+              gemini_model: selectedModel,
+              gemini_prompt: selectedPrompt,
+              analysis_created_at: now,
+              gemini_batch_status: "SYNC_COMPLETED",
+              gemini_batch_updated_at: now,
+              gemini_batch_completed_at: now,
+              gemini_batch_error: null,
+              gemini_input_mode: selectedInputMode,
+              updated_at: now,
+            });
+
+            await resetConversation(supabase, chatId!, analysis, selectedModel);
+
+            streamSseMessage(controller, encoder, {
+              type: "done",
+              reply: analysis,
+              model: selectedModel,
+            });
+            controller.close();
+          } catch (streamError) {
+            streamSseMessage(controller, encoder, {
+              type: "error",
+              error: streamError instanceof Error ? streamError.message : "Falha no streaming da analise.",
+            });
+            controller.close();
+          }
+        },
+      });
+
+      return new Response(responseStream, { headers: sseHeaders });
+    }
+
+    const analysis = await runGeminiText(geminiApiKey, selectedModel, analysisPrompt);
 
     if (!analysis) {
       return jsonResponse({ error: "O Gemini não retornou texto de análise para esse CSV." }, 502);

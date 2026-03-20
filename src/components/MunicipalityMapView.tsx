@@ -131,6 +131,33 @@ interface AiChatSession {
   updated_at: string;
 }
 
+const buildOptimisticChat = (params: {
+  id: string;
+  fileHash: string;
+  title: string;
+  candidateScope: string[];
+  model: string;
+  inputMode: GeminiInputMode;
+  prompt: string;
+  now: string;
+}): AiChatSession => ({
+  id: params.id,
+  file_hash: params.fileHash,
+  title: params.title,
+  candidate_scope: params.candidateScope,
+  gemini_analysis: null,
+  gemini_model: params.model,
+  gemini_prompt: params.prompt || null,
+  gemini_input_mode: params.inputMode,
+  gemini_batch_status: null,
+  gemini_batch_requested_at: null,
+  gemini_batch_updated_at: null,
+  gemini_batch_error: null,
+  analysis_created_at: null,
+  created_at: params.now,
+  updated_at: params.now,
+});
+
 interface ImportHistoryItem {
   id: string;
   file_hash: string;
@@ -1085,10 +1112,7 @@ export const MunicipalityMapView = () => {
     }
   };
 
-  const loadChatMessages = async (
-    chatId: string,
-    fallback?: { analysis: string; model: string; createdAt: string },
-  ) => {
+  const fetchChatMessages = async (chatId: string) => {
     const { data, error: fetchError } = await supabase
       .from("municipality_map_ai_chat_messages")
       .select("id, role, content, model, created_at")
@@ -1099,7 +1123,27 @@ export const MunicipalityMapView = () => {
       throw fetchError;
     }
 
-    const rows = (data as ChatMessage[]) || [];
+    return (data as ChatMessage[]) || [];
+  };
+
+  const loadChatMessages = async (
+    chatId: string,
+    fallback?: { analysis: string; model: string; createdAt: string },
+    options?: { expectedMinimumMessages?: number; retries?: number },
+  ) => {
+    const expectedMinimumMessages = options?.expectedMinimumMessages ?? 0;
+    const retries = options?.retries ?? 0;
+    let rows: ChatMessage[] = [];
+
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+      rows = await fetchChatMessages(chatId);
+
+      if (rows.length >= expectedMinimumMessages || attempt === retries) {
+        break;
+      }
+
+      await new Promise((resolve) => window.setTimeout(resolve, 250 * (attempt + 1)));
+    }
 
     if (rows.length === 0 && fallback?.analysis) {
       setChatMessages([
@@ -1116,7 +1160,10 @@ export const MunicipalityMapView = () => {
     setChatMessages(rows);
   };
 
-  const refreshActiveChatFromDatabase = async (chatId: string) => {
+  const refreshActiveChatFromDatabase = async (
+    chatId: string,
+    options?: { expectedMinimumMessages?: number; retries?: number },
+  ) => {
     const { data, error: chatError } = await supabase
       .from("municipality_map_ai_chats")
       .select(
@@ -1140,7 +1187,25 @@ export const MunicipalityMapView = () => {
       );
 
     setAiChats(nextChats);
-    await applyActiveChatState(chat);
+    await loadChatMessages(chat.id, {
+      analysis: chat.gemini_analysis || "",
+      model: chat.gemini_model || GEMINI_MODEL_OPTIONS[0].value,
+      createdAt: chat.analysis_created_at || chat.created_at,
+    }, options);
+
+    setActiveChatId(chat.id);
+    setGeminiAnalysis(chat.gemini_analysis || "");
+    setGeminiModel(chat.gemini_model || "");
+    setSelectedGeminiModel(chat.gemini_model || GEMINI_MODEL_OPTIONS[0].value);
+    setSelectedGeminiInputMode(chat.gemini_input_mode || "dossier");
+    setCustomGeminiPrompt(chat.gemini_prompt || "");
+    setSelectedAnalysisCandidates(chat.candidate_scope?.length ? chat.candidate_scope : dataset?.candidateOptions || []);
+    setAnalysisCreatedAt(chat.analysis_created_at || "");
+    setBatchStatus(chat.gemini_batch_status || "");
+    setBatchRequestedAt(chat.gemini_batch_requested_at || "");
+    setBatchUpdatedAt(chat.gemini_batch_updated_at || "");
+    setBatchError(chat.gemini_batch_error || "");
+    setAnalysisLoadedFromCache(false);
   };
 
   const refreshProcessingAnalyses = async (syncPending = true) => {
@@ -1202,7 +1267,7 @@ export const MunicipalityMapView = () => {
       throw new Error(insertError.message || "Não foi possível criar um novo chat.");
     }
 
-    return chatId;
+    return { chatId, now, title };
   };
 
   const handleDeleteChat = async () => {
@@ -1249,7 +1314,19 @@ export const MunicipalityMapView = () => {
     }
 
     try {
-      const chatId = await createAiChat();
+      const { chatId, now, title } = await createAiChat();
+      const optimisticChat = buildOptimisticChat({
+        id: chatId,
+        fileHash: lastImportedHash,
+        title,
+        candidateScope: selectedAnalysisCandidates,
+        model: selectedGeminiModel,
+        inputMode: selectedGeminiInputMode,
+        prompt: customGeminiPrompt,
+        now,
+      });
+
+      setAiChats((current) => [optimisticChat, ...current.filter((chat) => chat.id !== chatId)]);
       setActiveChatId(chatId);
       setGeminiAnalysis("");
       setGeminiModel("");
@@ -1261,6 +1338,63 @@ export const MunicipalityMapView = () => {
       setBatchError("");
       setChatMessages([]);
       setChatInput("");
+
+      if (mode === "sync") {
+        const assistantMessageId = `assistant-analysis-${now}`;
+        setChatMessages([
+          {
+            id: assistantMessageId,
+            role: "assistant",
+            content: "",
+            model: selectedGeminiModel,
+            created_at: now,
+          },
+        ]);
+
+        let streamedAnalysis = "";
+
+        await streamGeminiChat(
+          {
+            mode,
+            hash: lastImportedHash,
+            chatId,
+            csvText: selectedGeminiInputMode === "csv" ? analysisCsvText : undefined,
+            candidateNames: selectedAnalysisCandidates,
+            model: selectedGeminiModel,
+            customPrompt: customGeminiPrompt,
+            inputMode: selectedGeminiInputMode,
+            dossierText: selectedGeminiInputMode === "dossier" ? dossierPayload : undefined,
+          },
+          {
+            onChunk: (chunk) => {
+              streamedAnalysis += chunk;
+              setChatMessages((current) =>
+                current.map((item) =>
+                  item.id === assistantMessageId
+                    ? { ...item, content: streamedAnalysis }
+                    : item,
+                ),
+              );
+            },
+            onDone: (reply, model) => {
+              setChatMessages((current) =>
+                current.map((item) =>
+                  item.id === assistantMessageId
+                    ? { ...item, content: reply, model }
+                    : item,
+                ),
+              );
+            },
+          },
+        );
+
+        await refreshActiveChatFromDatabase(chatId, {
+          expectedMinimumMessages: 1,
+          retries: 4,
+        });
+        toast.success("Análise do Gemini gerada com sucesso.");
+        return;
+      }
 
       const result = await invokeGeminiAnalysis({
         mode,
@@ -1375,6 +1509,7 @@ export const MunicipalityMapView = () => {
 
   const handleSendChatMessage = async () => {
     const message = chatInput.trim();
+    const previousMessageCount = chatMessages.length;
 
     if (!lastImportedHash || !activeChatId || !geminiAnalysis) {
       toast.error("Gere uma análise antes de conversar com a IA.");
@@ -1441,10 +1576,20 @@ export const MunicipalityMapView = () => {
           },
         },
       );
-      await refreshActiveChatFromDatabase(activeChatId);
+      await refreshActiveChatFromDatabase(activeChatId, {
+        expectedMinimumMessages: previousMessageCount + 2,
+        retries: 4,
+      });
       toast.success("Mensagem enviada.");
     } catch (chatError) {
-      setChatMessages((current) => current.filter((item) => !String(item.id || "").startsWith("assistant-") && !String(item.id || "").startsWith("user-")));
+      try {
+        await refreshActiveChatFromDatabase(activeChatId, {
+          expectedMinimumMessages: previousMessageCount,
+          retries: 2,
+        });
+      } catch {
+        setChatMessages((current) => current.filter((item) => !String(item.id || "").startsWith("assistant-") && !String(item.id || "").startsWith("user-")));
+      }
       const messageText = chatError instanceof Error ? chatError.message : "Não foi possível continuar a conversa.";
       toast.error(messageText);
     } finally {
