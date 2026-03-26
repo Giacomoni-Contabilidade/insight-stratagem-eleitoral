@@ -101,16 +101,40 @@ export const DataSpreadsheet: React.FC = () => {
   const activeDataset = getActiveDataset();
   const candidacies = getFilteredCandidacies();
 
-  // State
-  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(new Set(DEFAULT_VISIBLE));
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
-  const [globalSearch, setGlobalSearch] = useState('');
+  // --- localStorage helpers ---
+  const LS_PREFIX = 'spreadsheet_';
+  const readLS = <T,>(key: string, fallback: T): T => {
+    try {
+      const raw = localStorage.getItem(LS_PREFIX + key);
+      if (raw === null) return fallback;
+      return JSON.parse(raw) as T;
+    } catch { return fallback; }
+  };
+  const writeLS = (key: string, value: unknown) => {
+    try { localStorage.setItem(LS_PREFIX + key, JSON.stringify(value)); } catch {}
+  };
+
+  // State (persisted)
+  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
+    () => new Set(readLS<string[]>('visibleColumns', [...DEFAULT_VISIBLE]))
+  );
+  const [sortColumn, setSortColumn] = useState<string | null>(() => readLS('sortColumn', null));
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(() => readLS('sortDirection', 'asc'));
+  const [columnFilters, setColumnFilters] = useState<Record<string, string>>(() => readLS('columnFilters', {}));
+  const [globalSearch, setGlobalSearch] = useState(() => readLS('globalSearch', ''));
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(50);
-  const [showFilters, setShowFilters] = useState(false);
+  const [pageSize, setPageSize] = useState(() => readLS('pageSize', 50));
+  const [showFilters, setShowFilters] = useState(() => readLS('showFilters', false));
   const [columnSearch, setColumnSearch] = useState('');
+
+  // Sync to localStorage on changes
+  React.useEffect(() => { writeLS('visibleColumns', [...visibleColumns]); }, [visibleColumns]);
+  React.useEffect(() => { writeLS('sortColumn', sortColumn); }, [sortColumn]);
+  React.useEffect(() => { writeLS('sortDirection', sortDirection); }, [sortDirection]);
+  React.useEffect(() => { writeLS('columnFilters', columnFilters); }, [columnFilters]);
+  React.useEffect(() => { writeLS('globalSearch', globalSearch); }, [globalSearch]);
+  React.useEffect(() => { writeLS('pageSize', pageSize); }, [pageSize]);
+  React.useEffect(() => { writeLS('showFilters', showFilters); }, [showFilters]);
 
   // Columns to display
   const displayColumns = useMemo(
